@@ -146,6 +146,18 @@
   force = true
 
 [[redirects]]
+  from = "/content-creation"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/content-creation/"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/contact-us-today"
   to = "/contact"
   status = 301

@@ -43,6 +43,26 @@ const nextConfig: NextConfig = {
         destination: "/services/seo",
         permanent: true,
       },
+      {
+        source: "/web-analytics-reporting",
+        destination: "/services/software",
+        permanent: true,
+      },
+      {
+        source: "/web-analytics-reporting/",
+        destination: "/services/software",
+        permanent: true,
+      },
+      {
+        source: "/content-creation",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/content-creation/",
+        destination: "/",
+        permanent: true,
+      },
     ];
   },
   async headers() {
