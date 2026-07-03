@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { legacyRedirects } from "./src/lib/legacy-redirects";
 
 const nextConfig: NextConfig = {
   compress: true,
@@ -22,48 +23,7 @@ const nextConfig: NextConfig = {
     unoptimized: process.env.NODE_ENV === 'development',
   },
   async redirects() {
-    return [
-      {
-        source: "/shore-partnership",
-        destination: "/shore-capital-partnership",
-        permanent: true,
-      },
-      {
-        source: "/shore-partnership/",
-        destination: "/shore-capital-partnership",
-        permanent: true,
-      },
-      {
-        source: "/seo",
-        destination: "/services/seo",
-        permanent: true,
-      },
-      {
-        source: "/seo/",
-        destination: "/services/seo",
-        permanent: true,
-      },
-      {
-        source: "/web-analytics-reporting",
-        destination: "/services/software",
-        permanent: true,
-      },
-      {
-        source: "/web-analytics-reporting/",
-        destination: "/services/software",
-        permanent: true,
-      },
-      {
-        source: "/content-creation",
-        destination: "/",
-        permanent: true,
-      },
-      {
-        source: "/content-creation/",
-        destination: "/",
-        permanent: true,
-      },
-    ];
+    return legacyRedirects;
   },
   async headers() {
     if (process.env.NODE_ENV === 'development') {
