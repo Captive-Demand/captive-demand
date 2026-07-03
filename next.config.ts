@@ -33,6 +33,16 @@ const nextConfig: NextConfig = {
         destination: "/shore-capital-partnership",
         permanent: true,
       },
+      {
+        source: "/seo",
+        destination: "/services/seo",
+        permanent: true,
+      },
+      {
+        source: "/seo/",
+        destination: "/services/seo",
+        permanent: true,
+      },
     ];
   },
   async headers() {

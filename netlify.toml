@@ -110,6 +110,18 @@
   force = true
 
 [[redirects]]
+  from = "/seo"
+  to = "/services/seo"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/seo/"
+  to = "/services/seo"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/marketing-automation"
   to = "/services/automation"
   status = 301

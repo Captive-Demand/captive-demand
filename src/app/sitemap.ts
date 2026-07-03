@@ -17,8 +17,6 @@ const staticRoutes = [
   "/services/software",
   "/services/seo",
   "/services/automation",
-  "/privacy",
-  "/terms",
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
