@@ -10,6 +10,62 @@ import { useGsapScrollTrigger } from '@/hooks/useGsapScrollTrigger';
 
 import { CTAButton } from '@/components/ui/CTAButton';
 
+function BitmapIcon({ grid, color = '#ff5501', className }: { grid: number[][]; color?: string; className?: string }) {
+  const rows = grid.length;
+  const cols = grid[0]?.length ?? 0;
+  return (
+    <svg
+      viewBox={`0 0 ${cols} ${rows}`}
+      className={`shrink-0 ${className ?? 'size-6 md:size-8 lg:size-9'}`}
+      style={{ imageRendering: 'pixelated' }}
+      aria-hidden
+    >
+      {grid.map((row, y) =>
+        row.map((cell, x) =>
+          cell ? <rect key={`${y}-${x}`} x={x} y={y} width={1} height={1} fill={color} fillOpacity={0.85} /> : null,
+        ),
+      )}
+    </svg>
+  );
+}
+
+/** Rasterized from Lucide TrendingUp at 12×12 */
+const ICON_TRENDING_UP = [
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+  [0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1],
+  [0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1],
+  [0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
+  [0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0],
+  [1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+];
+
+/** Rasterized from Lucide ArrowUp at 12×12 */
+const ICON_ARROW_UP = [
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0],
+  [0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0],
+  [0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+];
+
+const STAT_ICON_GRIDS = {
+  'trending-up': ICON_TRENDING_UP,
+  'arrow-up': ICON_ARROW_UP,
+} as const;
+
 // Helper Shapes
 const DecorativeShapeWithLine = ({ shapeColor = "#e5e5e5", lineColor = "#e5e5e5" }: { shapeColor?: string; lineColor?: string }) => (
   <div className="flex items-end w-full">
@@ -33,7 +89,8 @@ type CaseStudy = {
   clientLogo?: string;
   year: string;
   headline: string;
-  stats: Stat[];
+  stat: Stat;
+  statIcon: keyof typeof STAT_ICON_GRIDS;
   image: string;
   slug?: string;
   href?: string;
@@ -123,21 +180,23 @@ const CaseStudyCard = ({ study, index }: { study: CaseStudy; index: number }) =>
               <DecorativeShapeWithLine shapeColor="#d5d5d5" lineColor="#d5d5d5" />
             </div>
 
-            <div className="grid grid-cols-3 gap-4 md:gap-8">
-              {study.stats.map((stat, statIndex) => (
-                <div key={statIndex} className="flex flex-col">
-                  <span
-                    className="text-2xl md:text-3xl lg:text-4xl text-[#1a1512] mb-2"
-                    style={{ fontFamily: 'Nohemi, sans-serif', fontWeight: 300 }}
-                  >
-                    {stat.value}
-                    {stat.suffix && <span className="text-lg md:text-xl">{stat.suffix}</span>}
-                  </span>
-                  <span className="font-mono text-[10px] md:text-xs text-[#1a1512]/50 uppercase tracking-wider leading-tight">
-                    {stat.label}
-                  </span>
-                </div>
-              ))}
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-3 md:gap-4">
+                <BitmapIcon
+                  grid={STAT_ICON_GRIDS[study.statIcon]}
+                  className="size-6 md:size-7 lg:size-8"
+                />
+                <span
+                  className="text-2xl md:text-3xl lg:text-4xl text-[#1a1512] leading-none"
+                  style={{ fontFamily: 'Nohemi, sans-serif', fontWeight: 300 }}
+                >
+                  {study.stat.value}
+                  {study.stat.suffix && <span className="text-lg md:text-xl">{study.stat.suffix}</span>}
+                </span>
+              </div>
+              <span className="font-mono text-[10px] md:text-xs text-[#1a1512]/50 uppercase tracking-wider leading-tight">
+                {study.stat.label}
+              </span>
             </div>
           </div>
         </div>
@@ -216,11 +275,8 @@ const caseStudies: CaseStudy[] = [
     year: "2026",
     service: "Email & lifecycle automation",
     headline: "We scaled all 11 brands without making them look the same.",
-    stats: [
-      { value: "47,151", label: "TOTAL OPENS GENERATED" },
-      { value: "4,269", label: "TOTAL CLICKS GENERATED" },
-      { value: "141", label: "CORE CAMPAIGNS SHIPPED" },
-    ],
+    stat: { value: "47,151", label: "TOTAL OPENS GENERATED" },
+    statIcon: "trending-up",
     image: "/bcrn.png",
     href: "/shore-capital-partnership#case-studies",
   },
@@ -231,11 +287,8 @@ const caseStudies: CaseStudy[] = [
     year: "2026",
     service: "Website design & development",
     headline: "A full rebuild, shipped before most agencies scope it.",
-    stats: [
-      { value: "1,822", label: "MONTHLY SESSIONS" },
-      { value: "+248%", label: "USER GROWTH" },
-      { value: "3,462", label: "PAGE VIEWS" },
-    ],
+    stat: { value: "+248%", label: "USER GROWTH" },
+    statIcon: "arrow-up",
     image: "/agentiscasestudy.png",
     href: "/shore-capital-partnership#case-studies",
   },
