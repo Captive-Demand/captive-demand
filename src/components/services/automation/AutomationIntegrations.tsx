@@ -4,15 +4,19 @@ import React, { useRef, useLayoutEffect } from 'react';
 import Image from 'next/image';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useReducedMotion } from 'framer-motion';
 import { NoiseOverlay } from '@/components/ui/NoiseOverlay';
 import { AccentBr } from '@/components/ui/accent-br';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const SCROLL_DURATION = 45;
-const CARD_SIZE = 100;
 const CARD_GAP = 14;
-const getRowContentWidth = (itemCount: number) => itemCount * CARD_SIZE + (itemCount - 1) * CARD_GAP;
+
+export type IntegrationRowItem = { name?: string; logo?: string; isBrandHub?: boolean };
+
+const getRowContentWidth = (itemCount: number, cardSize: number) =>
+    itemCount * cardSize + (itemCount - 1) * CARD_GAP;
 
 const row1 = [
     { name: 'Zendesk', logo: '/integrations/zendesk.png' },
@@ -46,13 +50,23 @@ const row3 = [
     { name: 'Google Analytics', logo: '/integrations/Googleanalytics.png' },
 ];
 
-function IntegrationCard({ name, logo, offset = false }: { name: string; logo: string; offset?: boolean }) {
+function IntegrationCard({
+    name,
+    logo,
+    offset = false,
+    size = 100,
+}: {
+    name: string;
+    logo: string;
+    offset?: boolean;
+    size?: number;
+}) {
     return (
         <div
             className="integration-card flex-shrink-0 flex items-center justify-center rounded-[12px] bg-white"
             style={{
-                width: CARD_SIZE,
-                height: CARD_SIZE,
+                width: size,
+                height: size,
                 border: '1px dashed rgba(0,0,0,0.12)',
                 boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
                 transform: offset ? 'translateY(7px)' : 'translateY(0)',
@@ -82,13 +96,13 @@ function IntegrationCard({ name, logo, offset = false }: { name: string; logo: s
     );
 }
 
-function BrandHubCard() {
+function BrandHubCard({ size = 100 }: { size?: number }) {
     return (
         <div
             className="integration-card flex-shrink-0 flex items-center justify-center rounded-[12px] bg-white"
             style={{
-                width: CARD_SIZE,
-                height: CARD_SIZE,
+                width: size,
+                height: size,
                 border: '1px dashed rgba(232,72,12,0.25)',
                 boxShadow: '0 1px 4px rgba(0,0,0,0.05), 0 0 12px rgba(232,72,12,0.04)',
             }}
@@ -104,22 +118,25 @@ function RowContent({
     items,
     rowIndex,
     copyIndex,
+    cardSize,
 }: {
-    items: Array<{ name?: string; logo?: string; isBrandHub?: boolean }>;
+    items: IntegrationRowItem[];
     rowIndex: number;
     copyIndex: number;
+    cardSize: number;
 }) {
     return (
         <>
             {items.map((item, i) => {
                 if (item.isBrandHub) {
-                    return <BrandHubCard key={`${rowIndex}-${copyIndex}-${i}`} />;
+                    return <BrandHubCard key={`${rowIndex}-${copyIndex}-${i}`} size={cardSize} />;
                 }
                 return (
                     <IntegrationCard
                         key={`${rowIndex}-${copyIndex}-${i}`}
                         name={item.name!}
                         logo={item.logo!}
+                        size={cardSize}
                     />
                 );
             })}
@@ -131,28 +148,32 @@ function MarqueeGridRow({
     items,
     direction,
     rowIndex,
+    cardSize,
+    animate,
 }: {
-    items: Array<{ name?: string; logo?: string; isBrandHub?: boolean }>;
+    items: IntegrationRowItem[];
     direction: 'left' | 'right';
     rowIndex: number;
+    cardSize: number;
+    animate: boolean;
 }) {
     const trackRef = useRef<HTMLDivElement>(null);
 
     useLayoutEffect(() => {
         const el = trackRef.current;
-        if (!el) return;
+        if (!el || !animate) return;
 
-        const contentWidth = getRowContentWidth(items.length);
+        const contentWidth = getRowContentWidth(items.length, cardSize);
         const xTo = direction === 'right' ? -contentWidth : contentWidth;
 
         const tl = gsap.timeline({ repeat: -1 });
         tl.to(el, { x: xTo, duration: SCROLL_DURATION, ease: 'none' });
-        tl.set(el, { x: 0 }); // Instant reset — invisible because next copy is identical
+        tl.set(el, { x: 0 });
 
         return () => {
             tl.kill();
         };
-    }, [direction, items.length]);
+    }, [animate, cardSize, direction, items.length]);
 
     const rowClasses = [
         'flex items-start justify-center gap-[14px] shrink-0',
@@ -168,33 +189,67 @@ function MarqueeGridRow({
         <div className="overflow-hidden w-full">
             <div ref={trackRef} className={`flex ${rowClasses}`}>
                 {Array.from({ length: NUM_COPIES }, (_, i) => (
-                    <RowContent key={i} items={items} rowIndex={rowIndex} copyIndex={i} />
+                    <RowContent key={i} items={items} rowIndex={rowIndex} copyIndex={i} cardSize={cardSize} />
                 ))}
             </div>
         </div>
     );
 }
 
-export function IntegrationsLogoMarquee({ footnote }: { footnote: string }) {
+export function IntegrationsLogoMarquee({
+  footnote,
+  variant = 'full',
+  rows,
+}: {
+  footnote?: string;
+  variant?: 'full' | 'column';
+  rows?: [IntegrationRowItem[], IntegrationRowItem[], IntegrationRowItem[]];
+}) {
+  const reduceMotion = useReducedMotion();
+  const cardSize = variant === 'column' ? 80 : 100;
+  const displayRows = rows ?? [row1, row2, row3];
+  const mask =
+    variant === 'column'
+      ? 'linear-gradient(to right, transparent 0%, black 40px, black calc(100% - 40px), transparent 100%)'
+      : 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.4) 120px, black 280px, black calc(100% - 280px), rgba(0,0,0,0.4) calc(100% - 120px), transparent 100%)';
+
   return (
     <>
       <div className="relative flex flex-col items-center overflow-hidden pb-5 pt-5">
         <div
           className="flex w-full flex-col items-center gap-[14px]"
           style={{
-            maskImage:
-              'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.4) 120px, black 280px, black calc(100% - 280px), rgba(0,0,0,0.4) calc(100% - 120px), transparent 100%)',
-            WebkitMaskImage:
-              'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.4) 120px, black 280px, black calc(100% - 280px), rgba(0,0,0,0.4) calc(100% - 120px), transparent 100%)',
+            maskImage: mask,
+            WebkitMaskImage: mask,
           }}
         >
-          <MarqueeGridRow items={row1} direction="right" rowIndex={0} />
-          <MarqueeGridRow items={row2} direction="left" rowIndex={1} />
-          <MarqueeGridRow items={row3} direction="right" rowIndex={2} />
+          <MarqueeGridRow
+            items={displayRows[0]}
+            direction="right"
+            rowIndex={0}
+            cardSize={cardSize}
+            animate={!reduceMotion}
+          />
+          <MarqueeGridRow
+            items={displayRows[1]}
+            direction="left"
+            rowIndex={1}
+            cardSize={cardSize}
+            animate={!reduceMotion}
+          />
+          <MarqueeGridRow
+            items={displayRows[2]}
+            direction="right"
+            rowIndex={2}
+            cardSize={cardSize}
+            animate={!reduceMotion}
+          />
         </div>
       </div>
 
-      <p className="mt-10 text-center font-mono text-sm text-[#1a1512]/40">{footnote}</p>
+      {footnote ? (
+        <p className="mt-6 text-center font-mono text-sm text-[#1a1512]/40 md:mt-10">{footnote}</p>
+      ) : null}
     </>
   );
 }
@@ -268,7 +323,7 @@ export function AutomationIntegrations() {
         <section ref={sectionRef} className="w-full bg-[#FAFAFA] py-20 md:py-32 overflow-hidden relative">
             <NoiseOverlay />
 
-            <div className="relative z-10 max-w-7xl mx-auto px-4">
+            <div className="relative z-10 mx-auto max-w-7xl px-4">
                 <div className="text-center mb-12 md:mb-16">
                     <span
                         ref={labelRef}

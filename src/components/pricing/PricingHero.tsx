@@ -49,13 +49,14 @@ const fadeUp = {
     },
 };
 
-export type PricingService = 'website' | 'seo' | 'software' | 'email' | 'automation';
+export type PricingService = 'website' | 'seo' | 'software' | 'email' | 'advertising' | 'automation';
 
 export const SERVICE_TABS: { id: PricingService; label: string }[] = [
     { id: 'website', label: 'Website' },
     { id: 'seo', label: 'SEO' },
-    { id: 'software', label: 'Software' },
     { id: 'email', label: 'Email' },
+    { id: 'advertising', label: 'Advertising' },
+    { id: 'software', label: 'Software' },
     { id: 'automation', label: 'Automation' },
 ];
 

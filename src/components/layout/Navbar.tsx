@@ -14,6 +14,7 @@ const serviceSubMenu = [
   { text: 'Website', href: '/services/website' },
   { text: 'SEO', href: '/services/seo' },
   { text: 'Email', href: '/services/email-marketing' },
+  { text: 'Advertising', href: '/services/advertising' },
   { text: 'Software', href: '/services/software' },
   { text: 'Automation', href: '/services/automation' },
 ];

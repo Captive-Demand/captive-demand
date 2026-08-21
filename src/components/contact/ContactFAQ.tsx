@@ -32,12 +32,12 @@ export function ContactFAQ() {
 
   return (
     <section className="w-full bg-white py-20 md:py-32 px-4 overflow-hidden">
-      <div className="max-w-3xl mx-auto">
+      <div className="mx-auto max-w-3xl">
         <span className="font-mono text-sm tracking-wider text-[#1a1512]/70 uppercase block mb-4">
           / COMMON QUESTIONS
         </span>
         <h2
-          className="text-[32px] font-sans font-bold text-[#111] mb-12"
+          className="mb-12 text-[32px] font-sans font-bold text-[#111]"
           style={{ fontFamily: 'Nohemi, sans-serif' }}
         >
           Answers before you ask.

@@ -9,6 +9,7 @@ import { VcGrowthTrajectoryIllustration } from '@/components/illustrations/VcGro
 import { StudiosCodeToComponentsIllustration } from '@/components/illustrations/StudiosCodeToComponentsIllustration';
 import gsap from 'gsap';
 import { cn } from '@/lib/utils';
+import { DecorativeShapeWithLine } from '@/components/ui/DecorativeShapeWithLine';
 
 const cardShadow =
   '0 1px 2px rgba(0,0,0,0.07), 0 4px 12px rgba(0,0,0,0.05), 0 20px 48px rgba(0,0,0,0.06), inset 0 1px 0 0 rgba(255,255,255,0.5)';
@@ -97,14 +98,14 @@ export function IndustriesFolderSection() {
 
     const playScramble = () => {
       if (prefersReducedMotion) {
-        element.textContent = SECTORS_SCRAMBLE_TEXT;
+        element.textContent = `/ ${SECTORS_SCRAMBLE_TEXT}`;
         return;
       }
 
       scrambleTweenRef.current?.kill();
       scrambleTweenRef.current = null;
 
-      const originalText = SECTORS_SCRAMBLE_TEXT;
+      const originalText = `/ ${SECTORS_SCRAMBLE_TEXT}`;
       element.textContent = originalText;
 
       const wrappedText = originalText
@@ -175,50 +176,15 @@ export function IndustriesFolderSection() {
       observer.disconnect();
       scrambleTweenRef.current?.kill();
       scrambleTweenRef.current = null;
-      element.textContent = SECTORS_SCRAMBLE_TEXT;
+      element.textContent = `/ ${SECTORS_SCRAMBLE_TEXT}`;
     };
   }, []);
 
   return (
     <section className="relative w-full min-h-0 bg-[#FAFAFA] text-[#1a1512] py-20 md:py-32 font-sans">
       <div className="container mx-auto max-w-7xl px-4 md:px-8">
-        {/* Header — matches BentoGridSection */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6 }}
-          className="relative mb-8 h-px w-full"
-        >
-          <div className="relative h-px w-full overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: '100%' }}
-              transition={{ duration: 1, ease: [0.4, 0, 0.2, 1] as [number, number, number, number], delay: 0.2 }}
-              className="absolute left-0 h-px bg-[#e5e5e5]"
-            />
-          </div>
-          <svg
-            className="absolute bottom-0 left-0 flex-shrink-0"
-            width="80"
-            height="8"
-            viewBox="0 0 80 8"
-            fill="none"
-            preserveAspectRatio="none"
-            aria-hidden
-          >
-            <path d="M0 7 L0 0 L68 0 L80 7 L80 8 L0 8 Z" fill="#e5e5e5" />
-          </svg>
-        </motion.div>
-
-        <div className="flex flex-wrap items-center gap-x-1 gap-y-1 mb-6 w-full min-w-0">
-          <span className="text-sm font-normal text-[#1a1512] shrink-0">/</span>
-          <span
-            ref={industriesLabelRef}
-            className="text-sm font-normal tracking-[0.02em] text-[#1a1512] uppercase min-w-0"
-            style={{ fontFamily: '"Roboto Mono", monospace' }}
-          >
-            {SECTORS_SCRAMBLE_TEXT}
-          </span>
+        <div className="mb-6 w-full">
+          <DecorativeShapeWithLine label="OUR SECTORS" labelRef={industriesLabelRef} />
         </div>
 
         <div className="relative flex flex-col md:flex-row md:items-end md:justify-between gap-8 md:gap-12 mb-16 w-full">

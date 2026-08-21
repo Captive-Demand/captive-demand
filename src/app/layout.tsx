@@ -7,6 +7,7 @@ import { DeferredFooter } from "@/components/layout/DeferredFooter";
 import { SiteReCaptchaProvider } from "@/components/providers/SiteReCaptchaProvider";
 import { SiteGoogleAnalytics } from "@/components/analytics/SiteGoogleAnalytics";
 import { OrganizationSchema } from "@/components/schema/OrganizationSchema";
+import { AuditRequestModalProvider } from "@/components/shore-partnership/AuditRequestModalProvider";
 import { siteConfig } from "@/lib/site";
 
 const crawlableSiteLinks = [
@@ -20,8 +21,12 @@ const crawlableSiteLinks = [
     { href: "/services/website", label: "Website design services" },
     { href: "/services/seo", label: "SEO and AEO services" },
     { href: "/services/email-marketing", label: "Email marketing services" },
+    { href: "/services/advertising", label: "PPC and paid advertising" },
     { href: "/services/software", label: "Custom software services" },
     { href: "/services/automation", label: "Workflow automation services" },
+    { href: "/nashville-email-marketing-agency", label: "Nashville email marketing agency" },
+    { href: "/nashville-seo-agency", label: "Nashville SEO agency" },
+    { href: "/nashville-advertising-agency", label: "Nashville advertising agency" },
     { href: "/privacy", label: "Privacy policy" },
     { href: "/terms", label: "Terms of service" },
 ];
@@ -127,9 +132,11 @@ export default function RootLayout({
                 <SiteGoogleAnalytics />
                 <OrganizationSchema />
                 <Navbar />
+                <AuditRequestModalProvider>
                 <main className="relative z-10 bg-[#fafafa] w-full overflow-x-hidden">
                     {children}
                 </main>
+                </AuditRequestModalProvider>
                 <nav
                     aria-label="Site links"
                     className="sr-only focus-within:not-sr-only focus-within:fixed focus-within:bottom-4 focus-within:left-4 focus-within:z-[60] focus-within:max-w-sm focus-within:rounded-xl focus-within:border focus-within:border-brand-dark/10 focus-within:bg-[#fafafa] focus-within:p-4 focus-within:shadow-lg"

@@ -142,7 +142,7 @@ export function ValuesAccordion() {
             <div className="mx-auto max-w-5xl">
 
                 {/* Header */}
-                <div className="values-header mb-12 md:mb-16 pl-4 md:pl-8">
+                <div className="values-header mb-12 md:mb-16">
                     <EyebrowHeading category="Philosophy" label="Our Values" />
                     <h2
                         className="text-[clamp(2rem,4vw+0.5rem,3.5rem)] leading-[1.1] tracking-tighter mt-6"

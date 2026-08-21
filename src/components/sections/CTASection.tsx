@@ -68,7 +68,13 @@ const TestimonialCard = () => (
 );
 
 // Main CTA Section
-export function CTASection() {
+export function CTASection({
+  dek,
+  nextStep,
+}: {
+  dek?: React.ReactNode;
+  nextStep?: string;
+} = {}) {
   return (
     <section className="relative z-10 w-full overflow-x-hidden bg-[#FAFAFA] px-4 py-20 md:py-32">
       <div className="mx-auto max-w-7xl">
@@ -100,15 +106,21 @@ export function CTASection() {
               viewport={{ once: true }}
               className="mb-8"
             >
-              <p
-                className="text-2xl md:text-3xl leading-snug"
-                style={{ fontFamily: 'Nohemi, sans-serif', fontWeight: 400 }}
-              >
-                <span className="text-[#d5d5d5]">Time to </span>
-                <span className="text-[#ff5501]">Captivate</span>
-                <AccentBr />
-                <span className="text-[#d5d5d5]">the market.</span>
-              </p>
+              {dek ? (
+                <p className="max-w-xl text-pretty text-base leading-relaxed text-[#1a1512]/75 md:text-lg">
+                  {dek}
+                </p>
+              ) : (
+                <p
+                  className="text-2xl md:text-3xl leading-snug"
+                  style={{ fontFamily: 'Nohemi, sans-serif', fontWeight: 400 }}
+                >
+                  <span className="text-[#d5d5d5]">Time to </span>
+                  <span className="text-[#ff5501]">Captivate</span>
+                  <AccentBr />
+                  <span className="text-[#d5d5d5]">the market.</span>
+                </p>
+              )}
             </motion.div>
 
             <motion.div
@@ -128,7 +140,8 @@ export function CTASection() {
                 / What happens next
               </span>
               <p className="font-mono text-sm leading-relaxed text-[#1a1512]/70">
-                After you book, a senior operator confirms scope and timeline. We map the work across your portfolio or company. You receive a concise note with next steps.
+                {nextStep ??
+                  'After you book, a senior operator confirms scope and timeline. We map the work across your portfolio or company. You receive a concise note with next steps.'}
               </p>
             </motion.div>
 

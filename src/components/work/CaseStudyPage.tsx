@@ -10,24 +10,16 @@ import { ArrowLeft, ArrowRight, ExternalLink } from 'lucide-react';
 import { NoiseOverlay } from '@/components/ui/NoiseOverlay';
 import { Rivet } from '@/components/ui/Rivet';
 import { AccentBr } from '@/components/ui/accent-br';
-import { EyebrowHeading } from '@/components/ui/eyebrow-heading';
 import { CaseStudyCard } from '@/components/work/CaseStudyCard';
 import { caseStudies } from '@/data/case-studies';
 import type { CaseStudy } from '@/data/case-studies';
 import { CTASection } from '@/components/sections/CTASection';
+import { DecorativeShapeWithLine } from '@/components/ui/DecorativeShapeWithLine';
 
 gsap.registerPlugin(ScrollTrigger);
 
 /* ─── Shared Helpers ─── */
 
-const DecorativeShapeWithLine = ({ shapeColor = "#d5d5d5", lineColor = "#e5e5e5" }: { shapeColor?: string; lineColor?: string }) => (
-  <div className="flex items-end w-full">
-    <svg viewBox="0 0 80 8" className="w-20 h-2 flex-shrink-0" preserveAspectRatio="none">
-      <path d="M0 8 L0 0 L68 0 L80 8 Z" fill={shapeColor} />
-    </svg>
-    <div className="flex-1 h-[1px] self-end" style={{ backgroundColor: lineColor }} />
-  </div>
-);
 
 /* ─── Wireframe Grid ─── */
 
@@ -245,10 +237,9 @@ function OverviewSection({ study }: { study: CaseStudy }) {
   return (
     <section className="w-full bg-[#FAFAFA] py-16 md:py-24 px-4 overflow-hidden">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8 w-full"><DecorativeShapeWithLine /></div>
+        <div className="mb-8 w-full"><DecorativeShapeWithLine label="Overview" /></div>
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-12 lg:gap-20">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} viewport={{ once: true }}>
-            <span className="font-mono text-sm tracking-wider text-[#1a1512]/70 uppercase block mb-4">/ Overview</span>
             <p className="text-base md:text-lg text-[#1a1512]/70 leading-relaxed">{study.overview}</p>
           </motion.div>
 
@@ -379,8 +370,8 @@ function ChallengeSolutionSection({ study }: { study: CaseStudy }) {
         {/* Challenge — text left, image right */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} viewport={{ once: true }}>
-            <div className="mb-6 w-full"><DecorativeShapeWithLine /></div>
-            <span className="font-mono text-sm tracking-wider text-[#1a1512]/70 uppercase block mb-4">/ The Challenge</span>
+            <div className="mb-6 w-full"><DecorativeShapeWithLine label="The Challenge" /></div>
+            
             <p className="text-base md:text-lg text-[#1a1512]/70 leading-relaxed">{study.challenge}</p>
           </motion.div>
           <motion.div
@@ -420,8 +411,8 @@ function ChallengeSolutionSection({ study }: { study: CaseStudy }) {
             />
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }} viewport={{ once: true }} className="order-1 lg:order-2">
-            <div className="mb-6 w-full"><DecorativeShapeWithLine /></div>
-            <span className="font-mono text-sm tracking-wider text-[#1a1512]/70 uppercase block mb-4">/ The Solution</span>
+            <div className="mb-6 w-full"><DecorativeShapeWithLine label="The Solution" /></div>
+            
             <p className="text-base md:text-lg text-[#1a1512]/70 leading-relaxed">{study.solution}</p>
           </motion.div>
         </div>
@@ -546,8 +537,8 @@ function GallerySection({ images, clientName }: { images: string[]; clientName: 
   return (
     <section className="w-full bg-[#FAFAFA] py-16 md:py-24 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 mb-8">
-        <div className="mb-6 w-full"><DecorativeShapeWithLine /></div>
-        <span className="font-mono text-sm tracking-wider text-[#1a1512]/70 uppercase block">/ Gallery</span>
+        <div className="mb-6 w-full"><DecorativeShapeWithLine label="Gallery" /></div>
+        
       </div>
       <div className="flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory px-[15px] sm:px-container-px pb-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {extraImages.map((img, i) => (
@@ -581,8 +572,8 @@ function NextCaseStudy({ currentSlug }: { currentSlug: string }) {
   return (
     <section className="w-full bg-[#FAFAFA] py-16 md:py-24 px-4 overflow-hidden">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8 w-full"><DecorativeShapeWithLine /></div>
-        <span className="font-mono text-sm tracking-wider text-[#1a1512]/70 uppercase block mb-4">/ Up Next</span>
+        <div className="mb-8 w-full"><DecorativeShapeWithLine label="Up Next" /></div>
+        
         <h2 className="text-3xl md:text-4xl text-[#1a1512] tracking-tighter mb-10" style={{ fontFamily: 'Nohemi, sans-serif', fontWeight: 300 }}>More case studies</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {nextStudies.map((study, i) => (

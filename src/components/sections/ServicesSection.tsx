@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 import Image from 'next/image';
+import { DecorativeShapeWithLine } from '@/components/ui/DecorativeShapeWithLine';
 
 type Service = {
   id: string;
@@ -52,51 +53,9 @@ export function ServicesSection() {
     <section className="w-full min-h-screen bg-[#FAFAFA] text-[#1a1512] py-20 md:py-32 font-sans overflow-hidden">
       {/* Header Section - Centered with max-width */}
       <div className="container mx-auto max-w-7xl px-4 md:px-8 mb-16 md:mb-24">
-        {/* Border with Decorative Shape */}
-        <motion.div 
-          initial={{ opacity: 0 }} 
-          animate={{ opacity: 1 }} 
-          transition={{ duration: 0.6 }}
-          className="relative mb-8 h-px"
-        >
-          {/* Horizontal Line */}
-          <div className="relative h-px w-full overflow-hidden">
-            <motion.div 
-              initial={{ width: 0 }}
-              animate={{ width: '100%' }}
-              transition={{ duration: 1, ease: [0.4, 0, 0.2, 1], delay: 0.2 }}
-              className="absolute left-0 h-px bg-[#e5e5e5]"
-            />
-          </div>
-          
-          {/* SVG Decorative Shape - Angled Rectangle integrated with line */}
-          <svg 
-            className="absolute bottom-0 left-0 flex-shrink-0" 
-            width="80" 
-            height="8" 
-            viewBox="0 0 80 8" 
-            fill="none"
-            preserveAspectRatio="none"
-          >
-            <path 
-              d="M0 7 L0 0 L68 0 L80 7 L80 8 L0 8 Z" 
-              fill="#e5e5e5"
-            />
-          </svg>
-        </motion.div>
-
-        {/* Breadcrumb */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }} 
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="flex items-center gap-1 mb-6"
-        >
-          <span className="text-sm font-normal text-[#1a1512]">/</span>
-          <span className="text-sm font-normal tracking-[0.02em] text-[#1a1512] uppercase" style={{ fontFamily: '"Roboto Mono", monospace' }}>
-            OUR SERVICES
-          </span>
-        </motion.div>
+        <div className="mb-6 w-full">
+          <DecorativeShapeWithLine label="OUR SERVICES" />
+        </div>
 
         <div className="relative flex flex-col md:flex-row md:items-end md:justify-between gap-8 md:gap-12">
           {/* Left Side - Heading */}

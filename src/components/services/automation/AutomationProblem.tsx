@@ -7,6 +7,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { NoiseOverlay } from '@/components/ui/NoiseOverlay';
 import { AccentBr } from '@/components/ui/accent-br';
+import { DecorativeShapeWithLine } from '@/components/ui/DecorativeShapeWithLine';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -28,14 +29,6 @@ const comparisonData = [
     },
 ];
 
-const DecorativeShapeWithLine = ({ shapeColor = "#d5d5d5", lineColor = "#e5e5e5" }: { shapeColor?: string; lineColor?: string }) => (
-    <div className="flex items-end w-full">
-        <svg viewBox="0 0 80 8" className="w-20 h-2 flex-shrink-0" preserveAspectRatio="none">
-            <path d="M0 8 L0 0 L68 0 L80 8 Z" fill={shapeColor} />
-        </svg>
-        <div className="flex-1 h-[1px] self-end" style={{ backgroundColor: lineColor }} />
-    </div>
-);
 
 export function AutomationProblem() {
     const sectionRef = useRef<HTMLDivElement>(null);
@@ -88,21 +81,14 @@ export function AutomationProblem() {
             <NoiseOverlay />
 
             <div className="max-w-7xl mx-auto relative z-10">
-                <div className="mb-6 w-full">
-                    <DecorativeShapeWithLine />
+                <div className="mb-12 w-full">
+                    <DecorativeShapeWithLine label="THE PROBLEM" labelRef={labelRef} />
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-center">
 
                     {/* LEFT: Typography & Pain Points */}
                     <div>
-                        <span
-                            ref={labelRef}
-                            className="font-mono text-[11px] tracking-[0.25em] text-[#1a1512]/40 uppercase block mb-6"
-                        >
-                            / THE PROBLEM
-                        </span>
-
                         <h2
                             className="text-3xl md:text-4xl lg:text-[2.75rem] text-[#1a1512] leading-[1.15] mb-10 tracking-tighter"
                             style={{ fontFamily: 'Nohemi, sans-serif', fontWeight: 300 }}

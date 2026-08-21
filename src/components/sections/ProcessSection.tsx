@@ -9,17 +9,10 @@ import gsap from 'gsap';
 import { useGsapScrollTrigger } from '@/hooks/useGsapScrollTrigger';
 
 // Helper Shapes
-const DecorativeShapeWithLine = ({ shapeColor = "#e5e5e5", lineColor = "#e5e5e5" }: { shapeColor?: string; lineColor?: string }) => (
-  <div className="flex items-end w-full">
-    <svg viewBox="0 0 80 8" className="w-20 h-2 flex-shrink-0" preserveAspectRatio="none">
-      <path d="M0 8 L0 0 L68 0 L80 8 Z" fill={shapeColor} />
-    </svg>
-    <div className="flex-1 h-[1px] self-end" style={{ backgroundColor: lineColor }} />
-  </div>
-);
 
 import Link from 'next/link';
 import { CTAButton } from '@/components/ui/CTAButton';
+import { DecorativeShapeWithLine } from '@/components/ui/DecorativeShapeWithLine';
 
 // Website Wireframe UI
 const WebsiteWireframe = () => (
@@ -271,17 +264,17 @@ export function ProcessSection() {
         {/* Header */}
         <div className="mb-16 md:mb-24">
           <div className="mb-6 w-full">
-            <DecorativeShapeWithLine shapeColor="#d5d5d5" lineColor="#e5e5e5" />
+            <DecorativeShapeWithLine
+              shapeColor="#d5d5d5"
+              lineColor="#e5e5e5"
+              label="OUR PROCESS"
+              labelRef={labelRef}
+            />
           </div>
 
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-8">
             <div>
-              <span
-                ref={labelRef}
-                className="font-mono text-sm tracking-wider text-[#1a1512]/70 uppercase block mb-4"
-              >
-                / OUR PROCESS
-              </span>
+              
               <h2
                 className="text-4xl md:text-5xl lg:text-6xl"
                 style={{ fontFamily: 'Nohemi, sans-serif', fontWeight: 300 }}

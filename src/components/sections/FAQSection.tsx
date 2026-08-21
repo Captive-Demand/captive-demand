@@ -8,25 +8,14 @@ import Image from 'next/image';
 import { AccentBr } from '@/components/ui/accent-br';
 import { homeFaqs } from '@/lib/home-faqs';
 import { useGsapScrollTrigger } from '@/hooks/useGsapScrollTrigger';
+import type { ServiceFaqItem } from '@/types/service-faq';
+import { DecorativeShapeWithLine } from '@/components/ui/DecorativeShapeWithLine';
 
-// Data
 interface FAQItem {
   question: string;
-  answer: string;
+  answer: React.ReactNode;
   tags: string[];
 }
-
-const faqData: FAQItem[] = homeFaqs;
-
-// Helper: Decorative Line
-const DecorativeShapeWithLine = ({ shapeColor = "#e5e5e5", lineColor = "#e5e5e5" }: { shapeColor?: string; lineColor?: string }) => (
-  <div className="flex items-end w-full">
-    <svg viewBox="0 0 80 8" className="w-20 h-2 flex-shrink-0" preserveAspectRatio="none">
-      <path d="M0 8 L0 0 L68 0 L80 8 Z" fill={shapeColor} />
-    </svg>
-    <div className="flex-1 h-[1px] self-end" style={{ backgroundColor: lineColor }} />
-  </div>
-);
 
 // FAQ Accordion Item Component
 // UPDATED: Border radius reduced to 'rounded-3xl' (approx 24px) to match screenshots better.
@@ -106,9 +95,9 @@ const FAQAccordionItem = ({
             transition={{ duration: 0.3, ease: "easeInOut" }}
           >
             <div className="px-6 pb-8 pt-0 max-w-2xl">
-              <p className="font-mono text-sm text-white/60 leading-relaxed">
+              <div className="font-mono text-sm text-white/60 leading-relaxed">
                 {item.answer}
-              </p>
+              </div>
             </div>
           </motion.div>
         )}
@@ -117,7 +106,13 @@ const FAQAccordionItem = ({
   </motion.div>
 );
 
-export function FAQSection() {
+export interface FAQSectionProps {
+  items?: ServiceFaqItem[];
+  heading?: React.ReactNode;
+}
+
+export function FAQSection({ items, heading }: FAQSectionProps = {}) {
+  const faqData: FAQItem[] = items ?? homeFaqs;
   const [openIndex, setOpenIndex] = useState<number | null>(0);
   const labelRef = useRef<HTMLSpanElement>(null);
 
@@ -168,8 +163,13 @@ export function FAQSection() {
       <div className="max-w-7xl mx-auto">
 
         {/* Decorative line */}
-        <div className="mb-6 w-full">
-          <DecorativeShapeWithLine shapeColor="#d5d5d5" lineColor="#e5e5e5" />
+        <div className="mb-12 w-full">
+          <DecorativeShapeWithLine
+            shapeColor="#d5d5d5"
+            lineColor="#e5e5e5"
+            label="FAQ"
+            labelRef={labelRef}
+          />
         </div>
 
         {/* Layout */}
@@ -177,18 +177,17 @@ export function FAQSection() {
 
           {/* Left Column */}
           <div className="flex flex-col">
-            <span
-              ref={labelRef}
-              className="font-mono text-sm tracking-wider text-[#1a1512]/70 uppercase block mb-6"
-            >
-              / FAQ
-            </span>
-
             <h2
               className="text-4xl md:text-5xl lg:text-6xl text-[#1a1512] mb-6"
               style={{ fontFamily: 'Nohemi, sans-serif', fontWeight: 300 }}
             >
-              Commonly given<AccentBr />answers
+              {heading ?? (
+                <>
+                  Commonly given
+                  <AccentBr />
+                  answers
+                </>
+              )}
             </h2>
 
             <p className="font-mono text-sm text-[#1a1512]/60 leading-relaxed mb-8 max-w-sm">

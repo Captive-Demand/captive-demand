@@ -1,5 +1,7 @@
 'use client';
 
+import type { ReactNode } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 function GlassBadge({ children, className }: { children: React.ReactNode; className?: string }) {
@@ -111,53 +113,82 @@ const CALLOUTS = [
   },
 ] as const;
 
-function AuditSkeleton() {
+function DefaultAuditVisual() {
   return (
-    <div className="relative aspect-[16/10] w-full overflow-visible">
-      <div className="absolute inset-0 overflow-hidden rounded-2xl border border-[#1a1512]/8 bg-[#f4f2ef]">
-        <div className="absolute inset-3 rounded-xl border border-[#1a1512]/6 bg-white shadow-inner">
-          <div className="h-3 border-b border-[#1a1512]/6 bg-[#fafafa]" />
-          <div className="relative p-3">
-            <div className="relative mb-3 aspect-[16/6] rounded-lg bg-[#1a1512]/6">
-              <div className="absolute left-3 top-3 h-2 w-2/5 rounded bg-[#1a1512]/12" />
-              <div className="absolute left-3 top-7 h-1.5 w-1/3 rounded bg-[#1a1512]/8" />
-              <div className="absolute bottom-3 left-3 h-5 w-16 rounded-full bg-[#ff5501]/70" />
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              {[0, 1, 2].map((n) => (
-                <div key={n} className="rounded-md border border-[#1a1512]/6 p-2">
-                  <div className="mb-1 h-1.5 w-3/4 rounded bg-[#1a1512]/10" />
-                  <div className="h-6 rounded bg-[#1a1512]/5" />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+    <div className="relative p-3">
+      <div className="relative mb-3 aspect-[16/6] rounded-lg bg-[#1a1512]/6">
+        <div className="absolute left-3 top-3 h-2 w-2/5 rounded bg-[#1a1512]/12" />
+        <div className="absolute left-3 top-7 h-1.5 w-1/3 rounded bg-[#1a1512]/8" />
+        <div className="absolute bottom-3 left-3 h-5 w-16 rounded-full bg-[#ff5501]/70" />
       </div>
-
-      {CALLOUTS.map((c) => (
-        <div key={c.id} className={c.badgeClass}>
-          <GlassBadge>
-            <div className="flex items-center gap-2.5">
-              <BitmapIcon grid={c.icon} color="#1a1512" size={14} />
-              <span className="whitespace-nowrap font-mono text-[13px] uppercase tracking-[0.1em] text-[#1a1512]/70 sm:text-[13px]">
-                {c.label}
-              </span>
-            </div>
-          </GlassBadge>
-        </div>
-      ))}
+      <div className="grid grid-cols-3 gap-2">
+        {[0, 1, 2].map((n) => (
+          <div key={n} className="rounded-md border border-[#1a1512]/6 p-2">
+            <div className="mb-1 h-1.5 w-3/4 rounded bg-[#1a1512]/10" />
+            <div className="h-6 rounded bg-[#1a1512]/5" />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
-export function ShoreAuditPreviewIllustration({ className }: { className?: string }) {
+export function ShoreAuditPreviewIllustration({
+  className,
+  callouts = CALLOUTS,
+  caption = '100% free · no sales pitch · no lock-in',
+  visual,
+  animate = false,
+}: {
+  className?: string;
+  callouts?: readonly { id: string; label: string; badgeClass: string; icon: number[][] }[];
+  caption?: string;
+  visual?: ReactNode;
+  animate?: boolean;
+}) {
+  const reduce = useReducedMotion();
+
   return (
     <div className={cn('relative w-full px-2 sm:px-4', className)}>
-      <AuditSkeleton />
-      <p className="mt-4 text-center font-mono text-[13px] uppercase tracking-[0.14em] text-[#888]">
-        100% free · no sales pitch · no lock-in
-      </p>
+      <div className="relative aspect-[16/10] w-full overflow-visible">
+        <div className="absolute inset-0 overflow-hidden rounded-2xl border border-[#1a1512]/8 bg-[#f4f2ef]">
+          <div className="absolute inset-3 overflow-hidden rounded-xl border border-[#1a1512]/6 bg-white shadow-inner">
+            <div className="h-3 border-b border-[#1a1512]/6 bg-[#fafafa]" />
+            {visual ?? <DefaultAuditVisual />}
+          </div>
+        </div>
+
+        {callouts.map((c, i) => (
+          <motion.div
+            key={c.id}
+            className={c.badgeClass}
+            initial={animate && !reduce ? { opacity: 0, y: 8, filter: 'blur(4px)' } : false}
+            whileInView={animate ? { opacity: 1, y: 0, filter: 'blur(0px)' } : undefined}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{
+              duration: reduce ? 0.01 : 0.45,
+              delay: reduce || !animate ? 0 : 0.24 + i * 0.08,
+              ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
+            }}
+          >
+            <GlassBadge>
+              <div className="flex items-center gap-2.5">
+                <BitmapIcon grid={c.icon} color="#1a1512" size={14} />
+                <span className="whitespace-nowrap font-mono text-[13px] uppercase tracking-[0.1em] text-[#1a1512]/70">
+                  {c.label}
+                </span>
+              </div>
+            </GlassBadge>
+          </motion.div>
+        ))}
+      </div>
+      {caption ? (
+        <p className="mt-4 text-center font-mono text-[13px] uppercase tracking-[0.14em] text-[#888]">
+          {caption}
+        </p>
+      ) : null}
     </div>
   );
 }
+
+export { ICON_TEXT, ICON_LAYOUT, ICON_TARGET, ICON_GRID };

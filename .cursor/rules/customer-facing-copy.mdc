@@ -1,0 +1,32 @@
+---
+description: Never ship brief notes, meta instructions, or internal comments as website copy
+alwaysApply: true
+---
+
+# Customer-Facing Copy Only
+
+## Absolute rule
+
+**Never put internal brief language on the website.**
+
+Briefs, MD specs, Linear tickets, and Slack notes often include production notes for the team (e.g. "The credibility section", "Prose-led, not bulleted", "This is where a prospect decides…", "Add named case studies if approved"). Those are instructions **to us**. They are never UI copy, never a dek, never a subhead, never helper text.
+
+## What ships
+
+Only ship text that is clearly marked as customer-facing in the brief:
+
+- H1 / H2 / section labels when given as copy
+- Body paragraphs, FAQs, CTAs, pricing lines
+- Comparison-table cell values when specified for the page
+
+If a line sits **above** the labeled fields (H2, Body, CTA) and reads like a job description for the section, it is internal. Leave it out.
+
+## When copy is missing
+
+- Do **not** invent a dek that restates the brief's meta note
+- Prefer no supporting line over a made-up one
+- If a short line is truly needed for layout, draft real customer language and flag it as new copy, never paste the production note
+
+## Self-check before commit
+
+Ask: "Would a prospect think this was written for them?" If it sounds like a note to the designer or strategist, delete it.

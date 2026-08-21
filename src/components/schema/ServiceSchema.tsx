@@ -5,9 +5,18 @@ interface ServiceSchemaProps {
   name: string;
   description: string;
   slug: string;
+  /** Full path when not under /services/{slug} (e.g. Nashville local pages). */
+  path?: string;
+  areaServed?: string;
 }
 
-export function ServiceSchema({ name, description, slug }: ServiceSchemaProps) {
+export function ServiceSchema({
+  name,
+  description,
+  slug,
+  path,
+  areaServed = "United States",
+}: ServiceSchemaProps) {
   return (
     <JsonLd
       data={{
@@ -16,8 +25,8 @@ export function ServiceSchema({ name, description, slug }: ServiceSchemaProps) {
         name,
         description,
         provider: { "@id": absoluteUrl("/#organization") },
-        areaServed: "United States",
-        url: absoluteUrl(`/services/${slug}`),
+        areaServed,
+        url: absoluteUrl(path ?? `/services/${slug}`),
       }}
     />
   );

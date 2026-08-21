@@ -16,7 +16,11 @@ const staticRoutes = [
   "/services/email-marketing",
   "/services/software",
   "/services/seo",
+  "/services/advertising",
   "/services/automation",
+  "/nashville-email-marketing-agency",
+  "/nashville-seo-agency",
+  "/nashville-advertising-agency",
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

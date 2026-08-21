@@ -8,6 +8,7 @@ import Image from 'next/image';
 import gsap from 'gsap';
 import { SHORE_SECTION_DESCRIPTION_CLASS } from '@/lib/shore-section-styles';
 import { useGsapScrollTrigger } from '@/hooks/useGsapScrollTrigger';
+import { DecorativeShapeWithLine } from '@/components/ui/DecorativeShapeWithLine';
 
 export function BentoGridSection() {
   const servicesLabelRef = useRef<HTMLSpanElement>(null);
@@ -64,49 +65,8 @@ export function BentoGridSection() {
     <section className="w-full min-h-screen bg-[#FAFAFA] text-[#1a1512] py-20 md:py-32 font-sans">
       <div className="container mx-auto max-w-7xl px-4 md:px-8">
 
-        {/* Header Section */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6 }}
-          className="relative mb-8 h-px"
-        >
-          {/* Horizontal Line */}
-          <div className="relative h-px w-full overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: '100%' }}
-              transition={{ duration: 1, ease: [0.4, 0, 0.2, 1], delay: 0.2 }}
-              className="absolute left-0 h-px bg-[#e5e5e5]"
-            />
-          </div>
-
-          {/* SVG Decorative Shape */}
-          <svg
-            className="absolute bottom-0 left-0 flex-shrink-0"
-            width="80"
-            height="8"
-            viewBox="0 0 80 8"
-            fill="none"
-            preserveAspectRatio="none"
-          >
-            <path
-              d="M0 7 L0 0 L68 0 L80 7 L80 8 L0 8 Z"
-              fill="#e5e5e5"
-            />
-          </svg>
-        </motion.div>
-
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-1 mb-6">
-          <span className="text-[15px] font-normal text-[#1a1512]">/</span>
-          <span
-            ref={servicesLabelRef}
-            className="text-[13px] font-normal tracking-[0.02em] text-[#1a1512] uppercase"
-            style={{ fontFamily: '"Roboto Mono", monospace' }}
-          >
-            OUR SERVICES
-          </span>
+        <div className="mb-6 w-full">
+          <DecorativeShapeWithLine label="OUR SERVICES" labelRef={servicesLabelRef} />
         </div>
 
         <div className="relative flex flex-col gap-8 md:flex-row md:items-start md:justify-between md:gap-12 mb-16">

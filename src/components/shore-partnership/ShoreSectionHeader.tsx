@@ -3,7 +3,8 @@
 import type { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { SHORE_SECTION_DESCRIPTION_CLASS, SHORE_SECTION_EYEBROW_CLASS } from '@/lib/shore-section-styles';
+import { SHORE_SECTION_DESCRIPTION_CLASS } from '@/lib/shore-section-styles';
+import { DecorativeShapeWithLine } from '@/components/ui/DecorativeShapeWithLine';
 
 interface ShoreSectionHeaderProps {
   /** Eyebrow label (no slash) — e.g. "Approach", "Operating Model" */
@@ -22,31 +23,13 @@ interface ShoreSectionHeaderProps {
   className?: string;
   /** Tightens default top margin when chained inside compact sections */
   compact?: boolean;
-  /** SVG shape + rule above eyebrow (default true) */
+  /** Kept for callers; labeled chevron + rule always renders */
   showDecoration?: boolean;
 }
 
-const DecorativeShapeLine = ({ variant }: { variant: 'light' | 'dark' }) => {
-  const shapeFill = variant === 'dark' ? '#3a3530' : '#d5d5d5';
-  const lineBg = variant === 'dark' ? '#3a3530' : '#e5e5e5';
-  return (
-    <div className="mb-6 flex w-full items-end">
-      <svg
-        viewBox="0 0 80 8"
-        className="h-2 w-20 shrink-0"
-        preserveAspectRatio="none"
-        aria-hidden
-      >
-        <path d="M0 8 L0 0 L68 0 L80 8 Z" fill={shapeFill} />
-      </svg>
-      <div className="h-[1px] flex-1 self-end" style={{ backgroundColor: lineBg }} />
-    </div>
-  );
-};
-
 /**
  * Unified section header used across the Shore partnership page.
- * Mirrors the home/about/SEO pattern: SVG shape line → "/ EYEBROW" → 2-col heading + mono description.
+ * Chevron tab + hairline with "/ EYEBROW", then 2-col heading + mono description.
  */
 export function ShoreSectionHeader({
   eyebrow,
@@ -58,21 +41,23 @@ export function ShoreSectionHeader({
   variant = 'light',
   className,
   compact = false,
-  showDecoration = true,
 }: ShoreSectionHeaderProps) {
   const isDark = variant === 'dark';
 
   return (
     <div className={cn('w-full', compact ? 'mb-10' : 'mb-12 md:mb-16', className)}>
-      {showDecoration ? <DecorativeShapeLine variant={variant} /> : null}
-
-      <span className={cn(SHORE_SECTION_EYEBROW_CLASS, isDark && 'text-white/60')}>
-        / {eyebrow}
-      </span>
+      <div className="mb-6 w-full">
+        <DecorativeShapeWithLine
+          label={eyebrow}
+          shapeColor={isDark ? '#3a3330' : '#d5d5d5'}
+          lineColor={isDark ? '#2a2420' : '#e5e5e5'}
+          labelClassName={isDark ? 'text-white/50' : undefined}
+        />
+      </div>
 
       <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between md:gap-12">
         {(lead || accent || trail || titleSlot) && (
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0 flex-1">
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -114,7 +99,7 @@ export function ShoreSectionHeader({
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1, duration: 0.6 }}
             viewport={{ once: true }}
-            className="flex-1 min-w-0 md:max-w-md md:text-right"
+            className="min-w-0 flex-1 md:max-w-md md:text-right"
           >
             <p
               className={cn(

@@ -86,18 +86,32 @@ function MarqueeTrack({
   );
 }
 
+export type ConsolidationMarqueeRows = readonly [
+  readonly string[],
+  readonly string[],
+  readonly string[],
+];
+
 export interface ConsolidationWireframesIllustrationProps {
   className?: string;
+  rows?: ConsolidationMarqueeRows;
+  ariaLabel?: string;
 }
 
 /**
  * PE tab: ink field with radial “frame” pattern (rings + spokes from the mark),
  * capability-style chips, elevated logo plate with grain + glow.
  */
+const DEFAULT_ARIA_LABEL =
+  'Captive Demand mark on a dark field with radial framing lines, soft light from the right, and scrolling capability labels behind the logo.';
+
 export function ConsolidationWireframesIllustration({
   className,
+  rows,
+  ariaLabel = DEFAULT_ARIA_LABEL,
 }: ConsolidationWireframesIllustrationProps) {
   const reduceMotion = useReducedMotion();
+  const [rowA, rowB, rowC] = rows ?? [MARQUEE_ROW_A, MARQUEE_ROW_B, MARQUEE_ROW_C];
 
   return (
     <div
@@ -107,7 +121,7 @@ export function ConsolidationWireframesIllustration({
         className
       )}
       role="img"
-      aria-label="Captive Demand mark on a dark field with radial framing lines, soft light from the right, and scrolling capability labels behind the logo."
+      aria-label={ariaLabel}
     >
       {!reduceMotion ? (
         <style>{`
@@ -205,17 +219,17 @@ export function ConsolidationWireframesIllustration({
         {reduceMotion ? (
           <>
             <div className="flex max-w-full flex-wrap justify-center gap-2 opacity-90 sm:gap-2.5">
-              {MARQUEE_ROW_A.map((label) => (
+              {rowA.map((label) => (
                 <Pill key={label}>{label}</Pill>
               ))}
             </div>
             <div className="flex max-w-full flex-wrap justify-center gap-2 opacity-90 sm:gap-2.5">
-              {MARQUEE_ROW_B.map((label) => (
+              {rowB.map((label) => (
                 <Pill key={label}>{label}</Pill>
               ))}
             </div>
             <div className="flex max-w-full flex-wrap justify-center gap-2 opacity-90 sm:gap-2.5">
-              {MARQUEE_ROW_C.map((label) => (
+              {rowC.map((label) => (
                 <Pill key={label}>{label}</Pill>
               ))}
             </div>
@@ -223,13 +237,13 @@ export function ConsolidationWireframesIllustration({
         ) : (
           <>
             <div className="relative w-full min-w-0 overflow-hidden">
-              <MarqueeTrack labels={MARQUEE_ROW_A} variant="forward" />
+              <MarqueeTrack labels={rowA} variant="forward" />
             </div>
             <div className="relative w-full min-w-0 overflow-hidden">
-              <MarqueeTrack labels={MARQUEE_ROW_B} variant="reverse" />
+              <MarqueeTrack labels={rowB} variant="reverse" />
             </div>
             <div className="relative w-full min-w-0 overflow-hidden">
-              <MarqueeTrack labels={MARQUEE_ROW_C} variant="slow" />
+              <MarqueeTrack labels={rowC} variant="slow" />
             </div>
           </>
         )}

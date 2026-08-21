@@ -10,6 +10,8 @@ import { CTAButton } from '@/components/ui/CTAButton';
 import { AccentBr } from '@/components/ui/accent-br';
 import { ProjectCostEstimator } from '@/components/pricing/ProjectCostEstimator';
 import { usePricingLeadOptional } from '@/components/pricing/pricing-lead-context';
+import { DecorativeShapeWithLine } from '@/components/ui/DecorativeShapeWithLine';
+import Link from 'next/link';
 
 // --- HELPER COMPONENTS ---
 /** Same orange pulse dot + mono label treatment as `Hero` (“2 Spots Available”). */
@@ -29,14 +31,6 @@ function PricingSpotsUrgency({ isPro, projectByDate }: { isPro?: boolean; projec
     );
 }
 
-const DecorativeShapeWithLine = ({ shapeColor = "#e5e5e5", lineColor = "#e5e5e5" }: { shapeColor?: string; lineColor?: string }) => (
-    <div className="flex items-end w-full">
-        <svg viewBox="0 0 80 8" className="w-20 h-2 flex-shrink-0" preserveAspectRatio="none">
-            <path d="M0 8 L0 0 L68 0 L80 8 Z" fill={shapeColor} />
-        </svg>
-        <div className="flex-1 h-[1px] self-end" style={{ backgroundColor: lineColor }} />
-    </div>
-);
 
 export interface PricingFeatureLine {
     label: string;
@@ -157,7 +151,7 @@ const PricingCard = ({
     onCtaClick,
 }: {
     title: string;
-    description: string;
+    description: React.ReactNode;
     price: string;
     priceLabel?: string;
     features: PricingFeatureLine[];
@@ -399,22 +393,15 @@ export function PricingAndAddons({ embedded, enablePricingModal }: PricingAndAdd
                 {/* --- HEADER --- */}
                 <div className={embedded ? 'mb-8 md:mb-10' : 'mb-16 md:mb-24'}>
                     <div className="mb-6 w-full">
-                        <DecorativeShapeWithLine shapeColor="#d5d5d5" lineColor="#e5e5e5" />
+                        <DecorativeShapeWithLine
+                            shapeColor="#d5d5d5"
+                            lineColor="#e5e5e5"
+                            label={embedded ? 'SERVICE' : 'PRICING & ADD-ONS'}
+                            labelRef={embedded ? undefined : labelRef}
+                        />
                     </div>
                     <div className={`flex flex-col md:flex-row md:items-start md:justify-between ${embedded ? 'gap-4' : 'gap-8'}`}>
                         <div>
-                            {embedded ? (
-                                <span className="font-mono text-sm tracking-wider text-[#1a1512]/70 uppercase block mb-4">
-                                    / SERVICE
-                                </span>
-                            ) : (
-                                <span
-                                    ref={labelRef}
-                                    className="font-mono text-sm tracking-wider text-[#1a1512]/70 uppercase block mb-4"
-                                >
-                                    / PRICING & ADD-ONS
-                                </span>
-                            )}
                             <h2
                                 className="text-4xl md:text-5xl lg:text-6xl text-[#1a1512]"
                                 style={{ fontFamily: 'Nohemi, sans-serif', fontWeight: 300 }}
@@ -448,7 +435,18 @@ export function PricingAndAddons({ embedded, enablePricingModal }: PricingAndAdd
                     <div className="h-full min-w-0 w-full">
                         <PricingCard
                             title="Pro"
-                            description="For brands that need more trust and search surface—8–10 pages, a blog, richer visuals, integrations, and technical SEO."
+                            description={
+                                <>
+                                    For brands that need more trust and search surface: 8–10 pages, a blog, richer visuals, integrations, and{' '}
+                                    <Link
+                                        href="/services/seo"
+                                        className="underline decoration-white/30 underline-offset-4 transition-colors duration-150 hover:text-white hover:decoration-white"
+                                    >
+                                        SEO and AEO
+                                    </Link>
+                                    .
+                                </>
+                            }
                             price="$5,000+"
                             priceLabel="One-time / 8-10 pages"
                             isPro={true}

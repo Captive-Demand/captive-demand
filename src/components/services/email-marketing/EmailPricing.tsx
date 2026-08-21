@@ -2,311 +2,271 @@
 
 import React, { useRef, useLayoutEffect } from 'react';
 import Image from 'next/image';
-import { Check, BarChart3, Target, Sparkles, Zap, LineChart, PenTool } from 'lucide-react';
+import { Check, BarChart3, Zap, PenTool } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { CTAButton } from '@/components/ui/CTAButton';
+import { AccentBr } from '@/components/ui/accent-br';
+import { DecorativeShapeWithLine } from '@/components/ui/DecorativeShapeWithLine';
 
 gsap.registerPlugin(ScrollTrigger);
 
-import { CTAButton } from '@/components/ui/CTAButton';
-import { AccentBr } from '@/components/ui/accent-br';
-
-const DecorativeShapeWithLine = ({ shapeColor = "#e5e5e5", lineColor = "#e5e5e5" }: { shapeColor?: string; lineColor?: string }) => (
-    <div className="flex items-end w-full">
-        <svg viewBox="0 0 80 8" className="w-20 h-2 flex-shrink-0" preserveAspectRatio="none">
-            <path d="M0 8 L0 0 L68 0 L80 8 Z" fill={shapeColor} />
-        </svg>
-        <div className="flex-1 h-[1px] self-end" style={{ backgroundColor: lineColor }} />
-    </div>
-);
 
 const PricingCard = ({
-    title,
-    description,
-    price,
-    priceLabel = "Per month / Cancel anytime",
-    features,
-    isPro = false,
-    buttonText = "Select Plan"
+  title,
+  description,
+  price,
+  priceLabel,
+  features,
+  isPro = false,
+  badge = 'Most Popular',
 }: {
-    title: string;
-    description: string;
-    price: string;
-    priceLabel?: string;
-    features: string[];
-    isPro?: boolean;
-    buttonText?: string;
+  title: string;
+  description: string;
+  price: string;
+  priceLabel: string;
+  features: string[];
+  isPro?: boolean;
+  badge?: string;
 }) => (
-    <div className={`
-        relative w-full rounded-3xl p-8 lg:p-10 flex flex-col h-full transition-all duration-300 overflow-hidden
-        ${isPro
-            ? 'text-white'
-            : 'bg-[#e8e8e8] border border-[#1a1512]/5 text-[#1a1512]'
-        }
-    `}
-        style={isPro ? {
-            background: 'radial-gradient(circle at 0% 0%, #ff5501 0%, #8f3a00 25%, #1a1512 60%, #0a0a0a 100%)',
-            boxShadow: '0 2px 4px rgba(255,85,1,0.1), 0 8px 20px rgba(0,0,0,0.15), 0 24px 56px rgba(0,0,0,0.2), inset 0 1px 0 0 rgba(255,255,255,0.1)',
-        } : {
-            boxShadow: '0 1px 2px rgba(0,0,0,0.07), 0 4px 12px rgba(0,0,0,0.05), 0 20px 48px rgba(0,0,0,0.06), inset 0 1px 0 0 rgba(255,255,255,0.4)',
-        }}
-    >
-        {isPro && (
-            <div className="absolute top-0 right-0 bg-[#ff5501] text-white text-[10px] font-mono font-bold uppercase tracking-widest px-4 py-2 rounded-bl-xl z-10">
-                Most Popular
-            </div>
-        )}
-
-        <div className="relative z-10">
-            <div className="w-14 h-14 rounded-xl mb-8 flex items-center justify-center bg-[#f5f5f5] border border-[#1a1512]/5">
-                <div className="relative w-8 h-8">
-                    <Image
-                        src="/C.png"
-                        alt="Logo"
-                        fill
-                        className="object-contain"
-                    />
-                </div>
-            </div>
-
-            <div className="mb-8">
-                <h3 className="text-3xl md:text-4xl font-medium mb-3" style={{ fontFamily: 'Nohemi, sans-serif' }}>
-                    {title}
-                </h3>
-                <p className={`text-base font-mono ${isPro ? 'text-white/60' : 'text-[#1a1512]/60'}`}>
-                    {description}
-                </p>
-            </div>
-
-            <div className={`w-full h-[1px] mb-8 ${isPro ? 'bg-gradient-to-r from-white/20 to-transparent' : 'bg-[#1a1512]/10'}`} />
-
-            <div className={`mb-12 flex-1 ${isPro ? 'grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4' : 'space-y-4'}`}>
-                {features.map((feature, i) => (
-                    <div key={i} className="flex items-start gap-3">
-                        <div className={`mt-1 rounded-full p-0.5 ${isPro ? 'bg-[#ff5501]/20 text-[#ff5501]' : 'bg-[#1a1512]/10 text-[#1a1512]'}`}>
-                            <Check size={12} strokeWidth={3} />
-                        </div>
-                        <span className={`text-sm leading-tight ${isPro ? 'text-white/80' : 'text-[#1a1512]/80'}`}>
-                            {feature}
-                        </span>
-                    </div>
-                ))}
-            </div>
+  <div
+    className={`relative flex h-full w-full flex-col overflow-hidden rounded-3xl p-8 transition-all duration-300 lg:p-10 ${
+      isPro ? 'text-white' : 'border border-[#1a1512]/5 bg-[#e8e8e8] text-[#1a1512]'
+    }`}
+    style={
+      isPro
+        ? {
+            background:
+              'radial-gradient(circle at 0% 0%, #ff5501 0%, #8f3a00 25%, #1a1512 60%, #0a0a0a 100%)',
+            boxShadow:
+              '0 2px 4px rgba(255,85,1,0.1), 0 8px 20px rgba(0,0,0,0.15), 0 24px 56px rgba(0,0,0,0.2), inset 0 1px 0 0 rgba(255,255,255,0.1)',
+          }
+        : {
+            boxShadow:
+              '0 1px 2px rgba(0,0,0,0.07), 0 4px 12px rgba(0,0,0,0.05), 0 20px 48px rgba(0,0,0,0.06), inset 0 1px 0 0 rgba(255,255,255,0.4)',
+          }
+    }
+  >
+    {isPro ? (
+      <div className="absolute right-0 top-0 z-10 rounded-bl-xl bg-[#ff5501] px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-widest text-white">
+        {badge}
+      </div>
+    ) : null}
+    <div className="relative z-10 mb-8">
+      <div className="mb-8 flex h-14 w-14 items-center justify-center rounded-xl border border-[#1a1512]/5 bg-[#f5f5f5]">
+        <div className="relative h-8 w-8">
+          <Image src="/C.png" alt="" fill className="object-contain" />
         </div>
-
-        <div className="mt-auto relative z-10">
-            <div className="flex flex-col mb-8">
-                <span className="text-4xl font-bold tracking-tight mb-1">{price}</span>
-                <span className={`text-xs font-mono uppercase tracking-widest ${isPro ? 'text-white/40' : 'text-[#1a1512]/40'}`}>{priceLabel}</span>
-            </div>
-            <CTAButton variant="pricing" text={buttonText} isDarkBg={isPro} fullWidth as="button" style={{ filter: 'drop-shadow(0px 2px 0px rgba(0,0,0,0.25)) drop-shadow(0 3px 6px rgba(0,0,0,0.1))' }} />
-        </div>
+      </div>
+      <h3 className="mb-3 text-3xl font-medium md:text-4xl" style={{ fontFamily: 'Nohemi, sans-serif' }}>
+        {title}
+      </h3>
+      <p className={`font-mono text-base ${isPro ? 'text-white/60' : 'text-[#1a1512]/60'}`}>{description}</p>
     </div>
-);
-
-const AddOnCard = ({ icon: Icon, title, description }: { icon: React.ElementType, title: string, description: string }) => (
-    <div
-        className="group p-8 h-full bg-[#FAFAFA] hover:bg-white transition-colors duration-300"
-        style={{ boxShadow: 'inset 0 1px 0 0 rgba(255,255,255,0.15)' }}
-    >
-        <div
-            className="mb-6 w-12 h-12 rounded-lg bg-[#ff5501] flex items-center justify-center text-white"
-            style={{ boxShadow: '0 2px 0 0 rgba(204,51,0,0.8), 0 4px 12px rgba(255,85,1,0.3)' }}
+    <div className={`relative z-10 mb-12 flex-1 space-y-4 ${isPro ? 'md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-4 md:space-y-0' : ''}`}>
+      {features.map((feature) => (
+        <div key={feature} className="flex items-start gap-3">
+          <div
+            className={`mt-1 rounded-full p-0.5 ${
+              isPro ? 'bg-[#ff5501]/20 text-[#ff5501]' : 'bg-[#1a1512]/10 text-[#1a1512]'
+            }`}
+          >
+            <Check size={12} strokeWidth={3} />
+          </div>
+          <span className={`text-sm leading-tight ${isPro ? 'text-white/80' : 'text-[#1a1512]/80'}`}>
+            {feature}
+          </span>
+        </div>
+      ))}
+    </div>
+    <div className="relative z-10 mt-auto">
+      <div className="mb-8 flex flex-col">
+        <span className="mb-1 text-4xl font-bold tracking-tight tabular-nums">{price}</span>
+        <span
+          className={`font-mono text-xs uppercase tracking-widest ${
+            isPro ? 'text-white/40' : 'text-[#1a1512]/40'
+          }`}
         >
-            <Icon size={24} strokeWidth={1.5} />
-        </div>
-        <h4 className="text-lg text-[#1a1512] mb-2 font-medium">{title}</h4>
-        <p className="text-sm text-[#1a1512]/60 leading-relaxed">
-            {description}
-        </p>
+          {priceLabel}
+        </span>
+      </div>
+      <CTAButton
+        variant="pricing"
+        text="Get Started"
+        href="/contact"
+        as="a"
+        isDarkBg={isPro}
+        fullWidth
+        style={{
+          filter:
+            'drop-shadow(0px 2px 0px rgba(0,0,0,0.25)) drop-shadow(0 3px 6px rgba(0,0,0,0.1))',
+        }}
+      />
     </div>
+  </div>
 );
 
 interface EmailPricingProps {
-    embedded?: boolean;
-    enablePricingModal?: boolean;
+  embedded?: boolean;
+  enablePricingModal?: boolean;
 }
 
 export function EmailPricing({ embedded }: EmailPricingProps) {
-    const labelRef = useRef<HTMLSpanElement>(null);
-    const sectionRef = useRef<HTMLDivElement>(null);
+  const labelRef = useRef<HTMLSpanElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
 
-    useLayoutEffect(() => {
-        const ctx = gsap.context(() => {
-            if (labelRef.current) {
-                const originalText = "PRICING & ADD-ONS";
-                const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-                gsap.to({}, {
-                    duration: 1.2,
-                    ease: "expo.out",
-                    scrollTrigger: {
-                        trigger: labelRef.current,
-                        start: "top 90%",
-                        toggleActions: "play none none none"
-                    },
-                    onUpdate: function () {
-                        const progress = this.progress();
-                        let result = "";
-                        for (let i = 0; i < originalText.length; i++) {
-                            if (originalText[i] === " ") {
-                                result += " ";
-                            } else if (progress > i / originalText.length) {
-                                result += originalText[i];
-                            } else {
-                                result += chars[Math.floor(Math.random() * chars.length)];
-                            }
-                        }
-                        if (labelRef.current) {
-                            labelRef.current.textContent = "/ " + result;
-                        }
-                    },
-                    onComplete: function () {
-                        if (labelRef.current) {
-                            labelRef.current.textContent = "/ PRICING & ADD-ONS";
-                        }
-                    }
-                });
+  useLayoutEffect(() => {
+    if (embedded) return;
+    const ctx = gsap.context(() => {
+      if (!labelRef.current) return;
+      const originalText = 'PRICING & ADD-ONS';
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      gsap.to(
+        {},
+        {
+          duration: 1.2,
+          ease: 'expo.out',
+          scrollTrigger: {
+            trigger: labelRef.current,
+            start: 'top 90%',
+            toggleActions: 'play none none none',
+          },
+          onUpdate: function () {
+            const progress = this.progress();
+            let result = '';
+            for (let i = 0; i < originalText.length; i++) {
+              if (originalText[i] === ' ') result += ' ';
+              else if (progress > i / originalText.length) result += originalText[i];
+              else result += chars[Math.floor(Math.random() * chars.length)];
             }
-        }, sectionRef);
-
-        return () => ctx.revert();
-    }, []);
-
-    const addOns = [
-        {
-            icon: BarChart3,
-            title: "Advanced Analytics",
-            description: "Deep-dive dashboards with cohort analysis, heatmaps, and revenue attribution per flow."
+            if (labelRef.current) labelRef.current.textContent = '/ ' + result;
+          },
+          onComplete: function () {
+            if (labelRef.current) labelRef.current.textContent = '/ PRICING & ADD-ONS';
+          },
         },
-        {
-            icon: Target,
-            title: "SMS Integration",
-            description: "Omnichannel campaigns that pair email with SMS for maximum touchpoint coverage."
-        },
-        {
-            icon: Sparkles,
-            title: "AI Subject Lines",
-            description: "Machine-learning powered subject line generation optimized for your specific audience."
-        },
-        {
-            icon: Zap,
-            title: "CRM Sync",
-            description: "Bi-directional sync with HubSpot, Salesforce, or your existing CRM for unified data."
-        },
-        {
-            icon: LineChart,
-            title: "Predictive Sending",
-            description: "AI-optimized send times based on individual subscriber engagement patterns."
-        },
-        {
-            icon: PenTool,
-            title: "Custom Templates",
-            description: "Bespoke, on-brand email templates designed for your specific industry and audience."
-        }
-    ];
+      );
+    }, sectionRef);
+    return () => ctx.revert();
+  }, [embedded]);
 
-    return (
-        <section ref={sectionRef} className={`w-full bg-[#FAFAFA] px-4 ${embedded ? 'pt-0 pb-20 md:pb-32' : 'py-20 md:py-32'}`}>
-            <div className="max-w-7xl mx-auto">
+  const addOns = [
+    { icon: PenTool, title: 'Custom landing pages', description: 'From $500 each. Conversion pages matched to the campaign.' },
+    { icon: BarChart3, title: 'Northstar Analytics', description: 'From $50/month. Pipeline and revenue, not just opens.' },
+    { icon: Zap, title: 'Conduit', description: 'From $149/month (free plan available). Data into your ESP on a schedule.' },
+  ];
 
-                <div className={embedded ? 'mb-8 md:mb-10' : 'mb-16 md:mb-24'}>
-                    <div className="mb-6 w-full">
-                        <DecorativeShapeWithLine shapeColor="#d5d5d5" lineColor="#e5e5e5" />
-                    </div>
-                    <div className={`flex flex-col md:flex-row md:items-start md:justify-between ${embedded ? 'gap-4' : 'gap-8'}`}>
-                        <div>
-                            {embedded ? (
-                                <span className="font-mono text-sm tracking-wider text-[#1a1512]/70 uppercase block mb-4">
-                                    / SERVICE
-                                </span>
-                            ) : (
-                                <span
-                                    ref={labelRef}
-                                    className="font-mono text-sm tracking-wider text-[#1a1512]/70 uppercase block mb-4"
-                                >
-                                    / PRICING & ADD-ONS
-                                </span>
-                            )}
-                            <h2
-                                className="text-4xl md:text-5xl lg:text-6xl text-[#1a1512]"
-                                style={{ fontFamily: 'Nohemi, sans-serif', fontWeight: 300 }}
-                            >
-                                {embedded ? 'Email Marketing' : <>Transparent pricing.<AccentBr /><span className="text-[#1a1512]/40">Compounding returns.</span></>}
-                            </h2>
-                        </div>
-                        <div className="md:max-w-md md:text-right">
-                            <p className="font-mono text-sm text-[#1a1512]/60 leading-relaxed uppercase tracking-wide">
-                                {embedded ? 'Automated sequences that convert visitors into revenue.' : 'Start with a proven foundation and scale as your list grows. No hidden fees, just measurable ROI.'}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 mb-24 items-stretch">
-                    <div className="lg:col-span-5 h-full">
-                        <PricingCard
-                            title="Starter"
-                            description="Capture leads and nurture them. Welcome series, abandoned cart, basic flows."
-                            price="$1,500"
-                            priceLabel="Per month / Up to 10k subscribers"
-                            features={[
-                                "3 Automated Flows",
-                                "Welcome & Nurture Sequences",
-                                "Abandoned Cart Recovery",
-                                "Monthly Broadcast Sends",
-                                "Performance Reporting",
-                                "Platform Setup & Onboarding"
-                            ]}
-                            buttonText="Get Started"
-                        />
-                    </div>
-
-                    <div className="lg:col-span-7 h-full">
-                        <PricingCard
-                            title="Growth"
-                            description="Full email engine: unlimited flows, segmentation, revenue attribution."
-                            price="$3,500"
-                            priceLabel="Per month / Up to 50k subscribers"
-                            isPro={true}
-                            features={[
-                                "Unlimited Automated Flows",
-                                "Custom Template Design",
-                                "A/B Testing & Optimization",
-                                "Revenue Attribution Dashboard",
-                                "Advanced Segmentation",
-                                "Deliverability Monitoring",
-                                "Dedicated Email Strategist",
-                                "Weekly Strategy Calls"
-                            ]}
-                            buttonText="Get Started"
-                        />
-                    </div>
-                </div>
-
-                <div className="w-full">
-                    <div className="text-center mb-12">
-                        <h3 className="text-3xl md:text-4xl text-[#1a1512] mb-4" style={{ fontFamily: 'Nohemi, sans-serif' }}>
-                            Power-Up Add-ons
-                        </h3>
-                        <p className="text-[#1a1512]/60 max-w-xl mx-auto">
-                            Add-ons to extend your email program. Stack what you need.
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-[#1a1512]/10 border border-[#1a1512]/10 rounded-2xl overflow-hidden">
-                        {addOns.map((addon, index) => (
-                            <AddOnCard
-                                key={index}
-                                icon={addon.icon}
-                                title={addon.title}
-                                description={addon.description}
-                            />
-                        ))}
-                    </div>
-                </div>
-
+  return (
+    <section
+      id="pricing"
+      ref={sectionRef}
+      className={`w-full bg-[#FAFAFA] px-4 ${embedded ? 'pb-20 pt-0 md:pb-32' : 'py-20 md:py-32'}`}
+    >
+      <div className="mx-auto max-w-7xl">
+        <div className={embedded ? 'mb-8 md:mb-10' : 'mb-16 md:mb-24'}>
+          <div className="mb-10 w-full">
+            <DecorativeShapeWithLine
+              label={embedded ? 'SERVICE' : 'PRICING & ADD-ONS'}
+              labelRef={embedded ? undefined : labelRef}
+            />
+          </div>
+          <div className={`flex flex-col md:flex-row md:items-start md:justify-between ${embedded ? 'gap-4' : 'gap-8'}`}>
+            <div>
+              <h2
+                className="text-4xl text-[#1a1512] md:text-5xl lg:text-6xl"
+                style={{ fontFamily: 'Nohemi, sans-serif', fontWeight: 300 }}
+              >
+                {embedded ? (
+                  'Email Marketing'
+                ) : (
+                  <>
+                    Starts at $2,500/month.
+                    <AccentBr />
+                    <span className="text-[#1a1512]/40">Priced to what you&apos;re actually building.</span>
+                  </>
+                )}
+              </h2>
             </div>
-        </section>
-    );
+            <div className="md:max-w-md md:text-right">
+              <p className="font-mono text-sm leading-relaxed text-[#1a1512]/60">
+                {embedded
+                  ? 'Project-based lifecycle programs, not list-size pricing.'
+                  : 'Lifecycle marketing starts at $2,500/month, priced project to project. It scales with how much you\'re building: the number of new emails, sequences, and templates in a given month, rather than with the size of your list.'}
+              </p>
+              {embedded ? null : (
+                <p className="mt-4 font-mono text-sm leading-relaxed text-[#1a1512]/60">
+                  That distinction matters. List-size pricing charges you more for contacts you
+                  already had, which has nothing to do with the work involved. We&apos;d rather
+                  price the work.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="mb-24 grid grid-cols-1 items-stretch gap-3 lg:grid-cols-12">
+          <div className="h-full lg:col-span-5">
+            <PricingCard
+              title="From $2,500/mo"
+              description="Strategy, copywriting, template design, and campaign build."
+              price="$2,500"
+              priceLabel="Per month / Project-based"
+              features={[
+                'Strategy',
+                'Copywriting',
+                'Template design',
+                'Campaign build',
+              ]}
+            />
+          </div>
+          <div className="h-full lg:col-span-7">
+            <PricingCard
+              title="Always included"
+              description="Software, approvals, reporting, and senior access on every program."
+              price="Included"
+              priceLabel="Scales with new emails, sequences, and templates"
+              isPro
+              badge="On every program"
+              features={[
+                'Captive Mail',
+                'Slack and Asana approval workflow',
+                'Northstar reporting',
+                'Senior strategist access',
+              ]}
+            />
+          </div>
+        </div>
+
+        <div className="mb-12 text-center">
+          <h3 className="mb-4 text-3xl text-[#1a1512] md:text-4xl" style={{ fontFamily: 'Nohemi, sans-serif' }}>
+            Power-Up Add-ons
+          </h3>
+          <p className="mx-auto max-w-xl text-[#1a1512]/60">
+            Landing pages, Northstar, and Conduit, priced separately.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-[#1a1512]/10 bg-[#1a1512]/10 md:grid-cols-2 lg:grid-cols-3">
+          {addOns.map((addon) => {
+            const Icon = addon.icon;
+            return (
+              <div
+                key={addon.title}
+                className="bg-[#FAFAFA] p-8 transition-colors duration-150 hover:bg-white"
+                style={{ boxShadow: 'inset 0 1px 0 0 rgba(255,255,255,0.15)' }}
+              >
+                <div
+                  className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-[#ff5501] text-white"
+                  style={{ boxShadow: '0 2px 0 0 rgba(204,51,0,0.8), 0 4px 12px rgba(255,85,1,0.3)' }}
+                >
+                  <Icon size={24} strokeWidth={1.5} />
+                </div>
+                <h4 className="mb-2 text-lg font-medium text-[#1a1512]">{addon.title}</h4>
+                <p className="text-sm leading-relaxed text-[#1a1512]/60">{addon.description}</p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
 }

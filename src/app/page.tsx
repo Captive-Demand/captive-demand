@@ -1,4 +1,3 @@
-import { AuditRequestModalProvider } from "@/components/shore-partnership/AuditRequestModalProvider";
 import { Hero } from "@/components/sections/Hero";
 import { HomepageDeferredSections } from "@/components/sections/HomepageDeferredSections";
 import { FAQSchema } from "@/components/schema/FAQSchema";
@@ -14,10 +13,10 @@ export const metadata = createSeoMetadata({
 
 export default function Home() {
     return (
-        <AuditRequestModalProvider>
+        <>
             <FAQSchema faqs={homeFaqs} />
             <Hero />
             <HomepageDeferredSections />
-        </AuditRequestModalProvider>
+        </>
     );
 }

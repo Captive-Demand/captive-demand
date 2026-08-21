@@ -94,7 +94,6 @@ export function PlatformShowcase() {
 
             <div className="max-w-7xl mx-auto relative z-10">
 
-                {/* Centered Header */}
                 <div className="text-center mb-16 md:mb-24 max-w-3xl mx-auto">
                     <span className="font-mono text-[10px] tracking-[0.3em] text-[#ff5501] uppercase mb-4 block">
                         / PLATFORMS

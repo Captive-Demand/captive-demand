@@ -1,0 +1,7 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="34" height="8" viewBox="0 0 34 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="window-controls">
+<circle id="close" cx="4" cy="4" r="4" fill="#FF5F57"/>
+<circle id="minimize" cx="17" cy="4" r="4" fill="#FEBC2E"/>
+<circle id="zoom" cx="30" cy="4" r="4" fill="#28C840"/>
+</g>
+</svg>

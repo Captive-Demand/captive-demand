@@ -6,15 +6,8 @@ import { ArrowRight, Plus } from 'lucide-react';
 import { AnimatedCTAButton } from '@/components/sections/Hero';
 import { AccentBr } from '@/components/ui/accent-br';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { DecorativeShapeWithLine } from '@/components/ui/DecorativeShapeWithLine';
 
-const DecorativeShapeWithLine = ({ shapeColor = '#e5e5e5', lineColor = '#e5e5e5' }: { shapeColor?: string; lineColor?: string }) => (
-    <div className="flex items-end w-full">
-        <svg viewBox="0 0 80 8" className="w-20 h-2 flex-shrink-0" preserveAspectRatio="none">
-            <path d="M0 8 L0 0 L68 0 L80 8 Z" fill={shapeColor} />
-        </svg>
-        <div className="flex-1 h-[1px] self-end" style={{ backgroundColor: lineColor }} />
-    </div>
-);
 
 const automationServicesData = [
     {
@@ -149,13 +142,11 @@ export function AutomationMethodology() {
             <div className="max-w-7xl mx-auto">
                 <div className="mb-12 md:mb-16">
                     <div className="mb-6 w-full">
-                        <DecorativeShapeWithLine shapeColor="#d5d5d5" lineColor="#e5e5e5" />
+                        <DecorativeShapeWithLine shapeColor="#d5d5d5" lineColor="#e5e5e5" label="METHODOLOGY" />
                     </div>
                     <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-8">
                         <div>
-                            <span className="font-mono text-sm tracking-wider text-[#1a1512]/70 uppercase block mb-4">
-                                / METHODOLOGY
-                            </span>
+                            
                             <h2
                                 className="text-4xl md:text-5xl lg:text-6xl text-[#1a1512]"
                                 style={{ fontFamily: 'Nohemi, sans-serif', fontWeight: 300 }}

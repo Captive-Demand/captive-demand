@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import Image from 'next/image';
 import { AccentBr } from '@/components/ui/accent-br';
+import { DecorativeShapeWithLine } from '@/components/ui/DecorativeShapeWithLine';
 
 type Testimonial = {
     quote: string;
@@ -213,65 +214,91 @@ function LogoCard({ logo }: { logo: (typeof LOGOS)[number] }) {
     );
 }
 
-const DecorativeShapeWithLine = () => (
-    <div className="flex items-end w-full">
-        <svg viewBox="0 0 80 8" className="w-20 h-2 flex-shrink-0" preserveAspectRatio="none">
-            <path d="M0 8 L0 0 L68 0 L80 8 Z" fill="#d5d5d5" />
-        </svg>
-        <div className="flex-1 h-[1px] self-end bg-[#e5e5e5]" />
-    </div>
-);
 
-export function ClientLogos() {
+/** Nashville / Middle Tennessee clients for local service pages. */
+export const NASHVILLE_CLIENT_LOGO_NAMES = [
+    'Finally Home Services',
+    'BachBar',
+    'Velocity',
+    'Modern Mentor',
+    'The Skin Real',
+    'Voyage and Vibes',
+    "Mountain's Ledge",
+    'Mountain Sledge',
+    'First Future',
+    'Farmulated',
+] as const;
+
+export interface ClientLogosProps {
+    eyebrow?: string;
+    title?: React.ReactNode;
+    /** Partner badges (Clutch, Elementor, etc.). Off on service pages where they compete with service proof. */
+    showBadges?: boolean;
+    /** When set, only these logo names render (e.g. Nashville filter). */
+    logoNames?: readonly string[];
+}
+
+export function ClientLogos({
+    eyebrow = 'Trusted By',
+    title,
+    showBadges = true,
+    logoNames,
+}: ClientLogosProps) {
+    const logos = logoNames?.length
+        ? LOGOS.filter((logo) => logoNames.includes(logo.name))
+        : LOGOS;
+
     return (
         <section className="w-full bg-[#FAFAFA] py-20 md:py-32 px-4">
             <div className="mx-auto max-w-7xl">
-                {/* Header — same structure as TeamGrid */}
                 <div className="mb-12 md:mb-16">
                     <div className="mb-6 w-full">
-                        <DecorativeShapeWithLine />
+                        <DecorativeShapeWithLine label={eyebrow} />
                     </div>
                     <div className="flex flex-col gap-8">
                         <div>
-                            <span className="font-mono text-sm tracking-wider text-[#1a1512]/70 uppercase block mb-4">
-                                / Trusted By
-                            </span>
+                            
                             <h2
                                 className="text-4xl md:text-5xl lg:text-6xl text-[#1a1512] max-w-2xl md:max-w-3xl lg:max-w-4xl"
                                 style={{ fontFamily: 'Nohemi, sans-serif', fontWeight: 300 }}
                             >
-                                Adding $100M+ in revenue<AccentBr />
-                                <span className="text-[#1a1512]/40">to our partners.</span>
+                                {title ?? (
+                                    <>
+                                        Adding $100M+ in revenue
+                                        <AccentBr />
+                                        <span className="text-[#1a1512]/40">to our partners.</span>
+                                    </>
+                                )}
                             </h2>
                         </div>
-                        {/* Pills on own row — let them wrap, headline gets full width */}
-                        <div className="flex flex-wrap gap-2">
-                            {BADGES.map((badge) => (
-                                <span
-                                    key={badge.label}
-                                    className="flex items-center gap-2.5 rounded-xl border border-[#1a1512]/[0.06] bg-white/80 px-4 py-2 font-mono uppercase text-[11px] tracking-[0.15em] text-[#121212]/70"
-                                    style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.6)' }}
-                                >
-                                    <Image
-                                        src={badge.icon}
-                                        alt={badge.label}
-                                        width={16}
-                                        height={16}
-                                        sizes="16px"
-                                        unoptimized={badge.icon.endsWith('.svg')}
-                                        className="w-4 h-4 shrink-0 object-contain"
-                                    />
-                                    {badge.label}
-                                </span>
-                            ))}
-                        </div>
+                        {showBadges ? (
+                            <div className="flex flex-wrap gap-2">
+                                {BADGES.map((badge) => (
+                                    <span
+                                        key={badge.label}
+                                        className="flex items-center gap-2.5 rounded-xl border border-[#1a1512]/[0.06] bg-white/80 px-4 py-2 font-mono uppercase text-[11px] tracking-[0.15em] text-[#121212]/70"
+                                        style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.6)' }}
+                                    >
+                                        <Image
+                                            src={badge.icon}
+                                            alt={badge.label}
+                                            width={16}
+                                            height={16}
+                                            sizes="16px"
+                                            unoptimized={badge.icon.endsWith('.svg')}
+                                            className="w-4 h-4 shrink-0 object-contain"
+                                        />
+                                        {badge.label}
+                                    </span>
+                                ))}
+                            </div>
+                        ) : null}
                     </div>
                 </div>
 
-                {/* Logo Grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 overflow-visible">
-                    {LOGOS.map((logo, i) => (
-                        <LogoCard key={i} logo={logo} />
+                    {logos.map((logo, i) => (
+                        <LogoCard key={logo.name + i} logo={logo} />
                     ))}
                 </div>
             </div>

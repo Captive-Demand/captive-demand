@@ -2,11 +2,9 @@
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { gsap } from 'gsap';
-import Image from 'next/image';
-import { AnimatedCTAButton } from '@/components/sections/Hero';
+import { AuditCTAButton } from '@/components/services/shared/AuditCTAButton';
 import { EyebrowHeading } from '@/components/ui/eyebrow-heading';
 import { NoiseOverlay } from '@/components/ui/NoiseOverlay';
-import { AccentBr } from '@/components/ui/accent-br';
 
 function GlassBadge({ children, className = '' }: { children: React.ReactNode; className?: string }) {
     return (
@@ -18,14 +16,14 @@ function GlassBadge({ children, className = '' }: { children: React.ReactNode; c
     );
 }
 
-function BitmapIcon({ grid, color = '#1a1512', size = 14 }: { grid: number[][]; color?: string; size?: number }) {
+function BitmapIcon({ grid, color = '#1a1512', size = 14, opacity = 0.55 }: { grid: number[][]; color?: string; size?: number; opacity?: number }) {
     const rows = grid.length;
     const cols = grid[0].length;
     return (
         <svg width={size} height={(size / cols) * rows} viewBox={`0 0 ${cols} ${rows}`} className="flex-shrink-0" style={{ imageRendering: 'pixelated' }}>
             {grid.map((row, y) =>
                 row.map((cell, x) =>
-                    cell ? <rect key={`${y}-${x}`} x={x} y={y} width={1} height={1} fill={color} fillOpacity={0.55} /> : null
+                    cell ? <rect key={`${y}-${x}`} x={x} y={y} width={1} height={1} fill={color} fillOpacity={opacity} /> : null
                 )
             )}
         </svg>
@@ -76,6 +74,17 @@ const ICON_RATE = [
     [1,1,1,1,1,1,1,1],
 ];
 
+const ICON_CHECK = [
+    [0,0,0,0,0,0,0,1],
+    [0,0,0,0,0,0,1,0],
+    [0,0,0,0,0,1,0,0],
+    [1,0,0,0,1,0,0,0],
+    [0,1,0,1,0,0,0,0],
+    [0,0,1,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0],
+];
+
 interface GridPositions {
     v1: number; v2: number; v3: number;
     h1: number; h2: number; h3: number;
@@ -124,7 +133,23 @@ function DashedConnector({ className }: { className?: string }) {
     );
 }
 
-export function EmailHero() {
+export interface EmailHeroProps {
+    eyebrowCategory?: string;
+    eyebrowLabel?: string;
+    h1?: React.ReactNode;
+    subhead?: string;
+    buttonText?: string;
+    leadSource?: string;
+}
+
+export function EmailHero({
+    eyebrowCategory = 'Service',
+    eyebrowLabel = 'Email & Lifecycle Marketing',
+    h1,
+    subhead,
+    buttonText = 'GET A FREE PROGRAM AUDIT',
+    leadSource = 'email_service_audit',
+}: EmailHeroProps = {}) {
     const containerRef = useRef<HTMLDivElement>(null);
     const sectionRef = useRef<HTMLElement>(null);
     const contentRef = useRef<HTMLDivElement>(null);
@@ -185,6 +210,30 @@ export function EmailHero() {
                 opacity: 0, scale: 0.8, y: 20,
                 duration: 0.9, ease: 'power4.out', stagger: 0.08, delay: 1.0,
             });
+
+            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (reduceMotion) {
+                gsap.set('.em-status-review', { opacity: 0 });
+                gsap.set('.em-status-built, .em-built-check, .em-slack-reply, .em-slack-approved', { opacity: 1, scale: 1 });
+            } else {
+                gsap.set('.em-status-built, .em-built-check, .em-slack-reply, .em-slack-approved', { opacity: 0 });
+                gsap.set('.em-status-review', { opacity: 1 });
+                const story = gsap.timeline({ repeat: -1, repeatDelay: 1.4, delay: 1.8 });
+                story.fromTo('.em-slack-reply', { opacity: 0, y: 8 }, {
+                    opacity: 1, y: 0, duration: 0.45, ease: 'power4.out',
+                }, 0.4);
+                story.fromTo('.em-slack-approved', { opacity: 0, scale: 0.92 }, {
+                    opacity: 1, scale: 1, duration: 0.4, ease: 'power4.out',
+                }, 0.9);
+                story.to('.em-status-review', { opacity: 0, duration: 0.2 }, 1.2);
+                story.fromTo('.em-status-built', { opacity: 0 }, { opacity: 1, duration: 0.25 }, 1.25);
+                story.fromTo('.em-built-check', { opacity: 0, scale: 0.9 }, {
+                    opacity: 1, scale: 1, duration: 0.45, ease: 'power4.out',
+                }, 1.35);
+                story.to({}, { duration: 2.2 });
+                story.to('.em-built-check, .em-status-built, .em-slack-reply, .em-slack-approved', { opacity: 0, duration: 0.3 });
+                story.to('.em-status-review', { opacity: 1, duration: 0.25 });
+            }
         }, containerRef);
         return () => {
             try {
@@ -204,21 +253,26 @@ export function EmailHero() {
                 <div ref={flexRowRef} className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
 
                     {/* LEFT — Text */}
-                    <div className="w-full lg:w-[38%] flex flex-col items-start text-left pl-[10px] sm:pl-10 lg:pl-0">
+                    <div className="w-full lg:w-[48%] flex flex-col items-start text-left pl-[10px] sm:pl-10 lg:pl-0">
                         <div className="em-hero-text mb-6">
-                            <EyebrowHeading category="Service" label="Email Marketing" />
+                            <EyebrowHeading category={eyebrowCategory} label={eyebrowLabel} />
                         </div>
                         <h1
                             ref={headingRef}
-                            className="em-hero-text text-[clamp(2.5rem,5vw+1rem,4.5rem)] leading-[1] tracking-tighter mb-8 text-[#1a1512]"
+                            className="em-hero-text text-[clamp(1.875rem,3.2vw+0.5rem,2.75rem)] leading-[1.08] tracking-tighter mb-8 text-[#1a1512] text-pretty"
                             style={{ fontFamily: 'Nohemi, sans-serif', fontWeight: 500 }}
                         >
-                            <span className="whitespace-nowrap">Opened emails,</span>
-                            <AccentBr />
-                            <span className="relative inline-flex items-center justify-center px-5 pt-[0.12em] pb-[0.08em] -mx-5 z-10 overflow-hidden whitespace-nowrap rounded-[6px]">
+                            {h1 ?? (
+                                <>
+                            The email marketing
+                            <br className="hidden lg:block" />
+                            agency that ships as
+                            <br className="hidden lg:block" />
+                            fast as you can{' '}
+                            <span className="relative inline-flex items-center justify-center px-3 pt-[0.1em] pb-[0.06em] -mx-1 z-10 overflow-hidden whitespace-nowrap rounded-[6px]">
                                 <span className="absolute inset-0 rounded-[6px] bg-white/55 border border-[#d5d5d5]/40 shadow-[0_6px_20px_rgba(15,15,15,0.05),inset_0_1px_0_rgba(255,255,255,0.9)]" />
                                 <span className="relative text-[#0f0d0a]" style={{ zIndex: 1 }}>
-                                    lead to deals.
+                                    approve
                                 </span>
                                 <span
                                     className="absolute inset-0 rounded-[6px] pointer-events-none"
@@ -239,17 +293,29 @@ export function EmailHero() {
                                     }}
                                 />
                             </span>
+                                </>
+                            )}
                         </h1>
-                        <p ref={paragraphRef} className="em-hero-text text-[15px] md:text-base text-[#1a1512]/60 font-mono mb-10 max-w-md leading-relaxed">
-                            Automated flows and campaigns engineered to convert subscribers into revenue, on autopilot. We build email systems that nurture, convert, and scale — without adding to your workload.
+                        <p ref={paragraphRef} className="em-hero-text text-[15px] md:text-base text-[#1a1512]/60 font-mono mb-10 max-w-md leading-relaxed text-pretty">
+                            {subhead ??
+                                "Most email programs don't stall because nobody has ideas. They stall in the gap between the idea and the send, waiting on a designer, waiting on copy, waiting on one more round of approvals. We closed that gap with our own software. You request a campaign in Asana, you give feedback in Slack, and the edits apply themselves."}
                         </p>
-                        <div className="em-hero-text flex flex-col items-start">
-                            <AnimatedCTAButton />
+                        <div className="em-hero-text flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+                            <AuditCTAButton
+                                buttonText={buttonText}
+                                leadSource={leadSource}
+                            />
+                            <a
+                                href="#pricing"
+                                className="font-mono text-xs uppercase tracking-[0.12em] text-[#1a1512]/50 transition-colors duration-150 hover:text-[#ff5501]"
+                            >
+                                See pricing →
+                            </a>
                         </div>
                     </div>
 
                     {/* RIGHT — Email Builder Visual Composition */}
-                    <div className="w-full lg:w-[62%] relative em-hero-image pt-6 pb-16 px-0 sm:px-10 lg:p-0">
+                    <div className="w-full lg:w-[52%] relative em-hero-image pt-6 pb-16 px-0 sm:px-10 lg:p-0">
                         <div className="relative w-full" style={{ aspectRatio: '4 / 3' }}>
 
                             {/* MAIN CARD — Skeleton Email Builder */}
@@ -278,14 +344,21 @@ export function EmailHero() {
                                     {/* Canvas Header */}
                                     <div className="w-full flex items-center justify-between mb-3 sm:mb-4">
                                         <div className="font-mono text-[7px] sm:text-[8px] tracking-[0.15em] text-[#1a1512]/30 uppercase">Email Canvas</div>
-                                        <div className="flex gap-1.5">
-                                            <div className="w-4 sm:w-5 h-3 sm:h-3.5 rounded-[2px] bg-[#1a1512]/[0.06] border border-[#1a1512]/[0.06]" />
-                                            <div className="w-4 sm:w-5 h-3 sm:h-3.5 rounded-[2px] bg-[#1a1512]/[0.04] border border-[#1a1512]/[0.06]" />
+                                        <div className="relative h-3.5 min-w-[52px]">
+                                            <span className="em-status-review absolute inset-0 flex items-center justify-end font-mono text-[7px] sm:text-[8px] tracking-[0.12em] uppercase text-[#1a1512]/35">
+                                                In review
+                                            </span>
+                                            <span className="em-status-built absolute inset-0 flex items-center justify-end font-mono text-[7px] sm:text-[8px] tracking-[0.12em] uppercase text-[#16A34A] opacity-0">
+                                                Built
+                                            </span>
                                         </div>
                                     </div>
 
                                     {/* Email Template Body */}
-                                    <div className="w-full max-w-[85%] bg-white rounded-[4px] border border-[#1a1512]/[0.06] shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col overflow-hidden">
+                                    <div className="relative w-full max-w-[85%] bg-white rounded-[4px] border border-[#1a1512]/[0.06] shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col overflow-hidden">
+                                        <div className="em-built-check pointer-events-none absolute right-2 top-2 z-10 flex size-6 items-center justify-center rounded-full bg-[#22c55e] opacity-0 shadow-[0_4px_10px_rgba(34,197,94,0.28)]">
+                                            <BitmapIcon grid={ICON_CHECK} color="#ffffff" size={12} opacity={1} />
+                                        </div>
                                         {/* Hero Image Placeholder */}
                                         <div className="w-full aspect-[16/7] bg-gradient-to-br from-[#1a1512]/[0.05] to-[#1a1512]/[0.02] relative flex items-center justify-center">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="text-[#1a1512]/15">
@@ -316,7 +389,7 @@ export function EmailHero() {
                                             {/* CTA Button */}
                                             <div className="mt-1 sm:mt-2">
                                                 <div className="inline-flex items-center justify-center px-5 sm:px-6 py-2 sm:py-2.5 rounded-[6px] bg-[#ff5501] shadow-[0_2px_0_0_rgba(204,51,0,0.8),0_4px_12px_rgba(255,85,1,0.25)]">
-                                                    <span className="font-mono text-[7px] sm:text-[8px] tracking-[0.15em] text-white uppercase font-medium">Shop Now →</span>
+                                                    <span className="font-mono text-[7px] sm:text-[8px] tracking-[0.15em] text-white uppercase font-medium">Book a Demo →</span>
                                                 </div>
                                             </div>
 
@@ -354,91 +427,70 @@ export function EmailHero() {
                                 <DashedConnector className="w-10 top-full right-6 mt-1 rotate-[120deg] origin-top-right" />
                             </div>
 
-                            {/* KLAVIYO FLOWS — left side, pointing to builder canvas */}
+                            {/* ESP ROW — left side */}
                             <div className="em-badge absolute bottom-[28%] -left-3 sm:-left-8 lg:-left-10 z-40">
                                 <GlassBadge className="min-w-[110px]">
                                     <div className="flex items-center gap-2.5">
                                         <BitmapIcon grid={ICON_FLOW} />
-                                        <span className="text-[#1a1512]/70 font-mono text-[10px] tracking-[0.1em] uppercase">Klaviyo Flows</span>
+                                        <span className="text-[#1a1512]/70 font-mono text-[10px] tracking-[0.1em] uppercase">HubSpot · AC · Mailchimp</span>
                                     </div>
                                 </GlassBadge>
                                 <DashedConnector className="w-6 sm:w-8 top-1/2 -translate-y-1/2 left-full ml-1" />
                             </div>
 
-                            {/* OPEN RATE — bottom left, near inbox card */}
+                            {/* SLACK APPROVAL — bottom left */}
                             <div className="em-badge absolute -bottom-5 left-[24%] z-40">
                                 <GlassBadge>
                                     <div className="flex items-center gap-2.5">
                                         <BitmapIcon grid={ICON_RATE} />
-                                        <span className="text-[#1a1512]/70 font-mono text-[10px] tracking-[0.1em] uppercase">Open Rate</span>
+                                        <span className="text-[#1a1512]/70 font-mono text-[10px] tracking-[0.1em] uppercase">Slack Approved</span>
                                     </div>
                                 </GlassBadge>
                             </div>
 
-                            {/* MOBILE INBOX PREVIEW — bottom right overlap */}
-                            <div className="em-badge absolute -bottom-10 right-0 z-30 w-[44%] overflow-hidden rounded-[4px] border border-white/80 bg-[linear-gradient(150deg,rgba(255,255,255,0.78),rgba(255,255,255,0.46))] shadow-[0_16px_42px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-1px_0_rgba(213,213,213,0.5)] backdrop-blur-[12px] ring-1 ring-[#d5d5d5]/70 sm:-bottom-14 sm:-right-3 sm:w-[55%] lg:-right-6">
-                                {/* Mobile Status Bar */}
-                                <div className="h-5 sm:h-6 bg-[#f4f4f4] flex items-center justify-between px-2.5 border-b border-black/[0.05]">
-                                    <span className="text-[6px] sm:text-[7px] text-black/40 font-mono">9:41</span>
-                                    <span className="text-[6px] sm:text-[7px] text-black/40 font-mono tracking-wider uppercase">Inbox</span>
-                                    <div className="flex gap-1">
-                                        <div className="w-2 h-1.5 bg-black/20 rounded-[1px]" />
-                                        <div className="w-2 h-1.5 bg-black/20 rounded-[1px]" />
-                                    </div>
+                            {/* SLACK APPROVAL THREAD — bottom right overlap */}
+                            <div className="em-badge absolute -bottom-10 right-0 z-30 w-[48%] overflow-hidden rounded-[4px] border border-white/80 bg-[linear-gradient(150deg,rgba(255,255,255,0.78),rgba(255,255,255,0.46))] shadow-[0_16px_42px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-1px_0_rgba(213,213,213,0.5)] backdrop-blur-[12px] ring-1 ring-[#d5d5d5]/70 sm:-bottom-14 sm:-right-3 sm:w-[58%] lg:-right-6">
+                                <div className="flex items-center justify-between border-b border-[#1a1512]/[0.06] bg-white/50 px-3 py-2">
+                                    <span className="font-mono text-[7px] tracking-[0.14em] uppercase text-[#1a1512]/45">Slack</span>
+                                    <span className="truncate font-mono text-[7px] tracking-[0.06em] text-[#1a1512]/35">#campaign-review</span>
                                 </div>
 
-                                {/* Inbox Content */}
-                                <div className="p-3 sm:p-4 bg-white space-y-2.5 sm:space-y-3">
-                                    {/* Primary Email — New, from brand */}
-                                    <div className="relative">
-                                        <div className="flex items-start gap-2.5">
-                                            <div className="relative flex-shrink-0 mt-0.5">
-                                                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-[#ff5501] to-[#cc3300] flex items-center justify-center">
-                                                    <span className="text-white text-[8px] sm:text-[9px] font-bold">FW</span>
-                                                </div>
-                                                <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#28c840] border-[1.5px] border-white" />
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center justify-between mb-0.5">
-                                                    <span className="text-[10px] sm:text-[11px] text-[#1a1512] font-semibold truncate">Fox Wellness</span>
-                                                    <span className="text-[7px] sm:text-[8px] text-[#1a1512]/30 font-mono ml-2 flex-shrink-0">2m ago</span>
-                                                </div>
-                                                <div className="text-[9px] sm:text-[10px] text-[#1a1512]/80 font-medium leading-tight mb-0.5 truncate">
-                                                    Your exclusive early access is here
-                                                </div>
-                                                <div className="text-[8px] sm:text-[9px] text-[#1a1512]/40 leading-tight truncate">
-                                                    Hey Sarah, we saved something special for you. Your personalized...
-                                                </div>
-                                            </div>
+                                <div className="flex flex-col gap-2.5 bg-white p-3 sm:p-3.5">
+                                    <div className="flex items-start gap-2">
+                                        <div className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-[4px] bg-[#ff5501] text-[7px] font-bold text-white sm:size-7 sm:text-[8px]">
+                                            CD
                                         </div>
-                                        {/* Revenue Indicator */}
-                                        <div className="mt-2 inline-flex items-center gap-1.5 bg-[#28c840]/[0.08] rounded-[3px] px-2 py-1">
-                                            <div className="w-1 h-1 rounded-full bg-[#28c840]" />
-                                            <span className="font-mono text-[7px] sm:text-[8px] tracking-[0.1em] uppercase text-[#28c840]/80 font-medium">$48.2k Revenue</span>
+                                        <div className="min-w-0">
+                                            <div className="flex items-baseline gap-1.5">
+                                                <span className="truncate text-[10px] font-semibold text-[#1a1512] sm:text-[11px]">Captive Demand</span>
+                                                <span className="shrink-0 font-mono text-[7px] text-[#1a1512]/30">4m</span>
+                                            </div>
+                                            <p className="mt-0.5 text-[8px] leading-snug text-[#1a1512]/55 sm:text-[9px]">
+                                                Onboarding sequence v3 is in the canvas for review.
+                                            </p>
                                         </div>
                                     </div>
 
-                                    {/* Divider */}
-                                    <div className="w-full h-[1px] bg-[#1a1512]/[0.05]" />
+                                    <div className="em-slack-reply flex items-start gap-2 opacity-0">
+                                        <div className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-[4px] bg-[#1a1512] text-[7px] font-bold text-white sm:size-7 sm:text-[8px]">
+                                            A
+                                        </div>
+                                        <div className="min-w-0">
+                                            <div className="flex items-baseline gap-1.5">
+                                                <span className="truncate text-[10px] font-semibold text-[#1a1512] sm:text-[11px]">Alex</span>
+                                                <span className="shrink-0 font-mono text-[7px] text-[#1a1512]/30">2m</span>
+                                            </div>
+                                            <p className="mt-0.5 text-[8px] leading-snug text-[#1a1512]/55 sm:text-[9px]">
+                                                Looks good. Ship it.
+                                            </p>
+                                        </div>
+                                    </div>
 
-                                    {/* Faded older emails */}
-                                    <div className="opacity-30 space-y-2.5">
-                                        <div className="flex items-start gap-2.5">
-                                            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#1a1512]/[0.06] flex-shrink-0" />
-                                            <div className="flex-1 min-w-0">
-                                                <div className="w-20 h-2 bg-[#1a1512]/10 rounded-full mb-1" />
-                                                <div className="w-[80%] h-1.5 bg-[#1a1512]/[0.06] rounded-full mb-0.5" />
-                                                <div className="w-[60%] h-1.5 bg-[#1a1512]/[0.04] rounded-full" />
-                                            </div>
-                                        </div>
-                                        <div className="flex items-start gap-2.5">
-                                            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#1a1512]/[0.06] flex-shrink-0" />
-                                            <div className="flex-1 min-w-0">
-                                                <div className="w-16 h-2 bg-[#1a1512]/10 rounded-full mb-1" />
-                                                <div className="w-[70%] h-1.5 bg-[#1a1512]/[0.06] rounded-full mb-0.5" />
-                                                <div className="w-[50%] h-1.5 bg-[#1a1512]/[0.04] rounded-full" />
-                                            </div>
-                                        </div>
+                                    <div className="em-slack-approved inline-flex w-fit items-center gap-1.5 rounded-[3px] bg-[#22c55e]/[0.1] px-2 py-1 opacity-0">
+                                        <BitmapIcon grid={ICON_CHECK} color="#16A34A" size={10} opacity={1} />
+                                        <span className="font-mono text-[7px] font-medium tracking-[0.1em] uppercase text-[#16A34A] sm:text-[8px]">
+                                            Approved
+                                        </span>
                                     </div>
                                 </div>
                             </div>

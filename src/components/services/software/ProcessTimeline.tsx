@@ -6,15 +6,8 @@ import { Search, Layers, Code2, Rocket } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { AccentBr } from '@/components/ui/accent-br';
+import { DecorativeShapeWithLine } from '@/components/ui/DecorativeShapeWithLine';
 
-const DecorativeShapeWithLine = ({ shapeColor = "#e5e5e5", lineColor = "#e5e5e5" }: { shapeColor?: string; lineColor?: string }) => (
-    <div className="flex items-end w-full">
-        <svg viewBox="0 0 80 8" className="w-20 h-2 flex-shrink-0" preserveAspectRatio="none">
-            <path d="M0 8 L0 0 L68 0 L80 8 Z" fill={shapeColor} />
-        </svg>
-        <div className="flex-1 h-[1px] self-end" style={{ backgroundColor: lineColor }} />
-    </div>
-);
 
 const phases = [
     {
@@ -97,13 +90,10 @@ export function ProcessTimeline() {
                 {/* Header */}
                 <div className="timeline-header mb-16 md:mb-24">
                     <div className="mb-6 w-full">
-                        <DecorativeShapeWithLine shapeColor="#333" lineColor="#2a2520" />
+                        <DecorativeShapeWithLine shapeColor="#333" lineColor="#2a2520" label="PROCESS" labelClassName="text-[#ff5501]" />
                     </div>
                     <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-8">
                         <div>
-                            <span className="font-mono text-sm tracking-wider text-[#ff5501] uppercase block mb-4">
-                                / PROCESS
-                            </span>
                             <h2
                                 className="text-4xl md:text-5xl lg:text-6xl text-white"
                                 style={{ fontFamily: 'Nohemi, sans-serif', fontWeight: 300 }}

@@ -156,34 +156,67 @@ const CardBorder = () => (
   </>
 );
 
+interface TestimonialsSectionProps {
+  title?: React.ReactNode;
+  /** When set, only these companies appear in the quote stack and logo marquee. */
+  companyNames?: readonly string[];
+}
+
+function matchesCompany(name: string, filters: readonly string[]) {
+  const n = name.toLowerCase();
+  return filters.some((filter) => {
+    const f = filter.toLowerCase();
+    return n === f || n.includes(f) || f.includes(n);
+  });
+}
+
 // @component: TestimonialsSection
-export function TestimonialsSection() {
+export function TestimonialsSection({
+  title = (
+    <>
+      <span className="text-[#d3d4d9]">Trusted to drive revenue</span>
+      <AccentBr />
+      <span className="text-[#1a1512]">by the best in the industry</span>
+    </>
+  ),
+  companyNames,
+}: TestimonialsSectionProps) {
+  const visibleTestimonials = companyNames?.length
+    ? testimonials.filter((item) => matchesCompany(item.company, companyNames))
+    : testimonials;
+  const visibleLogos = companyNames?.length
+    ? logos.filter((item) => matchesCompany(item.name, companyNames))
+    : logos;
+
   const [activeIndex, setActiveIndex] = useState(0);
   const [progressKey, setProgressKey] = useState(0);
   const autoplayDuration = 8000; // 8 seconds per slide for longer quotes
 
   useEffect(() => {
+    if (visibleTestimonials.length === 0) return;
     const timer = setInterval(() => {
-      setActiveIndex(prev => (prev + 1) % testimonials.length);
-      setProgressKey(prev => prev + 1);
+      setActiveIndex((prev) => (prev + 1) % visibleTestimonials.length);
+      setProgressKey((prev) => prev + 1);
     }, autoplayDuration);
     return () => clearInterval(timer);
-  }, []);
+  }, [visibleTestimonials.length]);
 
   const handleManualChange = (index: number) => {
     setActiveIndex(index);
-    setProgressKey(prev => prev + 1); // Reset progress bar
+    setProgressKey((prev) => prev + 1);
   };
 
+  const current = visibleTestimonials[activeIndex] ?? visibleTestimonials[0];
+
   return (
-    <section className="w-full min-h-0 md:min-h-screen bg-[#FAFAFA] text-black flex flex-col items-center justify-center py-20 md:py-32 px-4 overflow-hidden font-sans relative">
+    <section className="relative flex w-full flex-col items-center justify-center overflow-hidden bg-[#FAFAFA] px-4 py-20 font-sans text-black md:py-32">
 
       {/* 1. BACKGROUND LOGOS (DESKTOP ONLY) */}
       {/* EDIT: Added 'hidden lg:flex' to hide this absolute layer on mobile */}
-      <div className="hidden lg:flex absolute inset-0 w-full h-full overflow-hidden items-center justify-center z-0">
+      <div className="hidden lg:flex absolute inset-0 w-full h-full overflow-hidden items-center justify-center z-0 bg-[#F8F8F8]">
         {/* Gradient Masks for fading edges */}
-        <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-[#FAFAFA] to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[#FAFAFA] to-transparent z-10 pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-[#F8F8F8] to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[#F8F8F8] to-transparent z-10 pointer-events-none" />
 
         <div className="flex items-center justify-center w-full">
           <motion.div
@@ -198,7 +231,7 @@ export function TestimonialsSection() {
               }
             }}
           >
-            {[...logos, ...logos, ...logos].map((logo, index) => (
+            {[...visibleLogos, ...visibleLogos, ...visibleLogos].map((logo, index) => (
               <div key={`${logo.id}-${index}`} className="flex-shrink-0 opacity-30" style={{ filter: 'grayscale(100%) brightness(0.4)' }}>
                 <Image
                   src={logo.src}
@@ -216,11 +249,9 @@ export function TestimonialsSection() {
       <div className="max-w-7xl w-full flex flex-col items-center z-10 relative">
 
         {/* Header Section */}
-        <div className="mb-12 md:mb-24 text-center max-w-4xl mx-auto">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl tracking-wide" style={{ fontFamily: 'Nohemi, sans-serif', fontWeight: 300, letterSpacing: '0.05em' }}>
-            <span className="text-[#d3d4d9]">Trusted to drive revenue</span>
-            <AccentBr />
-            <span className="text-[#1a1512]">by the best in the industry</span>
+        <div className="mb-12 md:mb-24 text-center max-w-6xl mx-auto">
+          <h2 className="text-balance text-pretty text-4xl md:text-5xl lg:text-6xl tracking-wide text-[#1a1512]" style={{ fontFamily: 'Nohemi, sans-serif', fontWeight: 300, letterSpacing: '0.05em' }}>
+            {title}
           </h2>
         </div>
 
@@ -273,7 +304,7 @@ export function TestimonialsSection() {
                   >
                     {/* Quote Text */}
                     <p className="mb-4 min-h-0 flex-1 overflow-y-auto font-mono text-xs uppercase leading-relaxed tracking-wide text-[#1a1512]/70 md:text-sm">
-                      &ldquo;{testimonials[activeIndex].text}&rdquo;
+                      &ldquo;{current.text}&rdquo;
                     </p>
 
                     {/* Author Info */}
@@ -281,8 +312,8 @@ export function TestimonialsSection() {
                       <div className="relative shrink-0 rounded-full shadow-md">
                         <div className="relative h-10 w-10 overflow-hidden rounded-full border-2 border-white md:h-12 md:w-12">
                           <Image
-                            src={testimonials[activeIndex].image}
-                            alt={testimonials[activeIndex].author}
+                            src={current.image}
+                            alt={current.author}
                             fill
                             className="object-cover"
                           />
@@ -290,10 +321,10 @@ export function TestimonialsSection() {
                       </div>
                       <div>
                         <p className="font-semibold text-[#1a1512] text-sm">
-                          {testimonials[activeIndex].author}
+                          {current.author}
                         </p>
                         <p className="text-xs text-[#1a1512]/50">
-                          {testimonials[activeIndex].role}, {testimonials[activeIndex].company}
+                          {current.role}, {current.company}
                         </p>
                       </div>
                     </div>
@@ -317,7 +348,7 @@ export function TestimonialsSection() {
                 </div>
 
                 <div className="flex justify-center gap-2">
-                  {testimonials.map((_, idx) => (
+                  {visibleTestimonials.map((_, idx) => (
                     <button
                       key={idx}
                       onClick={() => handleManualChange(idx)}
@@ -354,7 +385,7 @@ export function TestimonialsSection() {
                 }
               }}
             >
-              {[...logos, ...logos, ...logos].map((logo, index) => (
+              {[...visibleLogos, ...visibleLogos, ...visibleLogos].map((logo, index) => (
                 <div key={`${logo.id}-${index}`} className="flex-shrink-0 opacity-40" style={{ filter: 'grayscale(100%) brightness(0.4)' }}>
                   <Image
                     src={logo.src}

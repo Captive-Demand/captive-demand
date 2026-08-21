@@ -16,19 +16,12 @@ import { partnerLogos } from '@/data/logos';
 import type { CaseStudy } from '@/data/case-studies';
 import { CTASection } from '@/components/sections/CTASection';
 import { AnimatedCTAButton } from '@/components/sections/Hero';
+import { DecorativeShapeWithLine } from '@/components/ui/DecorativeShapeWithLine';
 
 gsap.registerPlugin(ScrollTrigger);
 
 /* ─── Shared Helpers ─── */
 
-const DecorativeShapeWithLine = ({ shapeColor = "#d5d5d5", lineColor = "#e5e5e5" }: { shapeColor?: string; lineColor?: string }) => (
-  <div className="flex items-end w-full">
-    <svg viewBox="0 0 80 8" className="w-20 h-2 flex-shrink-0" preserveAspectRatio="none">
-      <path d="M0 8 L0 0 L68 0 L80 8 Z" fill={shapeColor} />
-    </svg>
-    <div className="flex-1 h-[1px] self-end" style={{ backgroundColor: lineColor }} />
-  </div>
-);
 
 /* ─── Wireframe Grid ─── */
 
@@ -324,11 +317,9 @@ function FeaturedCarousel() {
       <div className="relative z-10 max-w-7xl mx-auto">
         <div className="mb-8">
           <div className="mb-6 w-full">
-            <DecorativeShapeWithLine />
+            <DecorativeShapeWithLine label="Featured Projects" />
           </div>
-          <span className="font-mono text-sm tracking-wider text-[#1a1512]/70 uppercase block mb-4">
-            / Featured Projects
-          </span>
+          
           <h2
             className="text-3xl md:text-4xl lg:text-5xl text-[#1a1512] tracking-tighter"
             style={{ fontFamily: 'Nohemi, sans-serif', fontWeight: 300 }}
@@ -554,14 +545,12 @@ function FilterGrid() {
       <div className="relative z-10 max-w-7xl mx-auto">
         <div className="mb-12">
           <div className="mb-6 w-full">
-            <DecorativeShapeWithLine />
+            <DecorativeShapeWithLine label="All Projects" />
           </div>
 
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
             <div>
-              <span className="font-mono text-sm tracking-wider text-[#1a1512]/70 uppercase block mb-4">
-                / All Projects
-              </span>
+              
               <h2
                 className="text-3xl md:text-4xl lg:text-5xl text-[#1a1512] tracking-tighter"
                 style={{ fontFamily: 'Nohemi, sans-serif', fontWeight: 300 }}
@@ -742,11 +731,9 @@ function TestimonialBand() {
       <div className="relative z-10 max-w-7xl mx-auto">
         <div className="mb-12">
           <div className="mb-6 w-full">
-            <DecorativeShapeWithLine />
+            <DecorativeShapeWithLine label="Hear it from our clients" />
           </div>
-          <span className="font-mono text-sm tracking-wider text-[#1a1512]/70 uppercase block mb-4">
-            / Hear it from our clients
-          </span>
+          
           <h2
             className="text-3xl md:text-4xl lg:text-5xl text-[#1a1512] tracking-tighter"
             style={{ fontFamily: 'Nohemi, sans-serif', fontWeight: 300 }}

@@ -7,6 +7,7 @@ import { PricingAndAddons } from '@/components/services/website/PricingAndAddons
 import { SEOPricing } from '@/components/services/seo/SEOPricing';
 import { SoftwarePricing } from '@/components/services/software/SoftwarePricing';
 import { EmailPricing } from '@/components/services/email-marketing/EmailPricing';
+import { AdvertisingPricing } from '@/components/services/advertising/AdvertisingPricing';
 import { AutomationPricing } from '@/components/services/automation/AutomationPricing';
 import { PricingFAQ } from '@/components/pricing/PricingFAQ';
 import { CTASection } from '@/components/sections/CTASection';
@@ -18,6 +19,7 @@ const SERVICE_COMPONENTS: Record<PricingService, React.ComponentType<ServicePric
   seo: SEOPricing,
   software: SoftwarePricing,
   email: EmailPricing,
+  advertising: AdvertisingPricing,
   automation: AutomationPricing,
 };
 

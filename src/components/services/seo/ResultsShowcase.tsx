@@ -1,130 +1,120 @@
 'use client';
 
-import React, { useRef, useLayoutEffect } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import React from 'react';
+import Image from 'next/image';
+import { motion, useReducedMotion } from 'framer-motion';
+import { TrendingUp } from 'lucide-react';
 import { NoiseOverlay } from '@/components/ui/NoiseOverlay';
 import { AccentBr } from '@/components/ui/accent-br';
+import { SEO_CASE_STUDIES } from '@/components/services/seo/SEOCaseStudies';
 
-gsap.registerPlugin(ScrollTrigger);
+const VERTICALS = ['B2B SaaS', 'Healthcare', 'Commoditized ecommerce'] as const;
 
-const stats = [
-    { value: 312, suffix: '%', label: 'Avg. Traffic Increase', sublabel: 'Across all client campaigns' },
-    { value: 47, suffix: '%', label: 'More Conversions', sublabel: 'From organic search traffic' },
-    { value: 3, suffix: 'x', label: 'AI Citation Rate', sublabel: 'vs. industry average' },
-    { value: 90, suffix: '+', label: 'Keywords in Top 10', sublabel: 'Per client on average' },
-];
+/** Three strong SEO proofs for the dark / RESULTS band */
+const FEATURED = SEO_CASE_STUDIES.filter((s) =>
+  ['SLK Clinic', 'Velocity International Group', 'Glow Houston'].includes(s.client),
+);
 
 export function ResultsShowcase() {
-    const sectionRef = useRef<HTMLDivElement>(null);
-    const counterRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const shouldReduceMotion = useReducedMotion();
 
-    useLayoutEffect(() => {
-        const ctx = gsap.context(() => {
-            counterRefs.current.forEach((el, index) => {
-                if (!el) return;
+  return (
+    <section
+      className="relative w-full overflow-hidden px-4 py-20 md:py-32"
+      style={{
+        background:
+          'radial-gradient(circle at 0% 0%, #ff5501 0%, #8f3a00 25%, #1a1512 60%, #0a0a0a 100%)',
+      }}
+    >
+      <NoiseOverlay />
 
-                const target = stats[index].value;
+      <div className="relative z-10 mx-auto max-w-7xl">
+        <div className="mb-12 max-w-3xl md:mb-16">
+          <h2
+            className="text-balance text-4xl tracking-tighter text-white md:text-5xl lg:text-6xl"
+            style={{ fontFamily: 'Nohemi, sans-serif', fontWeight: 300 }}
+          >
+            Page one in categories
+            <AccentBr />
+            <span className="text-white/30">that don&apos;t give it up easily</span>
+          </h2>
+          <p className="mt-6 max-w-2xl text-pretty text-base leading-relaxed text-white/60 md:text-lg">
+            Ranking a site in an uncontested niche proves very little. We&apos;ve earned page-one
+            rankings in some of the most competitive categories on the web: B2B SaaS, healthcare,
+            and commoditized ecommerce, where you&apos;re up against established domains with far
+            larger budgets and a decade of accumulated authority.
+          </p>
+        </div>
 
-                gsap.fromTo(
-                    { val: 0 },
-                    { val: target },
-                    {
-                        val: target,
-                        duration: 2,
-                        ease: 'power4.out',
-                        scrollTrigger: {
-                            trigger: el,
-                            start: 'top 85%',
-                            toggleActions: 'play none none none',
-                        },
-                        onUpdate: function () {
-                            if (el) {
-                                el.textContent = Math.floor(this.targets()[0].val).toString();
-                            }
-                        },
-                    }
-                );
-            });
+        <p className="mb-6 text-center font-mono text-[11px] uppercase tracking-[0.18em] text-white/35 md:mb-8">
+          {VERTICALS.join(' · ')}
+        </p>
 
-            const cards = sectionRef.current?.querySelectorAll('.stat-card');
-            if (cards) {
-                gsap.from(cards, {
-                    scale: 0.5,
-                    opacity: 0,
-                    duration: 0.6,
-                    ease: 'power4.out',
-                    stagger: 0.1,
-                    scrollTrigger: {
-                        trigger: sectionRef.current,
-                        start: 'top 85%',
-                        toggleActions: 'play none none none',
-                    },
-                });
-            }
-        }, sectionRef);
-
-        return () => ctx.revert();
-    }, []);
-
-    return (
-        <section ref={sectionRef} className="w-full py-20 md:py-32 px-4 relative overflow-hidden"
-            style={{
-                background: 'radial-gradient(circle at 0% 0%, #ff5501 0%, #8f3a00 25%, #1a1512 60%, #0a0a0a 100%)',
-            }}
-        >
-            <NoiseOverlay />
-
-            <div className="max-w-7xl mx-auto relative z-10">
-                {/* Header */}
-                <div className="text-center mb-16 md:mb-24">
-                    <span className="font-mono text-sm tracking-wider text-white/30 uppercase block mb-4">
-                        / RESULTS
-                    </span>
-                    <h2
-                        className="text-4xl md:text-5xl lg:text-6xl text-white max-w-3xl mx-auto tracking-tighter"
-                        style={{ fontFamily: 'Nohemi, sans-serif', fontWeight: 300 }}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {FEATURED.map((study, index) => (
+            <motion.article
+              key={study.client}
+              className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] backdrop-blur-xl"
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 12, filter: 'blur(4px)' }}
+              whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{
+                type: 'spring',
+                duration: 0.45,
+                bounce: 0,
+                delay: index * 0.08,
+              }}
+              whileHover={
+                shouldReduceMotion
+                  ? undefined
+                  : { y: -4, transition: { type: 'spring', stiffness: 400, damping: 10 } }
+              }
+            >
+              <div className="relative aspect-[16/10] overflow-hidden">
+                <Image
+                  src={study.image}
+                  alt={study.client}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1a1512]/80 via-transparent to-transparent" />
+                <div className="absolute bottom-3 left-3 inline-flex w-fit flex-col gap-0.5 rounded-lg border border-white/15 bg-white/10 px-3 py-2 backdrop-blur-md">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp size={14} className="shrink-0 text-[#ff5501]" strokeWidth={1.5} />
+                    <span
+                      className="text-xl tracking-tight text-white tabular-nums"
+                      style={{ fontFamily: 'Nohemi, sans-serif', fontWeight: 400 }}
                     >
-                        Numbers that speak<AccentBr />
-                        <span className="text-white/30">louder than promises.</span>
-                    </h2>
+                      {study.metric}
+                    </span>
+                  </div>
+                  <span className="font-mono text-[10px] uppercase tracking-wider text-white/50">
+                    {study.metricLabel}
+                  </span>
                 </div>
+              </div>
 
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {stats.map((stat, index) => (
-                        <div
-                            key={index}
-                            className="stat-card rounded-2xl p-8 border border-white/10 backdrop-blur-xl bg-white/[0.03]"
-                            style={{
-                                boxShadow: 'inset 0 1px 0 0 rgba(255,255,255,0.08), 0 20px 40px -15px rgba(0,0,0,0.3)',
-                            }}
-                        >
-                            <div className="flex items-baseline gap-1 mb-4">
-                                <span
-                                    ref={(el) => { counterRefs.current[index] = el; }}
-                                    className="text-5xl md:text-6xl text-white tracking-tighter"
-                                    style={{ fontFamily: 'Nohemi, sans-serif', fontWeight: 300 }}
-                                >
-                                    0
-                                </span>
-                                <span
-                                    className="text-3xl md:text-4xl text-[#ff5501]"
-                                    style={{ fontFamily: 'Nohemi, sans-serif', fontWeight: 300 }}
-                                >
-                                    {stat.suffix}
-                                </span>
-                            </div>
-                            <h3 className="text-base text-white mb-1" style={{ fontFamily: 'Nohemi, sans-serif', fontWeight: 400 }}>
-                                {stat.label}
-                            </h3>
-                            <p className="font-mono text-[11px] text-white/30 uppercase tracking-wider">
-                                {stat.sublabel}
-                            </p>
-                        </div>
-                    ))}
+              <div className="p-6">
+                <div className="mb-3 flex items-baseline justify-between gap-3">
+                  <h3
+                    className="text-lg text-white"
+                    style={{ fontFamily: 'Nohemi, sans-serif', fontWeight: 500 }}
+                  >
+                    {study.client}
+                  </h3>
+                  <span className="shrink-0 font-mono text-[11px] uppercase tracking-wider text-white/35">
+                    {study.industry}
+                  </span>
                 </div>
-            </div>
-        </section>
-    );
+                <p className="text-pretty text-sm leading-relaxed text-white/55">{study.description}</p>
+              </div>
+            </motion.article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
 }
+
+export default ResultsShowcase;

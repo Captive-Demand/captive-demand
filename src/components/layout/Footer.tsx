@@ -15,6 +15,7 @@ const FOOTER_SERVICE_LINKS = [
     { label: 'Website', href: '/services/website' },
     { label: 'SEO', href: '/services/seo' },
     { label: 'Email', href: '/services/email-marketing' },
+    { label: 'Advertising', href: '/services/advertising' },
     { label: 'Software', href: '/services/software' },
     { label: 'Automation', href: '/services/automation' },
 ] as const;

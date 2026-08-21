@@ -264,3 +264,62 @@ body {
     border-radius: 0 0 1.5rem 1.5rem;
   }
 }
+
+@keyframes solution-marquee-shift {
+  to {
+    transform: translate3d(calc(-1 * var(--marquee-shift)), 0, 0);
+  }
+}
+
+.solution-marquee-track {
+  animation: solution-marquee-shift var(--marquee-duration, 40s) linear infinite;
+}
+
+/* Alpha-mask the cards, do not paint a color overlay. Many stops = a soft ease, not a hard veil. */
+.solution-marquee-viewport {
+  --marquee-fade: clamp(200px, 22vw, 420px);
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    rgb(0 0 0 / 0.03) calc(var(--marquee-fade) * 0.12),
+    rgb(0 0 0 / 0.1) calc(var(--marquee-fade) * 0.28),
+    rgb(0 0 0 / 0.28) calc(var(--marquee-fade) * 0.46),
+    rgb(0 0 0 / 0.55) calc(var(--marquee-fade) * 0.64),
+    rgb(0 0 0 / 0.82) calc(var(--marquee-fade) * 0.8),
+    rgb(0 0 0 / 0.96) calc(var(--marquee-fade) * 0.92),
+    #000 var(--marquee-fade),
+    #000 calc(100% - var(--marquee-fade)),
+    rgb(0 0 0 / 0.96) calc(100% - var(--marquee-fade) * 0.92),
+    rgb(0 0 0 / 0.82) calc(100% - var(--marquee-fade) * 0.8),
+    rgb(0 0 0 / 0.55) calc(100% - var(--marquee-fade) * 0.64),
+    rgb(0 0 0 / 0.28) calc(100% - var(--marquee-fade) * 0.46),
+    rgb(0 0 0 / 0.1) calc(100% - var(--marquee-fade) * 0.28),
+    rgb(0 0 0 / 0.03) calc(100% - var(--marquee-fade) * 0.12),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    rgb(0 0 0 / 0.03) calc(var(--marquee-fade) * 0.12),
+    rgb(0 0 0 / 0.1) calc(var(--marquee-fade) * 0.28),
+    rgb(0 0 0 / 0.28) calc(var(--marquee-fade) * 0.46),
+    rgb(0 0 0 / 0.55) calc(var(--marquee-fade) * 0.64),
+    rgb(0 0 0 / 0.82) calc(var(--marquee-fade) * 0.8),
+    rgb(0 0 0 / 0.96) calc(var(--marquee-fade) * 0.92),
+    #000 var(--marquee-fade),
+    #000 calc(100% - var(--marquee-fade)),
+    rgb(0 0 0 / 0.96) calc(100% - var(--marquee-fade) * 0.92),
+    rgb(0 0 0 / 0.82) calc(100% - var(--marquee-fade) * 0.8),
+    rgb(0 0 0 / 0.55) calc(100% - var(--marquee-fade) * 0.64),
+    rgb(0 0 0 / 0.28) calc(100% - var(--marquee-fade) * 0.46),
+    rgb(0 0 0 / 0.1) calc(100% - var(--marquee-fade) * 0.28),
+    rgb(0 0 0 / 0.03) calc(100% - var(--marquee-fade) * 0.12),
+    transparent 100%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .solution-marquee-track {
+    animation: none;
+  }
+}
