@@ -54,7 +54,22 @@ export function AdvertisingMethodology() {
       <AdvertisingSprint />
 
       <SEOYourTeam
-        strategistBody="The senior person who builds your strategy is the person on your recurring calls, reviewing what shipped, what the numbers say, and what's queued for next month. Not a summary relayed through an account manager. The person who actually made the decisions, explaining why. You also get them between meetings. When something in the account changes and you want a read on it, you ask the strategist directly."
+        strategistBody={
+          <>
+            The senior person who builds your strategy, for a national account or a{' '}
+            <Link
+              href="/nashville-advertising-agency"
+              className="underline decoration-white/40 underline-offset-4 transition-colors duration-150 hover:text-white hover:decoration-white"
+            >
+              Nashville advertising agency
+            </Link>{' '}
+            client, is the person on your recurring calls, reviewing what shipped, what the numbers
+            say, and what&apos;s queued for next month. Not a summary relayed through an account
+            manager. The person who actually made the decisions, explaining why. You also get them
+            between meetings. When something in the account changes and you want a read on it, you
+            ask the strategist directly.
+          </>
+        }
         accessPoints={[
           {
             label: 'Cadence',

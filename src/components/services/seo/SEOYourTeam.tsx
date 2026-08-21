@@ -29,24 +29,16 @@ const ACCESS_POINTS: {
   },
   {
     label: 'US-based',
-    title: (
-      <>
-        US-based senior strategy, including{' '}
-        <Link
-          href="/nashville-seo-agency"
-          className="underline decoration-[#1a1512]/25 underline-offset-4 transition-colors duration-150 hover:text-[#ff5501] hover:decoration-[#ff5501]"
-        >
-          SEO in Nashville
-        </Link>
-        , at a price that usually buys an offshore team
-      </>
-    ),
+    title: 'US-based senior strategy at a price that usually buys an offshore team',
     icon: MapPin,
   },
 ];
 
+const BODY_LINK =
+  'underline decoration-white/40 underline-offset-4 transition-colors duration-150 hover:text-white hover:decoration-white';
+
 export interface SEOYourTeamProps {
-  strategistBody?: string;
+  strategistBody?: React.ReactNode;
   accessPoints?: {
     label: string;
     title: React.ReactNode;
@@ -55,7 +47,17 @@ export interface SEOYourTeamProps {
 }
 
 export function SEOYourTeam({
-  strategistBody = "Strategy is the part of this that decides everything, so it isn't handed to a coordinator. The senior strategist who builds your keyword strategy runs your recurring calls, as often as weekly, at whatever cadence matches the pace of your site, and you can reach them directly in between.",
+  strategistBody = (
+    <>
+      Strategy is the part of this that decides everything, so it isn&apos;t handed to a
+      coordinator. The senior strategist who builds your keyword strategy, including{' '}
+      <Link href="/nashville-seo-agency" className={BODY_LINK}>
+        SEO in Nashville
+      </Link>
+      , runs your recurring calls, as often as weekly, at whatever cadence matches the pace of your
+      site, and you can reach them directly in between.
+    </>
+  ),
   accessPoints = ACCESS_POINTS,
 }: SEOYourTeamProps = {}) {
   const labelRef = useRef<HTMLSpanElement>(null);
