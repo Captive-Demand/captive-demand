@@ -11,7 +11,6 @@ export type SubmitShoreAuditParams = {
   phone: string;
   siteUrls: string[];
   recaptchaToken?: string;
-  formLocation?: string;
 };
 
 export function normalizeSiteUrls(urls: string[]): string[] {
@@ -41,7 +40,6 @@ export async function submitShoreAuditForm(params: SubmitShoreAuditParams): Prom
       businessName: params.businessName.trim(),
       message: formatSiteUrlsMessage(urls),
       recaptchaToken: params.recaptchaToken,
-      formLocation: params.formLocation,
       utmSource: browser.utmSource,
       utmMedium: browser.utmMedium,
       utmCampaign: browser.utmCampaign,

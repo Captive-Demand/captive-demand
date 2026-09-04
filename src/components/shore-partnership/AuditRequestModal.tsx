@@ -120,7 +120,6 @@ export function AuditRequestModal({
       phone: form.phone,
       siteUrls,
       recaptchaToken: recaptcha.token,
-      formLocation: analyticsLeadSource,
     });
 
     if (!ok) {

@@ -20,7 +20,6 @@ type Body = {
   siteCount?: string;
   recaptchaToken?: string;
   source?: string;
-  formLocation?: string;
   utmSource?: string;
   utmMedium?: string;
   utmCampaign?: string;
@@ -225,7 +224,6 @@ export async function POST(request: Request) {
         phone,
         company: businessName,
         siteUrls: body.message?.split('\n') ?? [],
-        formLocation: body.formLocation?.trim() || shoreFormSource,
         utmSource: body.utmSource,
         utmMedium: body.utmMedium,
         utmCampaign: body.utmCampaign,

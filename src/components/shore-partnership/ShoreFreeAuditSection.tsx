@@ -56,7 +56,6 @@ export function ShoreFreeAuditSection() {
       phone: form.phone,
       siteUrls,
       recaptchaToken: recaptcha.token,
-      formLocation: 'shore_partnership_audit',
     });
 
     if (!ok) {

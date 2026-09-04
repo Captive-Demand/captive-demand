@@ -7,7 +7,6 @@ export type HubSpotAuditSubmission = {
   phone: string;
   company: string;
   siteUrls: string[];
-  formLocation?: string;
   utmSource?: string;
   utmMedium?: string;
   utmCampaign?: string;
@@ -49,7 +48,7 @@ export function buildHubSpotAuditFields(input: HubSpotAuditSubmission): HubSpotF
     field('utm_source', input.utmSource),
     field('utm_medium', input.utmMedium),
     field('utm_campaign', input.utmCampaign),
-    field('captive_demand_form_location', input.formLocation),
+    field('captive_demand_form_location', input.pageUri),
   ].filter((item): item is HubSpotFormField => item !== null);
 }
 

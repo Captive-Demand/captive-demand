@@ -103,7 +103,6 @@ export function ShoreExitIntentModal() {
       phone,
       siteUrls,
       recaptchaToken: recaptcha.token,
-      formLocation: 'shore_partnership_exit_intent',
     });
 
     if (!ok) {
