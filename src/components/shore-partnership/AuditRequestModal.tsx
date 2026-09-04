@@ -42,7 +42,7 @@ export function AuditRequestModal({
   recaptchaAction = 'shore_audit_form',
   analyticsLeadSource = 'homepage_audit',
   analyticsFormName = 'audit-form',
-  portfolioPlaceholder = 'e.g. Your portfolio name',
+  portfolioPlaceholder = 'e.g. Your company name',
   successMessage = DEFAULT_SUCCESS,
 }: AuditRequestModalProps) {
   const { getToken } = useRecaptchaToken();
@@ -279,7 +279,7 @@ export function AuditRequestModal({
 
                       <div>
                         <label htmlFor="modal-audit-portfolio" className={SITE_FORM_LABEL_CLASS}>
-                          Portfolio name
+                          Company name
                         </label>
                         <input
                           id="modal-audit-portfolio"

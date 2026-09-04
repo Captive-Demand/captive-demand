@@ -34,9 +34,19 @@ function field(name: string, value: string | undefined, objectTypeId = '0-1'): H
   return { objectTypeId, name, value: trimmed };
 }
 
+export function normalizeAuditSiteUrls(urls: string[]): string[] {
+  return urls.map((url) => url.trim()).filter(Boolean);
+}
+
+/** Contact `website` is a single text field — join portco URLs so all of them land on the record. */
+export function formatWebsiteProperty(urls: string[]): string {
+  return normalizeAuditSiteUrls(urls).join(', ');
+}
+
 export function buildHubSpotAuditFields(input: HubSpotAuditSubmission): HubSpotFormField[] {
   const { firstname, lastname } = splitPersonName(input.fullName);
-  const website = input.siteUrls.map((url) => url.trim()).filter(Boolean)[0] ?? '';
+  const siteUrls = normalizeAuditSiteUrls(input.siteUrls);
+  const websites = formatWebsiteProperty(siteUrls);
 
   return [
     field('firstname', firstname),
@@ -44,7 +54,8 @@ export function buildHubSpotAuditFields(input: HubSpotAuditSubmission): HubSpotF
     field('email', input.email),
     field('phone', input.phone),
     field('company', input.company),
-    field('website', website, '0-2'),
+    field('website', websites),
+    field('website', siteUrls[0], '0-2'),
     field('utm_source', input.utmSource),
     field('utm_medium', input.utmMedium),
     field('utm_campaign', input.utmCampaign),
@@ -72,13 +83,6 @@ export async function submitHubSpotAuditForm(
   if (input.pageName?.trim()) context.pageName = input.pageName.trim();
   if (input.hutk?.trim()) context.hutk = input.hutk.trim();
 
-  const extraUrls = input.siteUrls.map((url) => url.trim()).filter(Boolean).slice(1);
-  const pageName =
-    extraUrls.length > 0
-      ? `${context.pageName || 'Audit request'} · additional sites: ${extraUrls.join(' | ')}`
-      : context.pageName;
-  if (pageName) context.pageName = pageName;
-
   let response: Response;
   try {
     response = await fetch(
@@ -100,8 +104,82 @@ export async function submitHubSpotAuditForm(
     return { ok: false, error: message };
   }
 
-  if (response.ok) return { ok: true };
+  if (!response.ok) {
+    const body = await response.text();
+    return { ok: false, error: `HubSpot ${response.status}: ${body.slice(0, 400)}` };
+  }
 
-  const body = await response.text();
-  return { ok: false, error: `HubSpot ${response.status}: ${body.slice(0, 400)}` };
+  const sync = await syncHubSpotContactAuditProperties(token, input);
+  if (!sync.ok) {
+    console.error('HubSpot contact property sync failed:', sync.error);
+  }
+
+  return { ok: true };
+}
+
+async function syncHubSpotContactAuditProperties(
+  token: string,
+  input: HubSpotAuditSubmission,
+): Promise<{ ok: boolean; error?: string }> {
+  const email = input.email.trim();
+  const website = formatWebsiteProperty(input.siteUrls);
+  const company = input.company.trim();
+  if (!email || (!website && !company)) return { ok: true };
+
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'application/json',
+  };
+
+  let searchResponse: Response;
+  try {
+    searchResponse = await fetch('https://api.hubapi.com/crm/v3/objects/contacts/search', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        filterGroups: [
+          {
+            filters: [{ propertyName: 'email', operator: 'EQ', value: email }],
+          },
+        ],
+        properties: ['email'],
+        limit: 1,
+      }),
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Network error';
+    return { ok: false, error: message };
+  }
+
+  if (!searchResponse.ok) {
+    const body = await searchResponse.text();
+    return { ok: false, error: `HubSpot search ${searchResponse.status}: ${body.slice(0, 400)}` };
+  }
+
+  const searchBody = (await searchResponse.json()) as { results?: Array<{ id?: string }> };
+  const contactId = searchBody.results?.[0]?.id;
+  if (!contactId) return { ok: true };
+
+  const properties: Record<string, string> = {};
+  if (website) properties.website = website;
+  if (company) properties.company = company;
+
+  let patchResponse: Response;
+  try {
+    patchResponse = await fetch(`https://api.hubapi.com/crm/v3/objects/contacts/${contactId}`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({ properties }),
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Network error';
+    return { ok: false, error: message };
+  }
+
+  if (!patchResponse.ok) {
+    const body = await patchResponse.text();
+    return { ok: false, error: `HubSpot patch ${patchResponse.status}: ${body.slice(0, 400)}` };
+  }
+
+  return { ok: true };
 }

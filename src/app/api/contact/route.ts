@@ -244,7 +244,7 @@ export async function POST(request: Request) {
         const text = [
           `Form source: ${shoreFormSource}`,
           `Name: ${displayName}`,
-          `Portfolio company: ${businessName}`,
+          `Company: ${businessName}`,
           phone ? `Phone: ${phone}` : '',
           siteCountLine,
           `Reply-to email: ${email}`,
