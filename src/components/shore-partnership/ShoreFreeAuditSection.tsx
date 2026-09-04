@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Check } from 'lucide-react';
 
+import { ShoreAuditPhoneInput } from '@/components/shore-partnership/ShoreAuditPhoneInput';
 import { ShoreAuditUrlInputs } from '@/components/shore-partnership/ShoreAuditUrlInputs';
 import { ShoreReveal } from '@/components/shore-partnership/ShoreReveal';
 import { ShoreSectionHeader } from '@/components/shore-partnership/ShoreSectionHeader';
@@ -30,6 +31,7 @@ export function ShoreFreeAuditSection() {
   const [form, setForm] = useState({
     fullName: '',
     email: '',
+    phone: '',
     portfolioCompany: '',
     trap: '',
   });
@@ -51,8 +53,10 @@ export function ShoreFreeAuditSection() {
       email: form.email,
       fullName: form.fullName,
       businessName: form.portfolioCompany,
+      phone: form.phone,
       siteUrls,
       recaptchaToken: recaptcha.token,
+      formLocation: 'shore_partnership_audit',
     });
 
     if (!ok) {
@@ -130,6 +134,12 @@ export function ShoreFreeAuditSection() {
                         className={`${SITE_FORM_INPUT_CLASS} mt-2`}
                       />
                     </div>
+
+                    <ShoreAuditPhoneInput
+                      id="audit-phone"
+                      value={form.phone}
+                      onChange={(phone) => setForm((f) => ({ ...f, phone }))}
+                    />
 
                     <div>
                       <label htmlFor="audit-name" className={SITE_FORM_LABEL_CLASS}>

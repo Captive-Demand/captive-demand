@@ -2,12 +2,14 @@ import nodemailer from 'nodemailer';
 import { NextResponse } from 'next/server';
 
 import { parseAnnualCompanyRevenue, revenueLabel } from '@/lib/annual-company-revenue';
+import { submitHubSpotAuditForm } from '@/lib/hubspot-form';
 import { isRecaptchaVerificationEnabled } from '@/lib/recaptcha-config';
 
 type Body = {
   fullName?: string;
   name?: string;
   email?: string;
+  phone?: string;
   businessName?: string;
   /** `AnnualCompanyRevenue` when from our forms */
   annualCompanyRevenue?: string;
@@ -18,6 +20,13 @@ type Body = {
   siteCount?: string;
   recaptchaToken?: string;
   source?: string;
+  formLocation?: string;
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
+  pageUri?: string;
+  pageName?: string;
+  hutk?: string;
 };
 
 const SHORE_FORM_SOURCES = new Set([
@@ -186,12 +195,18 @@ export async function POST(request: Request) {
     const isShoreAudit = isShoreAuditSource(body.source);
     const shoreFormSource = body.source?.trim() ?? 'main-form';
 
+    const phone = body.phone?.trim();
+
     if (!displayName || !email) {
       return NextResponse.json({ error: 'Name and email are required' }, { status: 400 });
     }
 
     if (!businessName) {
       return NextResponse.json({ error: 'Business name is required' }, { status: 400 });
+    }
+
+    if (isShoreAudit && !phone) {
+      return NextResponse.json({ error: 'Phone is required' }, { status: 400 });
     }
 
     if (!isShorePartnership && !revenueParsed) {
@@ -203,6 +218,26 @@ export async function POST(request: Request) {
     const recaptchaFailure = await rejectIfRecaptchaInvalid(body.recaptchaToken);
     if (recaptchaFailure) return recaptchaFailure;
 
+    if (isShoreAudit && phone) {
+      const hubspot = await submitHubSpotAuditForm({
+        fullName: displayName,
+        email,
+        phone,
+        company: businessName,
+        siteUrls: body.message?.split('\n') ?? [],
+        formLocation: body.formLocation?.trim() || shoreFormSource,
+        utmSource: body.utmSource,
+        utmMedium: body.utmMedium,
+        utmCampaign: body.utmCampaign,
+        pageUri: body.pageUri,
+        pageName: body.pageName,
+        hutk: body.hutk,
+      });
+      if (!hubspot.ok) {
+        console.error('Shore audit HubSpot submit failed:', hubspot.error);
+      }
+    }
+
     const transporter = getTransport();
 
     if (transporter) {
@@ -212,6 +247,7 @@ export async function POST(request: Request) {
           `Form source: ${shoreFormSource}`,
           `Name: ${displayName}`,
           `Portfolio company: ${businessName}`,
+          phone ? `Phone: ${phone}` : '',
           siteCountLine,
           `Reply-to email: ${email}`,
           body.message?.trim()

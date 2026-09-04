@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Check, X } from 'lucide-react';
 
+import { ShoreAuditPhoneInput } from '@/components/shore-partnership/ShoreAuditPhoneInput';
 import { ShoreAuditUrlInputs } from '@/components/shore-partnership/ShoreAuditUrlInputs';
 import { CTAButton } from '@/components/ui/CTAButton';
 import { useRecaptchaToken } from '@/hooks/useRecaptchaToken';
@@ -50,6 +51,7 @@ export function AuditRequestModal({
   const [form, setForm] = useState({
     fullName: '',
     email: '',
+    phone: '',
     portfolioCompany: '',
     trap: '',
   });
@@ -65,7 +67,7 @@ export function AuditRequestModal({
 
     const timer = window.setTimeout(() => {
       setSiteUrls(['']);
-      setForm({ fullName: '', email: '', portfolioCompany: '', trap: '' });
+      setForm({ fullName: '', email: '', phone: '', portfolioCompany: '', trap: '' });
       setStatus('idle');
       setSubmitError('');
     }, 300);
@@ -115,8 +117,10 @@ export function AuditRequestModal({
       email,
       fullName,
       businessName,
+      phone: form.phone,
       siteUrls,
       recaptchaToken: recaptcha.token,
+      formLocation: analyticsLeadSource,
     });
 
     if (!ok) {
@@ -251,6 +255,12 @@ export function AuditRequestModal({
                       className={`${SITE_FORM_INPUT_CLASS} mt-2`}
                     />
                   </div>
+
+                  <ShoreAuditPhoneInput
+                    id="modal-audit-phone"
+                    value={form.phone}
+                    onChange={(phone) => setForm((f) => ({ ...f, phone }))}
+                  />
 
                   {!isCompact ? (
                     <>

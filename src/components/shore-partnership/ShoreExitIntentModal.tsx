@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { X } from 'lucide-react';
 
+import { ShoreAuditPhoneInput } from '@/components/shore-partnership/ShoreAuditPhoneInput';
 import { ShoreAuditUrlInputs } from '@/components/shore-partnership/ShoreAuditUrlInputs';
 import { useRecaptchaToken } from '@/hooks/useRecaptchaToken';
 import { trackGa4Event } from '@/lib/analytics';
@@ -28,6 +29,7 @@ export function ShoreExitIntentModal() {
   const [open, setOpen] = useState(false);
   const [siteUrls, setSiteUrls] = useState(['']);
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [status, setStatus] = useState<'idle' | 'submitting' | 'error' | 'success'>('idle');
   const reduceMotion = useReducedMotion();
   const armedRef = useRef(false);
@@ -98,8 +100,10 @@ export function ShoreExitIntentModal() {
       email,
       fullName: email.split('@')[0] || 'Shore visitor',
       businessName: 'Exit intent audit request',
+      phone,
       siteUrls,
       recaptchaToken: recaptcha.token,
+      formLocation: 'shore_partnership_exit_intent',
     });
 
     if (!ok) {
@@ -209,6 +213,8 @@ export function ShoreExitIntentModal() {
                       className={`${SITE_FORM_INPUT_CLASS} mt-2`}
                     />
                   </div>
+
+                  <ShoreAuditPhoneInput id="exit-phone" value={phone} onChange={setPhone} />
 
                   <ShoreAuditUrlInputs
                     urls={siteUrls}
