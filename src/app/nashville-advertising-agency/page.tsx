@@ -13,7 +13,7 @@ import { AccentBr } from '@/components/ui/accent-br';
 export const metadata = createSeoMetadata({
   title: 'Nashville Advertising Agency | Paid Ads | Captive Demand',
   description:
-    'A Nashville advertising agency built for performance, not brand awareness. Google and Meta ads, creative included, and fees capped at $5,000/month.',
+    'A Nashville advertising agency built for performance, not brand awareness. Google and Meta ads, creative included, and fees capped at $6,000/month.',
   path: '/nashville-advertising-agency',
 });
 
@@ -31,7 +31,7 @@ export default function NashvilleAdvertisingAgencyPage() {
         eyebrowCategory="Location"
         eyebrowLabel="Nashville, Tennessee"
         h1="A Nashville advertising agency that's measured on revenue"
-        subhead="Nashville has no shortage of agencies that will build you a beautiful brand campaign. We do the other thing: paid advertising on Google and Meta, tracked to the dollar, reported weekly. Static ad creative included, and our fee caps at $5,000/month no matter how much you scale."
+        subhead="Nashville has no shortage of agencies that will build you a beautiful brand campaign. We do the other thing: paid advertising on Google and Meta, tracked to the dollar, reported weekly. Static ad creative included, and our fee caps at $6,000/month no matter how much you scale."
         buttonText="GET A FREE ACCOUNT AUDIT"
         leadSource="nashville_ads_audit"
       />

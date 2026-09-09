@@ -151,7 +151,7 @@ export function AdvertisingPricing({ embedded }: AdvertisingPricingProps) {
   const addOns = [
     { icon: PenTool, title: 'Custom landing pages', description: 'From $500 each , message-matched offer pages.' },
     { icon: BarChart3, title: 'Northstar Analytics', description: 'From $50/month , ad performance next to revenue.' },
-    { icon: Zap, title: 'Fee structure', description: '10% of spend above base, hard-capped at $5,000/month total.' },
+    { icon: Zap, title: 'Fee structure', description: '10% of spend above base, hard-capped at $6,000/month total.' },
     { icon: Target, title: 'Extra creative sprints', description: 'Additional concept batches beyond the monthly sprint.' },
     { icon: LineChart, title: 'Server-side tracking', description: 'When browser pixels alone are not enough.' },
     { icon: Sparkles, title: 'CRM conversion import', description: 'Bid against pipeline, not just form fills.' },
@@ -191,8 +191,8 @@ export function AdvertisingPricing({ embedded }: AdvertisingPricingProps) {
             <div className="md:max-w-md md:text-right">
               <p className="font-mono text-sm uppercase tracking-wide leading-relaxed text-[#1a1512]/60">
                 {embedded
-                  ? 'Base retainer + 10% of spend, hard-capped at $5,000/month.'
-                  : 'Above the base, 10% of ad spend , capped at $5,000/month no matter how far you scale.'}
+                  ? 'Base retainer + 10% of spend, hard-capped at $6,000/month.'
+                  : 'Above the base, 10% of ad spend , capped at $6,000/month no matter how far you scale.'}
               </p>
             </div>
           </div>
@@ -234,7 +234,7 @@ export function AdvertisingPricing({ embedded }: AdvertisingPricingProps) {
                 'Tracking implementation',
                 'Northstar dashboard',
                 'Cross-channel learning log',
-                'Fee capped at $5,000/mo',
+                'Fee capped at $6,000/mo',
               ]}
             />
           </div>
