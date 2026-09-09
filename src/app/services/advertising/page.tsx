@@ -12,9 +12,9 @@ import { adsNationalFaqs } from '@/data/service-faqs';
 import Link from 'next/link';
 
 export const metadata = createSeoMetadata({
-  title: 'PPC Agency With Fees Capped at $6K | Captive Demand',
+  title: 'Senior PPC Strategy, Creative Included | Captive Demand',
   description:
-    'A PPC agency whose fees stop at $6,000/month. Senior US strategy, static ad creative included, and campaigns live in hours. Google and Meta.',
+    'Senior on-shore strategy and execution, static creative included and retainers that don\'t scale with your ad spend.',
   path: '/services/advertising',
 });
 
