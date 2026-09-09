@@ -272,7 +272,7 @@ export function AdvertisingPricing({ embedded }: AdvertisingPricingProps) {
 
         {!embedded ? (
           <p className="mx-auto mt-12 max-w-3xl text-center font-mono text-xs leading-relaxed text-[#1a1512]/45">
-            Who we work with: minimum $5,000/month in ad spend, and companies generating $1M+ in annual revenue.
+            Who we work with: minimum $3,000/month in ad spend, and companies generating $1M+ in annual revenue.
             Below that, a managed agency relationship costs more than it returns, and we&apos;ll tell you so rather
             than take the retainer.
           </p>

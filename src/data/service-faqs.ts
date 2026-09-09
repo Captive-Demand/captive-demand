@@ -236,7 +236,7 @@ export const adsNationalFaqs: ServiceFaqItem[] = [
   {
     question: "What's the minimum ad spend you work with?",
     answer:
-      '$5,000/month in ad spend, and we work with companies generating at least $1M in annual revenue. Below that threshold, agency management typically costs more than it returns.',
+      '$3,000/month in ad spend (about $100 a day), and we work with companies generating at least $1M in annual revenue. Below that threshold, agency management typically costs more than it returns.',
     tags: ['Qualification'],
   },
   {
@@ -299,7 +299,7 @@ export const adsNashvilleFaqs: ServiceFaqItem[] = [
   {
     question: "What's the minimum ad spend?",
     answer:
-      '$5,000/month in ad spend, with companies generating at least $1M in annual revenue. Below that, agency management usually costs more than it returns.',
+      '$3,000/month in ad spend (about $100 a day), with companies generating at least $1M in annual revenue. Below that, agency management usually costs more than it returns.',
     tags: ['Qualification'],
   },
   {
