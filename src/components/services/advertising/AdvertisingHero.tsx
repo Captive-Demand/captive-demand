@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { gsap } from 'gsap';
-import { AuditCTAButton } from '@/components/services/shared/AuditCTAButton';
+import { AdsCTAButton } from '@/components/services/shared/AdsCTAButton';
 import { EyebrowHeading } from '@/components/ui/eyebrow-heading';
 import { NoiseOverlay } from '@/components/ui/NoiseOverlay';
 import { AccentBr } from '@/components/ui/accent-br';
@@ -147,7 +147,7 @@ export function AdvertisingHero({
   eyebrowLabel = 'Paid Advertising',
   h1,
   subhead,
-  buttonText = 'GET A FREE ACCOUNT AUDIT',
+  buttonText = 'GET A FREE AD PLAN',
   leadSource = 'advertising_service_audit',
 }: AdvertisingHeroProps = {}) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -336,7 +336,7 @@ export function AdvertisingHero({
                 'Most agencies take a percentage of your ad spend forever. Our fee caps at $6,000/month and stays there. Senior US strategy, static creative included, campaigns live in hours.'}
             </p>
             <div className="ads-hero-text flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-              <AuditCTAButton
+              <AdsCTAButton
                 buttonText={buttonText}
                 leadSource={leadSource}
               />

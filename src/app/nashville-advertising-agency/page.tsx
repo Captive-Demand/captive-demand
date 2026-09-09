@@ -32,7 +32,7 @@ export default function NashvilleAdvertisingAgencyPage() {
         eyebrowLabel="Nashville, Tennessee"
         h1="A Nashville advertising agency that's measured on revenue"
         subhead="Nashville has no shortage of agencies that will build you a beautiful brand campaign. We do the other thing: paid advertising on Google and Meta, tracked to the dollar, reported weekly. Static ad creative included, and our fee caps at $6,000/month no matter how much you scale."
-        buttonText="GET A FREE ACCOUNT AUDIT"
+        buttonText="GET A FREE AD PLAN"
         leadSource="nashville_ads_audit"
       />
       <TestimonialsSection
