@@ -14,7 +14,7 @@ import Link from 'next/link';
 export const metadata = createSeoMetadata({
   title: 'Senior PPC Strategy, Creative Included | Captive Demand',
   description:
-    'Senior on-shore strategy and execution, static creative included and retainers that don\'t scale with your ad spend.',
+    'Senior on-shore strategy and execution, static creative included and pricing that doesn\'t balloon with your ad spend.',
   path: '/services/advertising',
 });
 
