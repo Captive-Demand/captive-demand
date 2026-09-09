@@ -156,7 +156,7 @@ export function ShoreFreeAuditSection() {
 
                     <div>
                       <label htmlFor="audit-portfolio-name" className={SITE_FORM_LABEL_CLASS}>
-                        Portfolio name
+                        Company name
                       </label>
                       <input
                         id="audit-portfolio-name"
@@ -164,7 +164,7 @@ export function ShoreFreeAuditSection() {
                         value={form.portfolioCompany}
                         onChange={(e) => setForm((f) => ({ ...f, portfolioCompany: e.target.value }))}
                         className={`${SITE_FORM_INPUT_CLASS} mt-2`}
-                        placeholder="e.g. Shore Capital portfolio"
+                        placeholder="e.g. Your company name"
                       />
                     </div>
                   </div>
