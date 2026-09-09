@@ -155,14 +155,14 @@ export const ADS_PROBLEM_CONTENT: WhyAEOContent = {
   comparisonData: [
     {
       theirs: {
-        label: 'At $50k/mo spend',
-        value: '~$5,000',
+        label: 'At $60k/mo spend',
+        value: '~$6,000',
         sublabel: 'Typical uncapped agency fee',
       },
       ours: {
-        label: 'At $50k/mo spend',
-        value: '$5,000',
-        sublabel: '10% of spend, already at the cap zone',
+        label: 'At $60k/mo spend',
+        value: '$6,000',
+        sublabel: '10% of spend, already at the cap',
       },
     },
     {
@@ -173,7 +173,7 @@ export const ADS_PROBLEM_CONTENT: WhyAEOContent = {
       },
       ours: {
         label: 'At $150k/mo spend',
-        value: '$5,000',
+        value: '$6,000',
         sublabel: 'Fee hard-capped; growth is yours',
       },
     },
@@ -317,7 +317,7 @@ export const ADS_NASHVILLE_POSITIONING: WhyAEOContent = {
       },
       ours: {
         label: 'Fee',
-        value: 'Caps at $5,000',
+        value: 'Caps at $6,000',
         sublabel: '10% of spend, then it stops',
       },
     },

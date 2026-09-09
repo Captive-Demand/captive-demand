@@ -2,7 +2,7 @@ import nodemailer from 'nodemailer';
 import { NextResponse } from 'next/server';
 
 import { parseAnnualCompanyRevenue, revenueLabel } from '@/lib/annual-company-revenue';
-import { submitHubSpotAuditForm } from '@/lib/hubspot-form';
+import { submitHubSpotAdsForm, submitHubSpotAuditForm } from '@/lib/hubspot-form';
 import { isRecaptchaVerificationEnabled } from '@/lib/recaptcha-config';
 
 type Body = {
@@ -20,6 +20,9 @@ type Body = {
   siteCount?: string;
   recaptchaToken?: string;
   source?: string;
+  website?: string;
+  platforms?: string[];
+  monthlyBudget?: string;
   utmSource?: string;
   utmMedium?: string;
   utmCampaign?: string;
@@ -44,6 +47,10 @@ function isShorePartnershipSource(source: string | undefined): boolean {
 function isShoreAuditSource(source: string | undefined): boolean {
   const s = source?.trim() ?? '';
   return s === 'audit-form' || s === 'exit-intent' || s === 'shore_partnership_audit';
+}
+
+function isAdsFormSource(source: string | undefined): boolean {
+  return source?.trim() === 'ads-form';
 }
 
 /** CC for non-Shore lead emails (override with LEAD_CC_EMAIL). */
@@ -192,9 +199,13 @@ export async function POST(request: Request) {
     const isPricingModal = body.source === 'pricing_modal';
     const isShorePartnership = isShorePartnershipSource(body.source);
     const isShoreAudit = isShoreAuditSource(body.source);
+    const isAdsForm = isAdsFormSource(body.source);
     const shoreFormSource = body.source?.trim() ?? 'main-form';
 
     const phone = body.phone?.trim();
+    const website = body.website?.trim();
+    const platforms = (body.platforms ?? []).map((item) => item.trim()).filter(Boolean);
+    const monthlyBudget = body.monthlyBudget?.trim();
 
     if (!displayName || !email) {
       return NextResponse.json({ error: 'Name and email are required' }, { status: 400 });
@@ -204,11 +215,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Business name is required' }, { status: 400 });
     }
 
-    if (isShoreAudit && !phone) {
+    if ((isShoreAudit || isAdsForm) && !phone) {
       return NextResponse.json({ error: 'Phone is required' }, { status: 400 });
     }
 
-    if (!isShorePartnership && !revenueParsed) {
+    if (isAdsForm && !website) {
+      return NextResponse.json({ error: 'Website is required' }, { status: 400 });
+    }
+
+    if (isAdsForm && platforms.length === 0) {
+      return NextResponse.json({ error: 'At least one ad platform is required' }, { status: 400 });
+    }
+
+    if (!isShorePartnership && !isAdsForm && !revenueParsed) {
       return NextResponse.json({ error: 'Annual company revenue is required' }, { status: 400 });
     }
 
@@ -216,6 +235,27 @@ export async function POST(request: Request) {
 
     const recaptchaFailure = await rejectIfRecaptchaInvalid(body.recaptchaToken);
     if (recaptchaFailure) return recaptchaFailure;
+
+    if (isAdsForm && phone && website) {
+      const hubspot = await submitHubSpotAdsForm({
+        fullName: displayName,
+        email,
+        phone,
+        company: businessName,
+        website,
+        platforms,
+        monthlyBudget,
+        utmSource: body.utmSource,
+        utmMedium: body.utmMedium,
+        utmCampaign: body.utmCampaign,
+        pageUri: body.pageUri,
+        pageName: body.pageName,
+        hutk: body.hutk,
+      });
+      if (!hubspot.ok) {
+        console.error('Ads request HubSpot submit failed:', hubspot.error);
+      }
+    }
 
     if (isShoreAudit && phone) {
       const hubspot = await submitHubSpotAuditForm({
@@ -239,7 +279,29 @@ export async function POST(request: Request) {
     const transporter = getTransport();
 
     if (transporter) {
-      if (isShorePartnership) {
+      if (isAdsForm) {
+        const text = [
+          'Form source: ads-form',
+          `Name: ${displayName}`,
+          `Company: ${businessName}`,
+          phone ? `Phone: ${phone}` : '',
+          `Reply-to email: ${email}`,
+          website ? `Website: ${website}` : '',
+          platforms.length > 0 ? `Platforms: ${platforms.join(', ')}` : '',
+          monthlyBudget ? `Monthly ad budget: ${monthlyBudget}` : '',
+        ]
+          .filter(Boolean)
+          .join('\n');
+        try {
+          await sendLeadToCeo(transporter, {
+            subject: `New ads plan request: ${displayName} · ${businessName}`,
+            text,
+          });
+        } catch (mailErr) {
+          console.error('Ads request lead: email send failed:', mailErr);
+          return NextResponse.json({ error: 'Failed to send message' }, { status: 500 });
+        }
+      } else if (isShorePartnership) {
         const siteCountLine = body.siteCount?.trim() ? `Sites in scope: ${body.siteCount.trim()}` : '';
         const text = [
           `Form source: ${shoreFormSource}`,
@@ -314,6 +376,15 @@ export async function POST(request: Request) {
         email,
         businessName,
         annualCompanyRevenue: annualRevenueLabel,
+      });
+    } else if (isAdsForm) {
+      console.log('Ads request lead (no SMTP):', {
+        displayName,
+        email,
+        businessName,
+        website,
+        platforms,
+        monthlyBudget,
       });
     } else if (isShorePartnership) {
       console.log('Shore partnership lead (no SMTP):', {

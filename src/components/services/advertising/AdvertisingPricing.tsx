@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Check, BarChart3, Zap, PenTool, LineChart, Target, Sparkles } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useOptionalAdsRequestModal } from '@/components/services/advertising/AdsRequestModalProvider';
 import { CTAButton } from '@/components/ui/CTAButton';
 import { AccentBr } from '@/components/ui/accent-br';
 import { DecorativeShapeWithLine } from '@/components/ui/DecorativeShapeWithLine';
@@ -19,6 +20,7 @@ const PricingCard = ({
   priceLabel,
   features,
   isPro = false,
+  onCtaClick,
 }: {
   title: string;
   description: string;
@@ -26,6 +28,7 @@ const PricingCard = ({
   priceLabel: string;
   features: string[];
   isPro?: boolean;
+  onCtaClick?: () => void;
 }) => (
   <div
     className={`relative flex h-full w-full flex-col overflow-hidden rounded-3xl p-8 transition-all duration-300 lg:p-10 ${
@@ -90,9 +93,11 @@ const PricingCard = ({
       </div>
       <CTAButton
         variant="pricing"
-        text="Get Started"
-        href="/contact"
-        as="a"
+        text="Get a Free Ad Plan"
+        href={onCtaClick ? undefined : '/contact'}
+        as={onCtaClick ? 'button' : 'a'}
+        type={onCtaClick ? 'button' : undefined}
+        onClick={onCtaClick}
         isDarkBg={isPro}
         fullWidth
         style={{
@@ -112,6 +117,10 @@ interface AdvertisingPricingProps {
 export function AdvertisingPricing({ embedded }: AdvertisingPricingProps) {
   const labelRef = useRef<HTMLSpanElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const adsModal = useOptionalAdsRequestModal();
+  const openAdsForm = adsModal
+    ? () => adsModal.openAdsModal(embedded ? 'pricing_advertising' : 'advertising_pricing')
+    : undefined;
 
   useLayoutEffect(() => {
     if (embedded) return;
@@ -151,7 +160,7 @@ export function AdvertisingPricing({ embedded }: AdvertisingPricingProps) {
   const addOns = [
     { icon: PenTool, title: 'Custom landing pages', description: 'From $500 each , message-matched offer pages.' },
     { icon: BarChart3, title: 'Northstar Analytics', description: 'From $50/month , ad performance next to revenue.' },
-    { icon: Zap, title: 'Fee structure', description: '10% of spend above base, hard-capped at $5,000/month total.' },
+    { icon: Zap, title: 'Fee structure', description: '10% of spend above base, hard-capped at $6,000/month total.' },
     { icon: Target, title: 'Extra creative sprints', description: 'Additional concept batches beyond the monthly sprint.' },
     { icon: LineChart, title: 'Server-side tracking', description: 'When browser pixels alone are not enough.' },
     { icon: Sparkles, title: 'CRM conversion import', description: 'Bid against pipeline, not just form fills.' },
@@ -191,8 +200,8 @@ export function AdvertisingPricing({ embedded }: AdvertisingPricingProps) {
             <div className="md:max-w-md md:text-right">
               <p className="font-mono text-sm uppercase tracking-wide leading-relaxed text-[#1a1512]/60">
                 {embedded
-                  ? 'Base retainer + 10% of spend, hard-capped at $5,000/month.'
-                  : 'Above the base, 10% of ad spend , capped at $5,000/month no matter how far you scale.'}
+                  ? 'Base retainer + 10% of spend, hard-capped at $6,000/month.'
+                  : 'Above the base, 10% of ad spend , capped at $6,000/month no matter how far you scale.'}
               </p>
             </div>
           </div>
@@ -205,6 +214,7 @@ export function AdvertisingPricing({ embedded }: AdvertisingPricingProps) {
               description="One platform managed end-to-end , strategy, creative, sprints, tracking."
               price="$2,500"
               priceLabel="Per month / One channel"
+              onCtaClick={openAdsForm}
               features={[
                 'One channel managed',
                 'Senior US-based strategy',
@@ -224,6 +234,7 @@ export function AdvertisingPricing({ embedded }: AdvertisingPricingProps) {
               price="$3,500"
               priceLabel="Per month / Two or more"
               isPro
+              onCtaClick={openAdsForm}
               features={[
                 'Two or more channels managed',
                 'Senior US-based strategy',
@@ -234,7 +245,7 @@ export function AdvertisingPricing({ embedded }: AdvertisingPricingProps) {
                 'Tracking implementation',
                 'Northstar dashboard',
                 'Cross-channel learning log',
-                'Fee capped at $5,000/mo',
+                'Fee capped at $6,000/mo',
               ]}
             />
           </div>
@@ -272,7 +283,7 @@ export function AdvertisingPricing({ embedded }: AdvertisingPricingProps) {
 
         {!embedded ? (
           <p className="mx-auto mt-12 max-w-3xl text-center font-mono text-xs leading-relaxed text-[#1a1512]/45">
-            Who we work with: minimum $5,000/month in ad spend, and companies generating $1M+ in annual revenue.
+            Who we work with: minimum $3,000/month in ad spend, and companies generating $1M+ in annual revenue.
             Below that, a managed agency relationship costs more than it returns, and we&apos;ll tell you so rather
             than take the retainer.
           </p>

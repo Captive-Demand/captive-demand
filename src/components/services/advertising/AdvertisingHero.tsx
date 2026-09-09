@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { gsap } from 'gsap';
-import { AuditCTAButton } from '@/components/services/shared/AuditCTAButton';
+import { AdsCTAButton } from '@/components/services/shared/AdsCTAButton';
 import { EyebrowHeading } from '@/components/ui/eyebrow-heading';
 import { NoiseOverlay } from '@/components/ui/NoiseOverlay';
 import { AccentBr } from '@/components/ui/accent-br';
@@ -147,7 +147,7 @@ export function AdvertisingHero({
   eyebrowLabel = 'Paid Advertising',
   h1,
   subhead,
-  buttonText = 'GET A FREE ACCOUNT AUDIT',
+  buttonText = 'GET A FREE AD PLAN',
   leadSource = 'advertising_service_audit',
 }: AdvertisingHeroProps = {}) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -322,7 +322,7 @@ export function AdvertisingHero({
               <span className="relative -mx-4 inline-flex items-center justify-center overflow-hidden rounded-[6px] px-4 pb-[0.08em] pt-[0.12em]">
                 <span className="absolute inset-0 rounded-[6px] border border-[#d5d5d5]/40 bg-white/55 shadow-[0_6px_20px_rgba(15,15,15,0.05),inset_0_1px_0_rgba(255,255,255,0.9)]" />
                 <span className="relative text-[#0f0d0a]" style={{ zIndex: 1 }}>
-                  stop at $5,000
+                  stop at $6,000
                 </span>
               </span>
                 </>
@@ -333,10 +333,10 @@ export function AdvertisingHero({
               className="ads-hero-text mb-10 max-w-md text-pretty font-mono text-[15px] leading-relaxed text-[#1a1512]/60 md:text-base"
             >
               {subhead ??
-                'Most agencies take a percentage of your ad spend forever. Our fee caps at $5,000/month and stays there. Senior US strategy, static creative included, campaigns live in hours.'}
+                'Most agencies take a percentage of your ad spend forever. Our fee caps at $6,000/month and stays there. Senior US strategy, static creative included, campaigns live in hours.'}
             </p>
             <div className="ads-hero-text flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-              <AuditCTAButton
+              <AdsCTAButton
                 buttonText={buttonText}
                 leadSource={leadSource}
               />

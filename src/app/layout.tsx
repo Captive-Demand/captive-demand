@@ -7,6 +7,7 @@ import { DeferredFooter } from "@/components/layout/DeferredFooter";
 import { SiteReCaptchaProvider } from "@/components/providers/SiteReCaptchaProvider";
 import { SiteGoogleAnalytics } from "@/components/analytics/SiteGoogleAnalytics";
 import { OrganizationSchema } from "@/components/schema/OrganizationSchema";
+import { AdsRequestModalProvider } from "@/components/services/advertising/AdsRequestModalProvider";
 import { AuditRequestModalProvider } from "@/components/shore-partnership/AuditRequestModalProvider";
 import { siteConfig } from "@/lib/site";
 
@@ -133,9 +134,11 @@ export default function RootLayout({
                 <OrganizationSchema />
                 <Navbar />
                 <AuditRequestModalProvider>
+                <AdsRequestModalProvider>
                 <main className="relative z-10 bg-[#fafafa] w-full overflow-x-hidden">
                     {children}
                 </main>
+                </AdsRequestModalProvider>
                 </AuditRequestModalProvider>
                 <nav
                     aria-label="Site links"

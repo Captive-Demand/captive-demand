@@ -230,13 +230,13 @@ export const adsNationalFaqs: ServiceFaqItem[] = [
   {
     question: 'How much does a PPC agency cost?',
     answer:
-      'Ours starts at $2,500/month for a single channel and $3,500/month for two or more. Above that we charge 10% of ad spend, capped at $5,000/month total. Most agencies charge an uncapped percentage, which means their fee keeps climbing as you scale.',
+      'Ours starts at $2,500/month for a single channel and $3,500/month for two or more. Above that we charge 10% of ad spend, capped at $6,000/month total. Most agencies charge an uncapped percentage, which means their fee keeps climbing as you scale.',
     tags: ['Pricing', 'PPC'],
   },
   {
     question: "What's the minimum ad spend you work with?",
     answer:
-      '$5,000/month in ad spend, and we work with companies generating at least $1M in annual revenue. Below that threshold, agency management typically costs more than it returns.',
+      '$3,000/month in ad spend (about $100 a day), and we work with companies generating at least $1M in annual revenue. Below that threshold, agency management typically costs more than it returns.',
     tags: ['Qualification'],
   },
   {
@@ -281,7 +281,7 @@ export const adsNashvilleFaqs: ServiceFaqItem[] = [
   {
     question: 'How much does a Nashville advertising agency cost?',
     answer:
-      "Ours starts at $2,500/month for a single channel and $3,500/month for two or more, plus 10% of ad spend capped at $5,000/month total. Traditional Nashville creative agencies typically price per project or on an uncapped retainer, so a direct comparison depends on what you're buying.",
+      "Ours starts at $2,500/month for a single channel and $3,500/month for two or more, plus 10% of ad spend capped at $6,000/month total. Traditional Nashville creative agencies typically price per project or on an uncapped retainer, so a direct comparison depends on what you're buying.",
     tags: ['Pricing', 'Nashville'],
   },
   {
@@ -299,7 +299,7 @@ export const adsNashvilleFaqs: ServiceFaqItem[] = [
   {
     question: "What's the minimum ad spend?",
     answer:
-      '$5,000/month in ad spend, with companies generating at least $1M in annual revenue. Below that, agency management usually costs more than it returns.',
+      '$3,000/month in ad spend (about $100 a day), with companies generating at least $1M in annual revenue. Below that, agency management usually costs more than it returns.',
     tags: ['Qualification'],
   },
   {

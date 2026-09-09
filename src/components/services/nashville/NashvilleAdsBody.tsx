@@ -28,7 +28,7 @@ function FeeCapChart() {
   const y = (fee: number) => padT + plotH - (fee / 16_000) * plotH;
 
   const uncapped = `M ${x(0)} ${y(0)} L ${x(150_000)} ${y(15_000)}`;
-  const ours = `M ${x(0)} ${y(0)} L ${x(75_000)} ${y(5_000)} L ${x(150_000)} ${y(5_000)}`;
+  const ours = `M ${x(0)} ${y(0)} L ${x(60_000)} ${y(6_000)} L ${x(150_000)} ${y(6_000)}`;
   const oursArea = `${ours} L ${x(150_000)} ${y(0)} L ${x(0)} ${y(0)} Z`;
 
   return (
@@ -39,7 +39,7 @@ function FeeCapChart() {
           <stop offset="100%" stopColor="#FF5501" stopOpacity="0" />
         </linearGradient>
       </defs>
-      {[5_000, 15_000].map((tick) => (
+      {[6_000, 15_000].map((tick) => (
         <g key={tick}>
           <line
             x1={padL}
@@ -57,15 +57,15 @@ function FeeCapChart() {
             fontSize="8"
             fontFamily="ui-monospace, SFMono-Regular, Menlo, monospace"
           >
-            {tick === 5_000 ? '5k' : '15k'}
+            {tick === 6_000 ? '6k' : '15k'}
           </text>
         </g>
       ))}
       <line
         x1={padL}
         x2={w - padR}
-        y1={y(5_000)}
-        y2={y(5_000)}
+        y1={y(6_000)}
+        y2={y(6_000)}
         stroke="rgba(255,85,1,0.35)"
         strokeDasharray="4 3"
       />
@@ -87,10 +87,10 @@ function FeeCapChart() {
         strokeLinejoin="round"
       />
       <circle cx={x(150_000)} cy={y(15_000)} r="3.2" fill="rgba(26,21,18,0.45)" stroke="white" strokeWidth="1.2" />
-      <circle cx={x(150_000)} cy={y(5_000)} r="3.4" fill="#FF5501" stroke="white" strokeWidth="1.4" />
+      <circle cx={x(150_000)} cy={y(6_000)} r="3.4" fill="#FF5501" stroke="white" strokeWidth="1.4" />
       {[
         { spend: 50_000, label: '50k' },
-        { spend: 75_000, label: '75k' },
+        { spend: 60_000, label: '60k' },
         { spend: 150_000, label: '150k' },
       ].map((tick) => (
         <text
@@ -120,7 +120,7 @@ function FeeCapIllustration() {
     <div
       className="relative isolate aspect-[5/4] overflow-hidden rounded-2xl sm:aspect-[4/3]"
       role="img"
-      aria-label="Agency fee versus monthly ad spend. An uncapped percentage keeps climbing. Ours rises at 10 percent, then holds at $5,000 past $75,000 in spend."
+      aria-label="Agency fee versus monthly ad spend. An uncapped percentage keeps climbing. Ours rises at 10 percent, then holds at $6,000 past $60,000 in spend."
     >
       <Image
         src="/landscape-2.png"
@@ -172,7 +172,7 @@ function FeeCapIllustration() {
                 <p className="text-[12px] text-[#1a1512]">Our fee</p>
               </div>
               <p className="font-mono text-[10px] uppercase tracking-wider text-[#FF5501]">
-                $5,000
+                $6,000
               </p>
             </div>
           </div>
@@ -469,7 +469,7 @@ export function NashvilleAdsBody() {
               style={{ fontFamily: 'Nohemi, sans-serif', fontWeight: 300 }}
             >
               <ServiceAccentTitle
-                lead="Our fee stops at $5,000."
+                lead="Our fee stops at $6,000."
                 accent="Most agencies' never does."
               />
             </h2>
@@ -479,7 +479,7 @@ export function NashvilleAdsBody() {
                 the person advising you on budget gets a raise every time you increase it.
               </p>
               <p className="text-pretty font-mono text-sm leading-relaxed text-[#1a1512]/70 md:text-[15px]">
-                Ours is 10% of spend and it stops at $5,000/month. Past $75,000 in monthly spend we
+                Ours is 10% of spend and it stops at $6,000/month. Past $60,000 in monthly spend we
                 don&apos;t earn another dollar, however far you scale. Growth becomes your win rather
                 than our commission.
               </p>
