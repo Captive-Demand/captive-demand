@@ -333,7 +333,7 @@ export function AdvertisingHero({
               className="ads-hero-text mb-10 max-w-md text-pretty font-mono text-[15px] leading-relaxed text-[#1a1512]/60 md:text-base"
             >
               {subhead ??
-                'Senior on-shore strategy and execution, static creative included and retainers that don\'t scale with your ad spend.'}
+                'Senior on-shore strategy and execution, static creative included and pricing that doesn\'t balloon with your ad spend.'}
             </p>
             <div className="ads-hero-text flex flex-col items-start gap-4 sm:flex-row sm:items-center">
               <AdsCTAButton
