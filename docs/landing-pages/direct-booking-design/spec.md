@@ -459,6 +459,8 @@ The HubSpot form stays at name + email (the smallest possible ask at the convers
 
 ### 5.1 Google Tag Manager (the only tag layer on this page)
 
+**Why this is a code change at all (history):** GTM `GTM-KDGH9S9` was mounted site-wide on 2026-04-27 (commit `9b724d0`, `siteConfig.gtmId`), deferred to `lazyOnload` the same day (`6097af3`), and then **removed from the root layout on 2026-05-08** in commit `3667222` ("GA4 via SiteGoogleAnalytics"), which replaced it with a direct GA4 gtag loader and stripped the container ID default out of `siteConfig`. That commit is on `main`, so unless GTM is being injected outside the repo (e.g. Netlify snippet injection), the production site has loaded **no GTM, and therefore no Meta Pixel, since 2026-05-08**. Before mounting it again, view the live homepage source and search for `GTM-KDGH9S9`: if it's already there, it's coming from Netlify and must **not** be mounted a second time in code; remove the injection or skip this step, never both. The steps below restore the April setup with an `afterInteractive` strategy.
+
 **Code side (small):**
 
 - Container: **`GTM-KDGH9S9`**. Follow the GA4 pattern in `src/lib/site.ts`: add `gtmContainerId: "GTM-KDGH9S9"` to `siteConfig`, and have `GoogleTagManager.tsx` resolve `NEXT_PUBLIC_GTM_CONTAINER_ID` first and fall back to that default (mirror `resolvedMeasurementId()` in `SiteGoogleAnalytics.tsx`). No Netlify env is required for GTM to run in production; the env var stays as an override.
