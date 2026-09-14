@@ -3,7 +3,7 @@
 **Status:** Ready to build. Items tagged `⚠ JORDAN` need confirmation before **launch**, not before build — build against the defaults given.
 **Companion:** `brief.md` in this folder (the original campaign brief). This spec wins where the two disagree.
 **Branch:** `claude/loving-mccarthy-nwwpzd` (spec) → build on a `cursor/*` branch off `main`.
-**Last updated:** 2026-09-14
+**Last updated:** 2026-09-14 (rev 3: HubSpot Meetings scheduler; GTM is the tag layer; North Star proof confirmed)
 
 ---
 
@@ -12,16 +12,16 @@
 | # | Decision | Default to build | Status |
 |---|----------|------------------|--------|
 | 1 | URL | `/direct-booking` | ⚠ JORDAN |
-| 2 | Scheduling tool | Calendly, **inline** embed. Qualifying questions live **inside Calendly** (asked after the time is picked). No pre-form step on our page. | Decided |
-| 3 | Meta conversion event | `Schedule` (standard event), fired **client-side** on Calendly's `calendly.event_scheduled` message, with an `eventID` derived from the Calendly invitee so a server-side Conversions API event can dedupe against it later. `Lead` is **not** fired on this page. | Decided |
-| 4 | GA4 | Fire events directly through the existing `trackGa4Event` helper (site runs gtag via `@next/third-parties`, GTM is not mounted). **No GTM** for this build. | Decided |
-| 5 | Meta Pixel base code | Mounted **site-wide** in the root layout, env-gated like GA4. PageView everywhere; `Schedule` only on this route. | ⚠ JORDAN (Pixel ID) |
-| 6 | Attribution passthrough | UTMs + `fbclid` captured on landing, persisted in `sessionStorage`, passed into Calendly's `utm` option. `salesforceUuid` carries the Meta `_fbc` value. | Decided |
-| 7 | Confirmation state | Stays on-page. Calendly's own confirmation screen (time in their timezone + add-to-calendar) stays inside the embed; we swap the copy **above** the embed to a "You're booked" block. **No Calendly redirect.** | Decided |
-| 8 | Proof section | North Star Nature Suites (luxury cabin suites, TN) — a direct booking site we designed and built. Screenshot already in `/public/northstarnaturesuites.png`. | ⚠ JORDAN (stats + permission) |
+| 2 | Scheduling tool | **HubSpot Meetings**, inline embed of a **dedicated** scheduling page under Jordan's account (not his general `meetings.hubspot.com/jordan1473` link). Qualifying questions live **inside the HubSpot booking form** as contact properties. No pre-form step on our page. | Decided |
+| 3 | Meta conversion event | `Schedule` (standard event), fired **client-side** on HubSpot's `meetingBookSucceeded` message, with a client-generated `eventID` that is also stored on the HubSpot contact so a server-side Conversions API event can dedupe against it later. `Lead` is **not** fired on this page. | Decided |
+| 4 | Tag layer | **Google Tag Manager.** The page pushes semantic `dataLayer` events only; it never calls `fbq()` or `gtag()` itself. GTM fires the Meta Pixel `Schedule` and the GA4 event tags. The existing `GoogleTagManager` component gets mounted in the root layout (env-gated). | Decided |
+| 5 | Meta Pixel | Lives in the GTM container (already does, per Jordan). Base + PageView on all pages via GTM; `Schedule` only from this route's `cd_dbl_call_booked` dataLayer event. | ⚠ JORDAN (GTM container ID + tag setup, §5.1) |
+| 6 | Attribution passthrough | UTMs + `fbclid` captured on landing, persisted in `sessionStorage`. After a booking, the page POSTs them with the booker's email to a small API route that stamps them onto the HubSpot contact the booking just created. | Decided |
+| 7 | Confirmation state | Stays on-page. HubSpot's own confirmation screen stays inside the embed (and HubSpot sends a real calendar invite from Jordan's connected calendar); we swap the copy **above** the embed to a "You're booked" block. | Decided |
+| 8 | Proof section | North Star Nature Suites (luxury cabin suites, TN) — a direct booking site we designed and built, with the two stats already published on `/services/seo`. Confirmed legitimate by Jordan. Built as one data object so it can be swapped for campaign-launched sites later. | Decided |
 | 9 | Calculator | Yes. One slider, one output. | Decided |
-| 10 | Phone number on the Calendly form | Enable Calendly "text reminders" (adds a phone field). Costs some conversion, buys show rate. | ⚠ JORDAN |
-| 11 | Chrome | No nav, no footer links except Privacy, logo **not** linked. No exit-intent modal, no chat FAB, no HubSpot form. | Decided |
+| 10 | Phone number on the booking form | Add `phone` as a required field on the HubSpot meeting form. Costs some conversion, buys show rate and a way to text no-shows. | ⚠ JORDAN |
+| 11 | Chrome | No nav, no footer links except Privacy, logo **not** linked. No exit-intent modal, no chat FAB, no separate lead form. | Decided |
 | 12 | Motion | CSS-only reveals. No GSAP, no framer-motion on this route. | Decided |
 | 13 | Hero image | The dome-at-dusk image from the live ad. | ⚠ JORDAN (asset) |
 
@@ -33,6 +33,7 @@
 
 ```
 src/app/direct-booking/page.tsx                       # server component, metadata, viewport
+src/app/api/direct-booking/booked/route.ts            # stamps attribution onto the HubSpot contact (§5.3)
 src/components/landers/direct-booking/
   DirectBookingLander.tsx                             # section composition (server)
   copy.ts                                             # ALL customer-facing copy, exported constants
@@ -45,16 +46,16 @@ src/components/landers/direct-booking/
   Proof.tsx                                           # "Why us" + North Star card
   TheCatch.tsx
   BookingSection.tsx                                  # heading/trust line/confirmation swap (client)
-  CalendlyInline.tsx                                  # embed + postMessage listener (client)
+  HubSpotMeetingsInline.tsx                           # embed + postMessage listener (client)
   Faq.tsx                                             # accordion (client)
   StickyCta.tsx                                       # mobile-only (client)
   LanderFooter.tsx
   SectionViewTracker.tsx                              # IntersectionObserver → GA4 (client)
-src/lib/direct-booking-lander.ts                      # path const, Calendly URL resolver, event names, tracking helpers
-src/lib/attribution.ts                                # UTM / fbclid capture + Calendly utm mapping
-src/lib/meta-pixel.ts                                 # fbq typing + trackMetaEvent()
+  AttributionCapture.tsx                              # runs captureAttribution() once (client)
+src/lib/direct-booking-lander.ts                      # path const, meeting URL resolver, event names, trackLander() → dataLayer
+src/lib/attribution.ts                                # UTM / fbclid capture, fbc derivation
 src/lib/standalone-landers.ts                         # generalises isShorePartnershipPath
-src/components/analytics/MetaPixel.tsx                # site-wide base code (env-gated)
+src/components/analytics/GoogleTagManager.tsx         # EXISTS — mount it in layout.tsx, change strategy (§5.1)
 ```
 
 ### 1.2 Hide site chrome on lander paths
@@ -91,8 +92,9 @@ export const metadata = createSeoMetadata({
 export const viewport = { themeColor: '#1a1512' };
 ```
 
-- Do **not** add the route to `src/app/sitemap.ts`.
+- Do **not** add the route to `src/app/sitemap.ts`, to `crawlableSiteLinks` in `layout.tsx`, or to any nav/footer. The only way in is the ad URL.
 - `robots.ts` needs no change (noindex is on the page).
+- Belt and braces: add an `X-Robots-Tag: noindex, nofollow` header for `/direct-booking` in `netlify.toml` (a `[[headers]]` block like the cache ones already there).
 
 ### 1.4 Page wrapper
 
@@ -124,7 +126,7 @@ Do **not** use `CTAButton` (the agency "arrow blob" button is mono/uppercase/13p
 
 - `<a href="#book">` (or `<button>` for sticky), full width on mobile, `min-h-14`, `rounded-xl`, `bg-[#FF5501] text-white text-[17px] font-medium`, `active:scale-[0.99]`, focus ring `ring-2 ring-[#FF5501]/60 ring-offset-2 ring-offset-[#1a1512]`.
 - Props: `location: 'hero' | 'after_math' | 'after_catch' | 'sticky'`, `className?`.
-- `onClick`: `trackLander('cd_dbl_cta_click', { cta_location: location })` → `document.getElementById('book')?.scrollIntoView({ behavior: 'smooth', block: 'start' })` → `window.dispatchEvent(new CustomEvent('cd-dbl:load-calendly'))`. Respect `prefers-reduced-motion` (use `behavior: 'auto'`).
+- `onClick`: `trackLander('cd_dbl_cta_click', { cta_location: location })` → `document.getElementById('book')?.scrollIntoView({ behavior: 'smooth', block: 'start' })` → `window.dispatchEvent(new CustomEvent('cd-dbl:load-scheduler'))`. Respect `prefers-reduced-motion` (use `behavior: 'auto'`).
 - Same text everywhere: the `CTA_TEXT` constant from `copy.ts`.
 
 ### 2.3 Hero
@@ -138,7 +140,7 @@ Do **not** use `CTAButton` (the agency "arrow blob" button is mono/uppercase/13p
 
 - Fixed bottom bar, `bg-[#1a1512]/92 backdrop-blur-md border-t border-white/10`, padding `px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]`.
 - Shows when the hero has scrolled out of view. Hides while the booking section is in view and permanently after a booking. One `IntersectionObserver` for the hero, one for `#book`.
-- Slides in/out with a CSS transform transition. Never overlaps Calendly's own buttons (that's why it hides over `#book`).
+- Slides in/out with a CSS transform transition. Never overlaps the scheduler's own buttons (that's why it hides over `#book`).
 
 ### 2.5 Reveals
 
@@ -220,9 +222,9 @@ Three cards; horizontal strip on `md+`, stacked on mobile. Small numerals `01 / 
   - Image: `/northstarnaturesuites.png` (existing) inside a simple browser-frame treatment (reuse `MockBrowserWindow` if it fits on dark; otherwise a plain rounded frame).
   - Caption line 1: `North Star Nature Suites — luxury cabin suites, Tennessee`
   - Caption line 2: `Direct booking site designed and built by Captive Demand`
-  - Stat chips ⚠ JORDAN: `+289% direct bookings` · `OTA dependency down 60%`
+  - Stat chips: `+289% direct bookings` · `OTA dependency down 60%`
 
-*Build note:* the two stats are already published on `/services/seo` (`SEOCaseStudies.ts`). Ship them **only** if Jordan confirms they're accurate and he's fine using the client name on an ad lander. If not confirmed at launch, ship the card with the two caption lines and **no** stat chips. Do not add any other testimonial, logo wall, or quote.
+*Build note:* the two stats come from `SEOCaseStudies.ts` and Jordan has confirmed the case study is legitimate. Define the card as one `PROOF_CARD` object in `copy.ts` (`name`, `descriptor`, `image`, `stats[]`) so it can be swapped for a site launched from this campaign later without touching the component. Do not add any other testimonial, logo wall, or quote.
 
 ### 3.6 So what's the catch (`id="catch"`)
 
@@ -240,17 +242,17 @@ Three cards; horizontal strip on `md+`, stacked on mobile. Small numerals `01 / 
 - Eyebrow: `Pick a time`
 - H2: `Pick a time`
 - Trust line: `15 minutes. No pitch. The design is yours to keep.`
-- Embed below.
-- Fallback link (only rendered if the Calendly script fails to load): `Calendar not loading? Open it in a new tab.` → the Calendly URL with UTM query string appended, `target="_blank" rel="noopener"`.
+- Embed below, inside a light panel (`bg-[#FAF9F6] rounded-2xl p-2 sm:p-3`) because HubSpot's scheduler renders on white and can't be themed dark.
+- Fallback link (only rendered if the HubSpot embed script fails to load): `Calendar not loading? Open it in a new tab.` → the scheduling page URL (without `embed=true`), `target="_blank" rel="noopener"`.
 
 **Ships — after booking (replaces the three lines above; embed stays visible)**
 
 - Eyebrow: `You're booked`
 - H2: `You're booked.`
-- Body: `The time, your timezone, and an add-to-calendar button are right below and in your confirmation email. On the call we'll ask about your property and how you take bookings today. About a week later we'll walk you through the design.`
+- Body: `A calendar invite with the video link is on its way to your inbox. On the call we'll ask about your property and how you take bookings today. About a week later we'll walk you through the design.`
 - Prep line: `One thing to have handy: a link to your current website or Airbnb listing, if you didn't add it on the form.`
 
-*Build note:* Calendly renders its own confirmation screen inside the iframe with the booked time in the invitee's timezone and add-to-calendar buttons. Don't rebuild those. After booking, `scrollIntoView` the section heading so the "You're booked" block and the top of the confirmation are both on screen.
+*Build note:* HubSpot shows its own confirmation inside the iframe and sends a real calendar invitation from Jordan's connected Google calendar (that's the "add to calendar" the brief asks for — it lands in their calendar automatically). Don't rebuild it. After booking, `scrollIntoView` the section heading so the "You're booked" block and the top of the confirmation are both on screen.
 
 ### 3.8 FAQ (`id="faq"`)
 
@@ -281,164 +283,141 @@ Nothing else. No social icons, no phone, no email.
 
 ---
 
-## 4. Calendly
+## 4. HubSpot Meetings
 
-### 4.1 Event type setup (Jordan, in Calendly — not code) ⚠ JORDAN
+### 4.1 Scheduling page setup (Jordan, in HubSpot — not code) ⚠ JORDAN
 
-- Event name: `Direct booking site design — 15 min`. Duration 15. Location: Google Meet (or phone — his call).
-- **Invitee questions, in this exact order** (order matters: they map to `a1`…`a5` if we ever prefill):
-  1. `Property name` — one-line text, required
-  2. `How do you take bookings today?` — radio, required: `Airbnb only` / `Airbnb + Vrbo` / `A booking system (Hostaway, Guesty, Beds24, Lodgify, etc.)` / `Something else`
-  3. `How many units?` — radio, required: `1–2` / `3–5` / `6–10` / `10+`
-  4. `Rough annual bookings through Airbnb` — radio, required: `Under $25k` / `$25–50k` / `$50–100k` / `$100k+` / `Prefer not to say`
-  5. `Link to your website or Airbnb listing` — one-line text, optional
-- Built-in name + email stay. Turn on **text reminders** (adds phone) if decision #10 is yes.
-- Confirmation page: **Calendly default** (do not set a redirect).
-- Reminders: email 24 h and 1 h before. SMS 1 h before if enabled.
-- Availability: minimum notice 4 h, max 14 days out, 15-min buffer after. (Show-rate hygiene; his call.)
-- Give us the event URL, e.g. `https://calendly.com/<handle>/direct-booking-design-call`.
+Create a **new** scheduling page rather than reusing the general `jordan1473` link, so this campaign's bookings have their own form questions and their own reporting:
 
-*Build note:* the brief's "Do you have a website? (No / Yes — enter URL)" became question 5 because Calendly has no conditional fields; an optional link field answers both halves.
+- Sales → Meetings → Create scheduling page → One-on-one, Jordan as organizer.
+- Internal name `Direct booking site design call`; slug e.g. `direct-booking-design` → URL `https://meetings.hubspot.com/jordan1473/direct-booking-design`.
+- Duration 15 min only. Location: Google Meet (or phone — his call). Title shown to invitees: `Direct booking site design — 15 min`.
+- **Form questions, in this order.** HubSpot meeting forms take contact properties and free-text custom questions. To get tap-to-pick answers on mobile, the three multiple-choice questions must be **contact properties** (create them under Settings → Properties, object Contacts, group "Direct booking lander"):
+  1. `Property name` → existing property `company` (single-line text), required
+  2. `How do you take bookings today?` → new property `booking_platform`, type **Radio select**, options: `Airbnb only` / `Airbnb + Vrbo` / `A booking system (Hostaway, Guesty, Beds24, Lodgify, etc.)` / `Something else` — required
+  3. `How many units?` → new property `unit_count`, type **Radio select**, options: `1–2` / `3–5` / `6–10` / `10+` — required
+  4. `Rough annual bookings through Airbnb` → new property `airbnb_annual_bookings`, type **Radio select**, options: `Under $25k` / `$25–50k` / `$50–100k` / `$100k+` / `Prefer not to say` — required
+  5. `Link to your website or Airbnb listing` → existing property `website`, optional
+  6. `Phone` → existing property `phone`, required (decision #10)
+  Built-in first name, last name, email stay.
+- Reminder emails: on, 24 h and 1 h before (Meetings → the page → Automation / reminders).
+- Availability: minimum notice 4 h, booking window 14 days, 15-min buffer after. (Show-rate hygiene; his call.)
+- Confirmation: HubSpot default. There is no redirect setting to worry about.
+- Also create these **contact properties** (single-line text unless noted) for the attribution stamp in §5.3. `utm_source`, `utm_medium`, `utm_campaign` already exist in the portal (the audit form writes them). New: `utm_content`, `utm_term`, `fbclid`, `meta_fbc`, `meta_event_id`, `booked_call_source` (dropdown, one option `direct-booking-lander`), `booked_call_at` (date-time).
+
+*Build note (uncertain, verify on the first test booking):* I believe radio-select and dropdown contact properties render as tap-to-pick controls in the meeting form. If they render as plain text inputs, switch the three properties to **Dropdown select** and re-test. The brief's "Do you have a website? (No / Yes — enter URL)" became the single optional `website` field because meeting forms have no conditional fields.
 
 ### 4.2 Config
 
-- `NEXT_PUBLIC_CALENDLY_EVENT_URL` — the event URL above. Add to `.env.example` and to Netlify env.
+- `NEXT_PUBLIC_HUBSPOT_MEETING_URL` — the scheduling page URL **without** `?embed=true`, e.g. `https://meetings.hubspot.com/jordan1473/direct-booking-design`. Add to `.env.example` and Netlify env.
 - Resolver in `src/lib/direct-booking-lander.ts`:
 
 ```ts
-const CALENDLY_EMBED_PARAMS =
-  'hide_gdpr_banner=1&hide_event_type_details=1&background_color=1a1512&text_color=faf9f6&primary_color=ff5501';
-
-export function resolveCalendlyEmbedUrl(): string | null {
-  const raw = process.env.NEXT_PUBLIC_CALENDLY_EVENT_URL?.trim();
+export function resolveMeetingUrls(): { page: string; embed: string } | null {
+  const raw = process.env.NEXT_PUBLIC_HUBSPOT_MEETING_URL?.trim();
   if (!raw) return null;
   try {
     const u = new URL(raw);
-    if (u.hostname !== 'calendly.com') return null;
-    const join = u.search ? '&' : '?';
-    return `${u.toString()}${join}${CALENDLY_EMBED_PARAMS}`;
+    if (u.hostname !== 'meetings.hubspot.com' && !u.hostname.endsWith('.hubspot.com')) return null;
+    u.searchParams.delete('embed');
+    const page = u.toString();
+    u.searchParams.set('embed', 'true');
+    return { page, embed: u.toString() };
   } catch {
     return null;
   }
 }
 ```
 
-  If the resolver returns `null`, render the booking section with a visible dev-only warning and no embed (never ship an empty section silently — `console.error` in dev, and the fallback link is hidden because there is no URL).
+  If the resolver returns `null`, render the booking section with a visible dev-only warning and no embed (never ship an empty section silently — `console.error` in dev; the fallback link is hidden because there is no URL).
 
-- Netlify: append `NEXT_PUBLIC_CALENDLY_EVENT_URL` and `NEXT_PUBLIC_META_PIXEL_ID` to `SECRETS_SCAN_OMIT_KEYS` in `netlify.toml` (they're `NEXT_PUBLIC_*`, so they get inlined into bundles and the secrets scanner will flag them exactly as it did for the reCAPTCHA key).
+- Netlify: append `NEXT_PUBLIC_HUBSPOT_MEETING_URL` and `NEXT_PUBLIC_GTM_CONTAINER_ID` to `SECRETS_SCAN_OMIT_KEYS` in `netlify.toml` (they're `NEXT_PUBLIC_*`, so they get inlined into bundles and the secrets scanner will flag them exactly as it did for the reCAPTCHA key).
 
-### 4.3 Loading the widget (`CalendlyInline`, client)
+### 4.3 Loading the embed (`HubSpotMeetingsInline`, client)
 
-- Load `https://assets.calendly.com/assets/external/widget.js` **on demand**, not on page load. Trigger: the booking section enters a `rootMargin: '800px 0px'` observer **or** the `cd-dbl:load-calendly` custom event fires (any CTA click), whichever first. Single promise so it never loads twice:
+HubSpot's official snippet is a container div plus a script that scans the DOM once, injects the iframe, and keeps its height in sync:
+
+```html
+<div class="meetings-iframe-container" data-src="https://meetings.hubspot.com/jordan1473/direct-booking-design?embed=true"></div>
+<script src="https://static.hsappstatic.net/MeetingsEmbed/ex/MeetingsEmbedCode.js"></script>
+```
+
+In React, render the container **first**, then inject the script **once, on demand**. Trigger: the booking section enters a `rootMargin: '800px 0px'` observer **or** the `cd-dbl:load-scheduler` custom event fires (any CTA click), whichever first. The script only scans on load, so the container must be in the DOM before it runs, and it must never be injected twice:
 
 ```ts
-let calendlyLoad: Promise<void> | null = null;
-export function loadCalendlyScript(): Promise<void> {
+let hsEmbedLoad: Promise<void> | null = null;
+export function loadHubSpotMeetingsEmbed(): Promise<void> {
   if (typeof window === 'undefined') return Promise.reject(new Error('ssr'));
-  if (window.Calendly) return Promise.resolve();
-  if (!calendlyLoad) {
-    calendlyLoad = new Promise((resolve, reject) => {
+  if (!hsEmbedLoad) {
+    hsEmbedLoad = new Promise((resolve, reject) => {
       const s = document.createElement('script');
-      s.src = 'https://assets.calendly.com/assets/external/widget.js';
+      s.src = 'https://static.hsappstatic.net/MeetingsEmbed/ex/MeetingsEmbedCode.js';
       s.async = true;
       s.onload = () => resolve();
-      s.onerror = () => reject(new Error('calendly-script'));
+      s.onerror = () => reject(new Error('hubspot-meetings-script'));
       document.head.appendChild(s);
     });
   }
-  return calendlyLoad;
+  return hsEmbedLoad;
 }
 ```
 
-- The inline embed does not need `widget.css` (that's for the popup/badge). Don't load it.
-- Init:
+- Container: `<div className="meetings-iframe-container w-full" data-src={embedUrl} />` inside a wrapper with `min-h-[640px]`. HubSpot's script resizes the iframe itself; keep a skeleton (`animate-pulse` panel) visible until the iframe element appears (watch with a `MutationObserver` on the container, or poll `container.querySelector('iframe')` on the script's `onload`).
+- Fire `cd_dbl_calendar_loaded` when the iframe's `load` event fires.
+- HubSpot posts no "time selected" message, so use the standard cross-origin proxy: on `window` `blur`, if `document.activeElement` is the scheduler iframe, fire `cd_dbl_calendar_engaged` once. It's a proxy for "started interacting with the calendar", not a time pick — label it that way in GA4.
+- If `loadHubSpotMeetingsEmbed()` rejects (ad blocker / network), show the fallback link from §3.7.
+- HubSpot's meeting iframe is fixed white; the light panel from §3.7 frames it so it doesn't look like a hole in the dark page.
 
-```ts
-window.Calendly.initInlineWidget({
-  url: embedUrl,
-  parentElement: containerRef.current,
-  prefill: {},
-  utm: toCalendlyUtm(getAttribution()),   // see §5.3
-});
-```
+### 4.4 Listening for bookings (the part that feeds the pixel via GTM)
 
-- Container: `min-h-[680px] md:min-h-[720px] w-full rounded-2xl overflow-hidden`. Calendly's script sets the iframe to fill the parent; verify on iPhone that the question step and confirmation aren't clipped, and raise the min-height if they are. Show a skeleton (`animate-pulse` panel) until the `calendly.event_type_viewed` message arrives.
-- If `loadCalendlyScript()` rejects (ad blocker / network), show the fallback link from §3.7.
-- Type shim (put in `src/types/calendly.d.ts`):
-
-```ts
-interface CalendlyUtm {
-  utmCampaign?: string; utmSource?: string; utmMedium?: string;
-  utmContent?: string; utmTerm?: string; salesforceUuid?: string;
-}
-interface CalendlyInlineOptions {
-  url: string;
-  parentElement: HTMLElement;
-  prefill?: { name?: string; email?: string; customAnswers?: Record<string, string> };
-  utm?: CalendlyUtm;
-}
-interface Window {
-  Calendly?: { initInlineWidget: (opts: CalendlyInlineOptions) => void };
-}
-```
-
-### 4.4 Listening for bookings (the part that feeds the pixel)
-
-Calendly posts messages to the parent window. Listen once, at the `CalendlyInline` level:
+The scheduler iframe posts a message to the parent window when a meeting is booked. Listen once, at the `HubSpotMeetingsInline` level:
 
 ```ts
 useEffect(() => {
   function onMessage(e: MessageEvent) {
-    if (e.origin !== 'https://calendly.com') return;
-    const name: unknown = e.data?.event;
-    if (typeof name !== 'string' || !name.startsWith('calendly.')) return;
+    if (e.origin !== 'https://meetings.hubspot.com') return;
+    const data = e.data;
+    if (!data || typeof data !== 'object' || data.meetingBookSucceeded !== true) return;
 
-    switch (name) {
-      case 'calendly.event_type_viewed':
-        setReady(true);
-        trackLander('cd_dbl_calendar_loaded');
-        break;
-      case 'calendly.date_and_time_selected':
-        trackLander('cd_dbl_calendar_time_selected');
-        break;
-      case 'calendly.event_scheduled': {
-        const inviteeUri: string | undefined = e.data?.payload?.invitee?.uri;
-        const eventUri: string | undefined = e.data?.payload?.event?.uri;
-        const inviteeId = inviteeUri?.split('/').filter(Boolean).pop();
-        onScheduled({ inviteeId, inviteeUri, eventUri });
-        break;
-      }
-      default:
-        break;
-    }
+    const payload = data.meetingsPayload ?? {};
+    const contact = payload.bookingResponse?.postResponse?.contact ?? {};
+    onScheduled({
+      email: typeof contact.email === 'string' ? contact.email : undefined,
+      firstName: contact.firstName,
+      lastName: contact.lastName,
+      startTime: payload.bookingResponse?.event?.dateString,   // verify exact field during QA
+      meetingSlug: payload.userSlug,
+      formGuid: payload.formGuid,
+    });
   }
   window.addEventListener('message', onMessage);
   return () => window.removeEventListener('message', onMessage);
 }, [onScheduled]);
 ```
 
+*Build note:* the payload shape is documented by HubSpot users rather than HubSpot itself. `meetingBookSucceeded`, `meetingsPayload.bookingResponse.postResponse.contact.email`, `userSlug`, and `formGuid` are well attested. On the first test booking, `console.log(JSON.stringify(e.data))` once, pin the field paths you actually see, and delete the log. Treat every field as optional; only `meetingBookSucceeded === true` is required to count the booking.
+
 `onScheduled` (in `BookingSection`) runs **exactly once** per page life (guard with a ref and `sessionStorage['cd_dbl_booked']`):
 
 ```ts
-const eventID = inviteeId ? `calendly-${inviteeId}` : `cd-${crypto.randomUUID()}`;
+const eventID = `cd-dbl-${crypto.randomUUID()}`;
 
-trackMetaEvent('Schedule', {
-  content_name: 'direct-booking-design-call',
-  content_category: 'unique-stays',
-}, { eventID });
-
-trackGa4Event('generate_lead', {
-  lead_source: 'calendly',
-  page_variant: 'direct-booking-v1',
-  calendly_invitee_id: inviteeId ?? '(none)',
+// One dataLayer event; GTM fans it out to the Meta Pixel `Schedule` tag and the GA4 `generate_lead` tag (§5.1).
+trackLander('cd_dbl_call_booked', {
+  meta_event_id: eventID,
+  lead_source: 'hubspot_meetings',
+  meeting_slug: meetingSlug ?? '(unknown)',
 });
 
 setBooked(true);
 sessionStorage.setItem('cd_dbl_booked', '1');
 document.getElementById('book')?.scrollIntoView({ block: 'start' });
+
+// Attribution stamp — fire and forget, never blocks the UI (see §5.3)
+void postBookingAttribution({ email, eventID, startTime, meetingSlug, attribution: getAttribution() });
 ```
 
-Why `eventID` is built from the invitee id: Calendly's `invitee.created` webhook carries the same invitee URI, so a future server-side Conversions API call can send the identical `event_id` and Meta will dedupe (§5.5).
+The `eventID` is generated here, handed to GTM as `meta_event_id` (the Pixel tag passes it as `eventID`), and written onto the HubSpot contact by the API route, so a later server-side Conversions API event can send the same id and Meta will dedupe (§5.5).
 
 If `sessionStorage['cd_dbl_booked']` is already `'1'` on mount (they refreshed after booking), render the booked state and **do not** fire the events again.
 
@@ -446,56 +425,62 @@ If `sessionStorage['cd_dbl_booked']` is already `'1'` on mount (they refreshed a
 
 ## 5. Tracking
 
-### 5.1 Meta Pixel base (`MetaPixel.tsx`, mounted in `src/app/layout.tsx` next to `SiteGoogleAnalytics`)
+### 5.1 Google Tag Manager (the only tag layer on this page)
 
-- Env: `NEXT_PUBLIC_META_PIXEL_ID` ⚠ JORDAN. Skips in development unless `NEXT_PUBLIC_META_PIXEL_IN_DEV=true` (mirror the GA4 component).
-- `next/script` with `strategy="afterInteractive"`, standard `fbevents.js` bootstrap, then `fbq('init', ID)` and `fbq('track', 'PageView')`. Include the `<noscript><img …/tr?id=…&ev=PageView&noscript=1></noscript>` fallback.
-- App Router fires the inline script once per hard load. Add a tiny client component (`MetaPixelRouteChange`) that calls `fbq('track','PageView')` on `usePathname()` change **after** the first render, so soft navigations on the main site are counted too. Not needed for the lander itself, but it keeps the site-wide install honest.
-- `src/lib/meta-pixel.ts`:
+**Code side (small):**
 
-```ts
-type Fbq = (...args: unknown[]) => void;
-declare global { interface Window { fbq?: Fbq } }
+- Mount the existing `GoogleTagManager` component in `src/app/layout.tsx` right after `SiteGoogleAnalytics`. It is already env-gated on `NEXT_PUBLIC_GTM_CONTAINER_ID` and skips dev unless `NEXT_PUBLIC_GTM_IN_DEV=true`. ⚠ JORDAN supplies the container ID (`GTM-XXXXXXX`).
+- Change its `next/script` strategy from `lazyOnload` to **`afterInteractive`**. `lazyOnload` waits for the window `load` event, which on an ad lander means the Pixel `PageView` (and Meta's landing-page-view signal) fires late or not at all for people who bounce in two seconds. Events pushed before GTM loads are queued in `window.dataLayer`, so nothing is lost either way, but PageView timing matters.
+- Add `NEXT_PUBLIC_GTM_CONTAINER_ID` to `.env.example`, Netlify env, and `SECRETS_SCAN_OMIT_KEYS`.
+- `trackLander(event, params)` in `src/lib/direct-booking-lander.ts` wraps `pushDataLayerEvent` from `@/lib/analytics` and adds `page_variant: 'direct-booking-v1'` to every push. **Nothing on this route calls `gtag()` or `fbq()` directly**, and nothing on this route uses `trackGa4Event` (it would double-send once GTM forwards the same event to GA4).
 
-export function trackMetaEvent(
-  name: string,
-  params?: Record<string, unknown>,
-  options?: { eventID?: string },
-): boolean {
-  if (typeof window === 'undefined' || typeof window.fbq !== 'function') return false;
-  window.fbq('track', name, params ?? {}, options ?? {});
-  return true;
-}
-```
+**GA4 double-counting guard (site-wide, must be settled before launch):** the site already loads GA4 via `SiteGoogleAnalytics` (gtag, `G-N2HFM02GMY`). If the GTM container also has a Google tag / GA4 configuration firing on All Pages, every page will send two `page_view`s once GTM is mounted. Pick one:
 
-### 5.2 GA4 events (all through `trackGa4Event` from `@/lib/analytics`)
+- **Default for this build:** keep `SiteGoogleAnalytics` for page views; in GTM, set the Google tag's *"Send a page view event when this configuration loads"* to **off** (`send_page_view: false`). GTM then only sends the custom events below. Same measurement ID on both, same `_ga` cookie, sessions stitch.
+- Alternative: remove `SiteGoogleAnalytics` and let GTM own GA4 entirely. Cleaner long-term, but then the main site's existing `trackGa4Event` calls (pricing modal, forms) fall back to bare dataLayer pushes and each needs a GTM tag. Out of scope unless Jordan asks.
 
-Wrap it in `trackLander(event, params)` in `src/lib/direct-booking-lander.ts` so every event automatically carries `page_variant: 'direct-booking-v1'`.
+**Container side (Jordan / whoever owns the container) ⚠ JORDAN — tags, triggers, variables to add:**
+
+| Item | Type | Config |
+|------|------|--------|
+| Meta Pixel base | already in the container | Fires on All Pages. Confirm it also fires on **History Change** if any other part of the site navigates client-side. |
+| `DLV - meta_event_id` | Data Layer Variable | `meta_event_id` |
+| `DLV - cta_location`, `DLV - section`, `DLV - question`, `DLV - lead_source`, `DLV - page_variant` | Data Layer Variables | same-named keys |
+| `CE - cd_dbl_call_booked` | Custom Event trigger | event name `cd_dbl_call_booked` |
+| `CE - cd_dbl_*` | Custom Event trigger, regex | `^cd_dbl_(cta_click\|section_view\|calculator_used\|calendar_loaded\|calendar_engaged\|faq_open)$` |
+| Meta – Schedule | Meta Pixel event tag (whatever template the base uses) | Event `Schedule`; object properties `content_name = direct-booking-design-call`, `content_category = unique-stays`; **Event ID = `{{DLV - meta_event_id}}`**; trigger `CE - cd_dbl_call_booked` |
+| GA4 – generate_lead | GA4 event tag | event name `generate_lead`; params `lead_source`, `page_variant`; trigger `CE - cd_dbl_call_booked` |
+| GA4 – cd_dbl events | GA4 event tag | event name `{{Event}}`; params `cta_location`, `section`, `question`, `page_variant`; trigger `CE - cd_dbl_*` |
+
+Do **not** add a `Lead` tag for this page. Do not fire `Schedule` on any other trigger.
+
+### 5.2 dataLayer events pushed by the page (all through `trackLander`)
 
 | Event | When | Params |
 |-------|------|--------|
-| `generate_lead` | `calendly.event_scheduled` | `lead_source: 'calendly'`, `calendly_invitee_id` |
+| `cd_dbl_call_booked` | `meetingBookSucceeded` | `meta_event_id`, `lead_source: 'hubspot_meetings'`, `meeting_slug` |
 | `cd_dbl_cta_click` | any primary CTA click | `cta_location: hero \| after_math \| after_catch \| sticky` |
 | `cd_dbl_section_view` | a section's first intersection (50% visible) | `section: how \| math \| call \| proof \| catch \| book \| faq` |
 | `cd_dbl_calculator_used` | first slider change | — |
-| `cd_dbl_calendar_loaded` | `calendly.event_type_viewed` | — |
-| `cd_dbl_calendar_time_selected` | `calendly.date_and_time_selected` | — |
+| `cd_dbl_calendar_loaded` | scheduler iframe `load` | — |
+| `cd_dbl_calendar_engaged` | first focus into the scheduler iframe (blur proxy) | — |
 | `cd_dbl_faq_open` | FAQ item opened | `question` (first 60 chars) |
 
-`cd_dbl_section_view` is the scroll-depth instrument: it gives the funnel the brief wants (hero → how → math → … → book) as named steps instead of percentages. GA4 enhanced measurement already records 90% scroll; leave it on.
+Every push also carries `page_variant: 'direct-booking-v1'`. `cd_dbl_section_view` is the scroll-depth instrument: it gives the funnel the brief wants (hero → how → math → … → book) as named steps instead of percentages. GA4 enhanced measurement already records 90% scroll; leave it on.
 
-⚠ JORDAN (GA4 admin): mark `generate_lead` as a key event and build one exploration: `cd_dbl_section_view` by `section` → `cd_dbl_calendar_loaded` → `cd_dbl_calendar_time_selected` → `generate_lead`. That's the four failure modes in the brief, instrumented.
+⚠ JORDAN (GA4 admin): mark `generate_lead` as a key event and build one exploration: `cd_dbl_section_view` by `section` → `cd_dbl_calendar_loaded` → `cd_dbl_calendar_engaged` → `generate_lead`. That's the four failure modes in the brief, instrumented.
 
-### 5.3 Attribution capture (`src/lib/attribution.ts`)
+### 5.3 Attribution capture and the booking stamp
+
+**Client — `src/lib/attribution.ts`:**
 
 ```ts
 export interface Attribution {
   utm_source?: string; utm_medium?: string; utm_campaign?: string;
   utm_content?: string; utm_term?: string;
-  fbclid?: string; landing_path?: string; landed_at?: string;
+  fbclid?: string; landing_url?: string; landed_at?: string;
 }
 const KEY = 'cd_attribution';
-const UTM_KEYS = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'] as const;
 
 /** Call once on mount. Merges URL params over anything stored this session; never throws. */
 export function captureAttribution(): Attribution
@@ -503,36 +488,61 @@ export function captureAttribution(): Attribution
 export function getAttribution(): Attribution
 /** `_fbc` cookie if the pixel already set it, else `fb.1.<now>.<fbclid>` if fbclid exists, else undefined. */
 export function getFbc(fbclid?: string): string | undefined
-/** Maps to Calendly's option names. Missing UTMs → utmSource 'no-utm' so Calendly shows the gap. */
-export function toCalendlyUtm(a: Attribution): CalendlyUtm
+/** `_fbp` cookie if present. */
+export function getFbp(): string | undefined
 ```
 
-Rules:
+Rules: read `window.location.search` on the lander's mount (`AttributionCapture`, rendered once near the top of the page). Persist to `sessionStorage`. A later visit in the same session with **new** UTMs overwrites; a visit with none keeps the stored set. Never prefill name/email into the scheduler; we don't have them.
 
-- Read `window.location.search` on the lander's mount (a client `AttributionCapture` component rendered once near the top of the page). Persist to `sessionStorage`. A later visit in the same session with **new** UTMs overwrites; a visit with none keeps the stored set.
-- `salesforceUuid` = `getFbc(a.fbclid)`. This is the only Calendly tracking field left after the five UTMs, and it's just a string Calendly stores on the invitee — we use it to carry the Meta click id so a server-side event can include `fbc` later. Verify after the first test booking that the value shows up on the invitee record in Calendly (Invitee details → UTM/tracking, or the CSV export). If Calendly truncates it, fall back to the raw `fbclid`.
-- Never send name/email prefill; we don't have it.
+**Client → server — `postBookingAttribution()`** POSTs JSON to `/api/direct-booking/booked`:
 
-⚠ JORDAN (Ads Manager) — set this as the ad's URL parameters so every booking is attributable to a creative:
+```json
+{
+  "email": "guest@example.com",
+  "eventId": "cd-dbl-…",
+  "startTime": "…",
+  "meetingSlug": "direct-booking-design",
+  "attribution": { "utm_source": "meta", "utm_content": "dome-15pct-v2", "fbclid": "…" },
+  "fbc": "fb.1.…",
+  "fbp": "fb.1.…",
+  "landingUrl": "https://captivedemand.com/direct-booking?utm_…"
+}
+```
+
+`keepalive: true` on the fetch so it survives a tab close. If the response body is `{ status: 'pending' }`, retry once after 8 s (the contact may not be searchable yet).
+
+**Server — `src/app/api/direct-booking/booked/route.ts`:**
+
+- Reuse `findContactIdByEmail` and `patchContactProperties` from `src/lib/hubspot-form.ts` (export them; they're module-private today). Reuse `isHubSpotConfigured()`; if the token is missing, return `{ status: 'skipped' }` and log.
+- Validate: `email` matches a basic email regex, `eventId` matches `^cd-dbl-[0-9a-f-]{36}$`, all strings ≤ 512 chars, body ≤ 8 KB. Reject anything else with 400.
+- Search the contact by email. Bump the search to ~5 attempts with 1.5 s backoff (the meeting booking creates the contact asynchronously). Keep total wall time under ~8 s so Netlify's function timeout isn't hit; if still not found, return `{ status: 'pending' }` (client retries once).
+- **Guardrail:** request `createdate` and `lastmodifieddate` in the search and only patch if the contact was created or modified in the last **15 minutes**. Otherwise return `{ status: 'skipped' }`. This stops anyone from using the endpoint to rewrite attribution on arbitrary existing contacts.
+- Patch, never overwriting a non-empty `utm_source` / `utm_medium` / `utm_campaign` (first touch wins for the properties other forms also write). Always write: `utm_content`, `utm_term`, `fbclid`, `meta_fbc`, `meta_event_id`, `booked_call_source = 'direct-booking-lander'`, `booked_call_at` (ISO now), `captive_demand_form_location = landingUrl`.
+- Log failures with `console.error` and return 200 `{ status: 'error' }` — this endpoint must never surface an error to the visitor.
+
+Cost per booked call by creative then reads straight out of HubSpot: contacts with `booked_call_source = direct-booking-lander`, grouped by `utm_content`, against Ads Manager spend by ad. Ads Manager's own `Schedule` count is the cross-check.
+
+⚠ JORDAN (Ads Manager) — set this as the ad's URL parameters so every booking is attributable to a creative (I believe these dynamic placeholders are right; confirm in the URL parameters field):
 
 ```
 utm_source=meta&utm_medium=paid-social&utm_campaign={{campaign.name}}&utm_content={{ad.name}}&utm_term={{adset.name}}
 ```
 
-Meta appends `fbclid` itself. Cost per booked call by creative = Ads Manager `Schedule` conversions by ad, cross-checked against Calendly's invitee export grouped by `utm_content`.
+Meta appends `fbclid` itself.
 
 ### 5.4 Verification (do these before calling it done)
 
-1. Meta Pixel Helper (Chrome): on load exactly one `PageView`; after a test booking exactly one `Schedule` with `eventID` starting `calendly-`. Refresh → no second `Schedule`.
-2. Meta Events Manager → Test events: the `Schedule` shows with `content_name = direct-booking-design-call`.
-3. GA4 DebugView: `cd_dbl_section_view` fires once per section, `cd_dbl_cta_click` carries the right `cta_location`, `generate_lead` fires once.
-4. Calendly: the test invitee shows `utm_source/medium/campaign/content/term` and the `salesforce_uuid` value from the URL you tested with (use `?utm_source=test&utm_content=ad-a&fbclid=abc123`). Cancel the test booking afterwards.
-5. Sticky CTA: hidden on desktop; on mobile appears after the hero, hides over `#book`, gone after booking.
-6. With Calendly's domain blocked in DevTools: fallback link renders, page otherwise intact, no console errors.
+1. GTM Preview (Tag Assistant): every `cd_dbl_*` push appears with its params; `cd_dbl_call_booked` fires exactly the Meta `Schedule` tag and the GA4 `generate_lead` tag, and the Schedule tag shows `eventID` starting `cd-dbl-`.
+2. Meta Pixel Helper (Chrome): on load exactly one `PageView`; after a test booking exactly one `Schedule`. Refresh → no second `Schedule`. Meta Events Manager → Test events shows it with `content_name = direct-booking-design-call`.
+3. GA4 DebugView: exactly **one** `page_view` per load (the double-counting guard in §5.1 is in place), `cd_dbl_section_view` once per section, `cd_dbl_cta_click` with the right `cta_location`, `cd_dbl_calendar_loaded` and `cd_dbl_calendar_engaged` once, `generate_lead` once.
+4. HubSpot: land on the page with `?utm_source=test&utm_medium=qa&utm_campaign=c&utm_content=ad-a&utm_term=as&fbclid=abc123`, book a test slot with a throwaway email. Within a minute the contact shows `booking_platform`, `unit_count`, `airbnb_annual_bookings`, `company`, `website`, `phone` from the form **and** `utm_content = ad-a`, `fbclid = abc123`, `meta_fbc`, `meta_event_id`, `booked_call_source`. Cancel the meeting and delete the test contact afterwards.
+5. Booked state survives refresh without re-firing events.
+6. Sticky CTA: hidden on desktop; on mobile appears after the hero, hides over `#book`, gone after booking.
+7. With `static.hsappstatic.net` blocked in DevTools: fallback link renders, page otherwise intact, no console errors.
 
 ### 5.5 Phase 2 (separate ticket — do not build now)
 
-Calendly webhook `invitee.created` → Netlify function `/api/calendly-webhook` → Meta Conversions API `Schedule` with `event_id = calendly-<inviteeId>`, hashed email (and phone if collected), `fbc` from `tracking.salesforce_uuid`, `event_source_url` = lander URL, plus optional HubSpot contact upsert. This recovers bookings the browser pixel loses (iOS, blockers) and dedupes cleanly because the `event_id` is identical on both sides.
+The `/api/direct-booking/booked` route already has everything the Meta Conversions API needs: `event_id` (same `cd-dbl-…` id the pixel used), hashed email (and phone once the contact is found), `fbc`, `fbp`, client IP + user agent from the request, and `event_source_url`. Adding a CAPI `Schedule` send to that route is ~40 lines plus a `META_CAPI_ACCESS_TOKEN` env var, and Meta will dedupe it against the browser event. This recovers bookings the browser pixel loses (iOS, blockers). Optional in the same ticket: a HubSpot workflow on `booked_call_source = direct-booking-lander` for internal Slack/email alerts.
 
 ---
 
@@ -542,7 +552,7 @@ Calendly webhook `invitee.created` → Netlify function `/api/calendly-webhook` 
 |--------|--------|-----|
 | Lighthouse mobile (Moto G / slow 4G) | Performance ≥ 90, LCP ≤ 2.0 s, CLS < 0.05 | Hero image ≤ 120 KB and `priority`; nothing else above the fold loads images |
 | Route JS | No GSAP, no framer-motion, no HubSpot form code, no reCAPTCHA | §1.2, §2.5; check `next build` route size |
-| Third parties on load | gtag + pixel only | Calendly loads on demand (§4.3) |
+| Third parties on load | gtag + GTM (and whatever GTM loads: pixel) | HubSpot scheduler loads on demand (§4.3). Audit the container: nothing beyond Pixel + GA4 should fire on this route. |
 | Fonts | No new fonts | Nohemi 300 already preloaded in layout; use weight 400 only if it's already in the CSS `@font-face` list (it is) |
 
 Run `npx tsc --noEmit` and `npm run lint` before every push (repo rule). Run `npm run build` once before the PR and paste the `/direct-booking` route size into the PR description.
@@ -558,26 +568,30 @@ Run `npx tsc --noEmit` and `npm run lint` before every push (repo rule). Run `np
 - [ ] Four CTAs (hero, after math, after catch, sticky) share one text constant and all land on `#book`.
 - [ ] Calculator: default `$50,000 → ≈ $7,750`; `$100,000 → ≈ $15,500`; keyboard-operable.
 - [ ] FAQ: one open at a time, `aria-expanded` correct, `cd_dbl_faq_open` fires.
-- [ ] Booking: skeleton → widget; time pick → question step → confirmation; "You're booked" block swaps in; sticky hides; refresh keeps booked state without re-firing events.
+- [ ] Booking: skeleton → scheduler; pick time → form → HubSpot confirmation; "You're booked" block swaps in; sticky hides; refresh keeps booked state without re-firing events.
+- [ ] `/api/direct-booking/booked` rejects malformed bodies with 400, skips contacts older than 15 minutes, never returns 5xx to the browser.
 - [ ] Tracking verification §5.4 all pass, screenshots attached to PR.
 - [ ] Lighthouse mobile report attached to PR; LCP element is the hero image.
 - [ ] `npx tsc --noEmit`, `npm run lint`, `npm run build` all clean.
-- [ ] Netlify env set: `NEXT_PUBLIC_META_PIXEL_ID`, `NEXT_PUBLIC_CALENDLY_EVENT_URL`; both added to `SECRETS_SCAN_OMIT_KEYS`.
+- [ ] Netlify env set: `NEXT_PUBLIC_GTM_CONTAINER_ID`, `NEXT_PUBLIC_HUBSPOT_MEETING_URL` (both added to `SECRETS_SCAN_OMIT_KEYS`); `HUBSPOT_ACCESS_TOKEN` already present.
+- [ ] GTM container published with the §5.1 tags; GA4 page views verified single, not double, on the homepage as well as the lander.
+- [ ] `X-Robots-Tag` header present on `/direct-booking`; route absent from sitemap, nav, footer, and `crawlableSiteLinks`.
 
 ## 8. Do not
 
-- Do not add a lead form, email capture, exit-intent modal, chat widget, or any link off the page besides `/privacy`.
+- Do not add a separate lead form, email capture, exit-intent modal, chat widget, or any link off the page besides `/privacy`.
 - Do not put a price anywhere.
-- Do not fire `Lead`, or fire `Schedule` on page load, CTA click, or time selection.
-- Do not use Calendly's redirect-after-booking.
-- Do not import `FAQSection`, `CTAButton`, `ShorePartnershipChrome`, or anything from `@/components/shore-partnership`.
+- Do not call `fbq()` or `gtag()` from page code, and do not use `trackGa4Event` on this route; everything goes through `trackLander` → dataLayer → GTM.
+- Do not fire `Lead`, or fire `Schedule` on page load, CTA click, or iframe focus.
+- Do not add the HubSpot tracking script (`js.hs-scripts.com`) to this page; attribution goes through the API route, and the tracking script is another third-party download the page doesn't need.
+- Do not import `FAQSection`, `CTAButton`, `ShorePartnershipChrome`, `GhlBookingCardContent`, or anything from `@/components/shore-partnership`.
 - Do not invent statistics, testimonials, or client names.
 
 ## 9. Open items for Jordan (consolidated)
 
 1. Final ad headline + primary text + Meta CTA button (recommend **Book Now**), so the H1 and page CTA can be locked.
-2. Calendly event URL, with the five invitee questions set up as in §4.1, and the text-reminders decision.
-3. Meta Pixel ID.
+2. The new HubSpot scheduling page URL, with the form questions and contact properties from §4.1 created, and the phone-field decision.
+3. GTM container ID, plus the container changes in §5.1 (Schedule tag with `eventID`, GA4 event tags, and the page-view double-count decision).
 4. Hero image from the ad (and the 1200×628 OG crop). Exact CTA hex if it isn't `#FF5501`.
 5. Confirmation that the North Star Nature Suites name and the two stats can be used on this page.
 6. URL: `/direct-booking` OK?
