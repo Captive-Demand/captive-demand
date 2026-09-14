@@ -1,8 +1,10 @@
 'use client';
 
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { usePathname } from 'next/navigation';
 
 import { AdsRequestModal } from '@/components/services/advertising/AdsRequestModal';
+import { isDirectBookingPath } from '@/lib/standalone-landers';
 
 interface AdsRequestModalContextValue {
   openAdsModal: (leadSource?: string) => void;
@@ -12,6 +14,7 @@ interface AdsRequestModalContextValue {
 const AdsRequestModalContext = createContext<AdsRequestModalContextValue | null>(null);
 
 export function AdsRequestModalProvider({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [leadSource, setLeadSource] = useState('advertising_service_audit');
 
@@ -32,11 +35,13 @@ export function AdsRequestModalProvider({ children }: { children: React.ReactNod
   return (
     <AdsRequestModalContext.Provider value={value}>
       {children}
-      <AdsRequestModal
-        open={open}
-        onOpenChange={setOpen}
-        analyticsLeadSource={leadSource}
-      />
+      {!isDirectBookingPath(pathname) && (
+        <AdsRequestModal
+          open={open}
+          onOpenChange={setOpen}
+          analyticsLeadSource={leadSource}
+        />
+      )}
     </AdsRequestModalContext.Provider>
   );
 }
