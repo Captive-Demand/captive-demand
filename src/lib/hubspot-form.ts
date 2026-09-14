@@ -142,18 +142,36 @@ async function postHubSpotForm(
   return { ok: false, error: `HubSpot ${response.status}: ${body.slice(0, 400)}` };
 }
 
-async function findContactIdByEmail(
+export interface FindContactOptions {
+  /** Contacts are created asynchronously, so a miss is retried before giving up. */
+  attempts?: number;
+  /** Delay before retry N, multiplied by the attempt index. */
+  backoffMs?: number;
+  /** Extra contact properties to return alongside the id. */
+  properties?: string[];
+}
+
+export interface FindContactResult {
+  id?: string;
+  properties?: Record<string, string | null>;
+  error?: string;
+}
+
+export async function findContactIdByEmail(
   token: string,
   email: string,
-): Promise<{ id?: string; error?: string }> {
+  options: FindContactOptions = {},
+): Promise<FindContactResult> {
+  const { attempts = 4, backoffMs = 400, properties = ['email'] } = options;
+
   const headers = {
     Authorization: `Bearer ${token}`,
     'Content-Type': 'application/json',
   };
 
-  for (let attempt = 0; attempt < 4; attempt += 1) {
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
     if (attempt > 0) {
-      await new Promise((resolve) => setTimeout(resolve, 400 * attempt));
+      await new Promise((resolve) => setTimeout(resolve, backoffMs * attempt));
     }
 
     let searchResponse: Response;
@@ -163,7 +181,7 @@ async function findContactIdByEmail(
         headers,
         body: JSON.stringify({
           filterGroups: [{ filters: [{ propertyName: 'email', operator: 'EQ', value: email }] }],
-          properties: ['email'],
+          properties,
           limit: 1,
         }),
       });
@@ -176,15 +194,17 @@ async function findContactIdByEmail(
       return { error: `HubSpot search ${searchResponse.status}: ${body.slice(0, 400)}` };
     }
 
-    const searchBody = (await searchResponse.json()) as { results?: Array<{ id?: string }> };
-    const id = searchBody.results?.[0]?.id;
-    if (id) return { id };
+    const searchBody = (await searchResponse.json()) as {
+      results?: Array<{ id?: string; properties?: Record<string, string | null> }>;
+    };
+    const result = searchBody.results?.[0];
+    if (result?.id) return { id: result.id, properties: result.properties };
   }
 
   return {};
 }
 
-async function patchContactProperties(
+export async function patchContactProperties(
   token: string,
   contactId: string,
   properties: Record<string, string>,

@@ -3,14 +3,14 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Footer from "@/components/layout/Footer";
-import { isShorePartnershipPath } from "@/lib/shore-partnership";
+import { isStandaloneLanderPath } from "@/lib/standalone-landers";
 
 export function DeferredFooter() {
     const pathname = usePathname();
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        if (isShorePartnershipPath(pathname)) {
+        if (isStandaloneLanderPath(pathname)) {
             return;
         }
         if (mounted) return;
@@ -30,7 +30,7 @@ export function DeferredFooter() {
         };
     }, [pathname, mounted]);
 
-    if (isShorePartnershipPath(pathname)) {
+    if (isStandaloneLanderPath(pathname)) {
         return null;
     }
 

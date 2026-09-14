@@ -1,11 +1,13 @@
 'use client';
 
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { usePathname } from 'next/navigation';
 
 import {
   AuditRequestModal,
   type AuditRequestModalProps,
 } from '@/components/shore-partnership/AuditRequestModal';
+import { isDirectBookingPath } from '@/lib/standalone-landers';
 
 type AuditModalOptions = Pick<
   AuditRequestModalProps,
@@ -20,6 +22,7 @@ interface AuditRequestModalContextValue {
 const AuditRequestModalContext = createContext<AuditRequestModalContextValue | null>(null);
 
 export function AuditRequestModalProvider({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState<AuditModalOptions>({});
 
@@ -37,20 +40,24 @@ export function AuditRequestModalProvider({ children }: { children: React.ReactN
     [openAuditModal, closeAuditModal],
   );
 
+  // The direct booking lander ships no site modals; keep the context so consumers
+  // still resolve, but drop the modal subtree from that route's bundle.
   return (
     <AuditRequestModalContext.Provider value={value}>
       {children}
-      <AuditRequestModal
-        open={open}
-        onOpenChange={setOpen}
-        variant="full"
-        formSource="audit-form"
-        recaptchaAction="shore_audit_form"
-        analyticsLeadSource={options.analyticsLeadSource ?? 'homepage_audit'}
-        analyticsFormName={options.analyticsFormName ?? 'audit-form'}
-        portfolioPlaceholder={options.portfolioPlaceholder}
-        successMessage={options.successMessage}
-      />
+      {!isDirectBookingPath(pathname) && (
+        <AuditRequestModal
+          open={open}
+          onOpenChange={setOpen}
+          variant="full"
+          formSource="audit-form"
+          recaptchaAction="shore_audit_form"
+          analyticsLeadSource={options.analyticsLeadSource ?? 'homepage_audit'}
+          analyticsFormName={options.analyticsFormName ?? 'audit-form'}
+          portfolioPlaceholder={options.portfolioPlaceholder}
+          successMessage={options.successMessage}
+        />
+      )}
     </AuditRequestModalContext.Provider>
   );
 }

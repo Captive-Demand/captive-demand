@@ -1,13 +1,25 @@
 import Script from "next/script";
 
+import { siteConfig } from "@/lib/site";
+
+function resolvedContainerId(): string | undefined {
+  const fromEnv = process.env.NEXT_PUBLIC_GTM_CONTAINER_ID?.trim();
+  if (fromEnv) return fromEnv;
+  const fromConfig = siteConfig.gtmContainerId.trim();
+  return fromConfig || undefined;
+}
+
 /**
- * Optional Google Tag Manager snippet — **not mounted** in root layout by default.
- * To use: add `<GoogleTagManager />` to `layout.tsx` and set `NEXT_PUBLIC_GTM_CONTAINER_ID` (e.g. `GTM-XXXXXXX`).
+ * Google Tag Manager — hosts the Meta Pixel and the GA4 event tags.
+ *
+ * `afterInteractive` rather than `lazyOnload`: on an ad landing page, waiting for
+ * the window load event means the Pixel PageView fires late or not at all for
+ * someone who bounces in two seconds.
  *
  * Skips development unless `NEXT_PUBLIC_GTM_IN_DEV=true`.
  */
 export function GoogleTagManager() {
-  const gtmId = process.env.NEXT_PUBLIC_GTM_CONTAINER_ID?.trim();
+  const gtmId = resolvedContainerId();
   if (!gtmId) return null;
 
   const skipInDev =
@@ -20,7 +32,7 @@ export function GoogleTagManager() {
 
   return (
     <>
-      <Script id="gtm-init" strategy="lazyOnload">
+      <Script id="gtm-init" strategy="afterInteractive">
         {`
           (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
           new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],

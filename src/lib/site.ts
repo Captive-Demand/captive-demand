@@ -35,6 +35,17 @@ export const siteConfig = {
    * Override with NEXT_PUBLIC_GA4_MEASUREMENT_ID in Netlify env if this stream changes.
    */
   ga4MeasurementId: "G-N2HFM02GMY",
+  /**
+   * Google Tag Manager container. Holds the Meta Pixel and the GA4 event tags.
+   * Override with NEXT_PUBLIC_GTM_CONTAINER_ID in Netlify env.
+   */
+  gtmContainerId: "GTM-KDGH9S9",
+  /**
+   * HubSpot Meetings scheduling page embedded on /direct-booking. Stored without
+   * `?embed=true`; resolveMeetingUrls() adds it.
+   * Override with NEXT_PUBLIC_HUBSPOT_MEETING_URL.
+   */
+  hubspotMeetingUrl: "https://meetings.hubspot.com/jordan1473",
 } as const;
 
 export function absoluteUrl(path = "") {
