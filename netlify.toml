@@ -1,7 +1,20 @@
 # reCAPTCHA site keys are public client config (NEXT_PUBLIC_*). Next.js inlines them
 # into JS bundles, which Netlify's secrets scanner would otherwise block.
 [build.environment]
-  SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_RECAPTCHA_SITE_KEY"
+  SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_RECAPTCHA_SITE_KEY,NEXT_PUBLIC_GTM_CONTAINER_ID,NEXT_PUBLIC_HUBSPOT_MEETING_URL"
+
+# Ad landing page is reachable only from paid traffic. The route also sets a
+# noindex robots meta; this header is the belt-and-braces version for crawlers
+# that fetch headers without rendering.
+[[headers]]
+  for = "/direct-booking"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/direct-booking/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
 
 # Long-lived caching for static assets in /public.
 # Next.js's `headers()` config does NOT apply to /public files on Netlify -

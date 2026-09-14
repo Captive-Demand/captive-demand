@@ -5,6 +5,7 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import { DeferredFooter } from "@/components/layout/DeferredFooter";
 import { SiteReCaptchaProvider } from "@/components/providers/SiteReCaptchaProvider";
+import { GoogleTagManager } from "@/components/analytics/GoogleTagManager";
 import { SiteGoogleAnalytics } from "@/components/analytics/SiteGoogleAnalytics";
 import { OrganizationSchema } from "@/components/schema/OrganizationSchema";
 import { AdsRequestModalProvider } from "@/components/services/advertising/AdsRequestModalProvider";
@@ -129,6 +130,7 @@ export default function RootLayout({
                 />
             </head>
             <body className={`${inter.variable} ${syne.variable} ${jetBrainsMono.variable} ${nohemi.variable} antialiased h-full relative`}>
+                <GoogleTagManager />
                 <SiteReCaptchaProvider>
                 <SiteGoogleAnalytics />
                 <OrganizationSchema />
