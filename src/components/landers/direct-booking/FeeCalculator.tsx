@@ -40,7 +40,7 @@ export function FeeCalculator() {
         {FEE_MATH.calculatorLabel}
       </label>
 
-      <p className="mt-3 font-nohemi text-3xl font-normal tracking-[-0.01em] sm:text-4xl">
+      <p className="mt-3 font-[Nohemi,sans-serif] text-3xl font-normal tracking-[-0.01em] sm:text-4xl">
         {currency.format(bookings)}
       </p>
 
@@ -58,7 +58,7 @@ export function FeeCalculator() {
       />
 
       <p aria-live="polite" className="mt-6 text-[17px] leading-relaxed">
-        <span className="font-nohemi text-2xl text-[#FF5501] sm:text-3xl">
+        <span className="font-[Nohemi,sans-serif] text-2xl text-[#FF5501] sm:text-3xl">
           ≈ {currency.format(fees)}
         </span>{' '}
         {FEE_MATH.calculatorSuffix}

@@ -3,7 +3,7 @@ import { FOOTER } from '@/components/landers/direct-booking/copy';
 
 export function LanderFooter() {
   return (
-    <footer className="border-t border-white/10 px-container-px py-10 text-[#FAF9F6]">
+    <footer className="border-t border-white/10 px-[clamp(1rem,5vw,3rem)] py-10 text-[#FAF9F6]">
       <div className="mx-auto flex max-w-3xl flex-col gap-6">
         <Image
           src={FOOTER.logo}

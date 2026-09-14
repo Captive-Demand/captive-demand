@@ -4,12 +4,12 @@ import { LanderCtaButton } from '@/components/landers/direct-booking/LanderCtaBu
 
 export function FeeMath() {
   return (
-    <section id="math" data-reveal className="px-container-px py-14 sm:py-20">
+    <section id="math" data-reveal className="px-[clamp(1rem,5vw,3rem)] py-14 sm:py-20">
       <div className="mx-auto max-w-3xl">
         <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-[#FF5501]">
           {FEE_MATH.eyebrow}
         </p>
-        <h2 className="mt-4 font-nohemi text-3xl font-normal tracking-[-0.01em] sm:text-4xl">
+        <h2 className="mt-4 font-[Nohemi,sans-serif] text-3xl font-normal tracking-[-0.01em] sm:text-4xl">
           {FEE_MATH.h2}
         </h2>
         <p className="mt-6 text-[17px] leading-relaxed text-[#FAF9F6]/65">{FEE_MATH.body}</p>

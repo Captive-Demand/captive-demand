@@ -18,7 +18,7 @@ export function DirectBookingLander() {
   const meeting = resolveMeetingUrls();
 
   return (
-    <div className="relative min-h-svh bg-[#1a1512] text-[#FAF9F6]">
+    <div className="relative min-h-svh bg-[#1a1512] font-sans text-[#FAF9F6]">
       <NoiseOverlay opacity={0.02} />
 
       <AttributionCapture />

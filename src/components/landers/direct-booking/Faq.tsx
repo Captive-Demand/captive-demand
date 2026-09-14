@@ -17,12 +17,12 @@ export function Faq() {
   };
 
   return (
-    <section id="faq" data-reveal className="px-container-px py-14 sm:py-20">
+    <section id="faq" data-reveal className="px-[clamp(1rem,5vw,3rem)] py-14 sm:py-20">
       <div className="mx-auto max-w-3xl">
         <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-[#FF5501]">
           {FAQ.eyebrow}
         </p>
-        <h2 className="mt-4 font-nohemi text-3xl font-normal tracking-[-0.01em] sm:text-4xl">
+        <h2 className="mt-4 font-[Nohemi,sans-serif] text-3xl font-normal tracking-[-0.01em] sm:text-4xl">
           {FAQ.h2}
         </h2>
 
@@ -48,7 +48,7 @@ export function Faq() {
                     onClick={() => toggle(index, item.question)}
                     className="flex min-h-[64px] w-full items-center justify-between gap-4 px-5 py-4 text-left"
                   >
-                    <span className="font-nohemi text-lg font-normal sm:text-xl">
+                    <span className="font-[Nohemi,sans-serif] text-lg font-normal sm:text-xl">
                       {item.question}
                     </span>
                     <span

@@ -8,7 +8,7 @@ export function Hero() {
     // start at opacity 0 waiting on an observer.
     <section
       id="hero"
-      className="relative flex min-h-[100svh] flex-col justify-center overflow-hidden px-container-px pt-16 pb-14 text-[#FAF9F6] sm:pt-24 sm:pb-20"
+      className="relative flex min-h-[100svh] flex-col justify-center overflow-hidden px-[clamp(1rem,5vw,3rem)] pt-16 pb-14 text-[#FAF9F6] sm:pt-24 sm:pb-20"
     >
       <div className="absolute inset-0">
         {/* TODO(hero-asset): swap for the dome-at-dusk export from the live ad */}
@@ -30,7 +30,7 @@ export function Hero() {
         <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-[#FF5501]">
           {HERO.eyebrow}
         </p>
-        <h1 className="font-nohemi font-normal tracking-[-0.02em] text-[2.25rem] leading-[1.05] sm:text-5xl lg:text-6xl">
+        <h1 className="font-[Nohemi,sans-serif] font-normal tracking-[-0.02em] text-[2.25rem] leading-[1.05] sm:text-5xl lg:text-6xl">
           <span>{HERO.h1FirstSentence}</span>{' '}
           <span className="sm:block">{HERO.h1SecondSentence}</span>
         </h1>

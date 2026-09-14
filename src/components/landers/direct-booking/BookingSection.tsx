@@ -79,12 +79,12 @@ export function BookingSection({ pageUrl, embedUrl }: BookingSectionProps) {
   );
 
   return (
-    <section id={BOOKING_SECTION_ID} data-reveal className="px-container-px py-14 sm:py-20">
+    <section id={BOOKING_SECTION_ID} data-reveal className="px-[clamp(1rem,5vw,3rem)] py-14 sm:py-20">
       <div className="mx-auto max-w-5xl">
         <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-[#FF5501]">
           {booked ? BOOKING.booked.eyebrow : BOOKING.eyebrow}
         </p>
-        <h2 className="mt-4 font-nohemi text-3xl font-normal tracking-[-0.01em] sm:text-4xl">
+        <h2 className="mt-4 font-[Nohemi,sans-serif] text-3xl font-normal tracking-[-0.01em] sm:text-4xl">
           {booked ? BOOKING.booked.h2 : BOOKING.h2}
         </h2>
 

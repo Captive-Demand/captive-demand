@@ -5,7 +5,7 @@ export function HowItWorks() {
     <section
       id="how"
       data-reveal
-      className="px-container-px py-14 text-[#FAF9F6] sm:py-20"
+      className="px-[clamp(1rem,5vw,3rem)] py-14 text-[#FAF9F6] sm:py-20"
     >
       <div className="mx-auto max-w-5xl">
         <p className="mb-8 font-mono text-[11px] uppercase tracking-[0.18em] text-[#FF5501]">
@@ -20,7 +20,7 @@ export function HowItWorks() {
               <p className="font-mono text-[11px] tracking-[0.18em] text-[#FF5501]">
                 {step.numeral}
               </p>
-              <h3 className="mt-4 font-nohemi text-xl">{step.title}</h3>
+              <h3 className="mt-4 font-[Nohemi,sans-serif] text-xl">{step.title}</h3>
               <p className="mt-4 text-[17px] leading-relaxed text-[#FAF9F6]/65">
                 {step.body}
               </p>
