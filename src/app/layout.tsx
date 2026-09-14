@@ -3,6 +3,7 @@ import { Inter, Syne, JetBrains_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
+import { CrawlableSiteLinks } from "@/components/layout/CrawlableSiteLinks";
 import { DeferredFooter } from "@/components/layout/DeferredFooter";
 import { SiteReCaptchaProvider } from "@/components/providers/SiteReCaptchaProvider";
 import { GoogleTagManager } from "@/components/analytics/GoogleTagManager";
@@ -142,20 +143,7 @@ export default function RootLayout({
                 </main>
                 </AdsRequestModalProvider>
                 </AuditRequestModalProvider>
-                <nav
-                    aria-label="Site links"
-                    className="sr-only focus-within:not-sr-only focus-within:fixed focus-within:bottom-4 focus-within:left-4 focus-within:z-[60] focus-within:max-w-sm focus-within:rounded-xl focus-within:border focus-within:border-brand-dark/10 focus-within:bg-[#fafafa] focus-within:p-4 focus-within:shadow-lg"
-                >
-                    <ul className="flex flex-col gap-2">
-                        {crawlableSiteLinks.map((link) => (
-                            <li key={link.href}>
-                                <a href={link.href} className="text-sm text-brand-dark underline underline-offset-2">
-                                    {link.label}
-                                </a>
-                            </li>
-                        ))}
-                    </ul>
-                </nav>
+                <CrawlableSiteLinks links={crawlableSiteLinks} />
                 <DeferredFooter />
                 </SiteReCaptchaProvider>
             </body>
