@@ -3,7 +3,7 @@
 **Status:** Ready to build. Items tagged `⚠ JORDAN` need confirmation before **launch**, not before build — build against the defaults given.
 **Companion:** `brief.md` in this folder (the original campaign brief). This spec wins where the two disagree.
 **Branch:** `claude/loving-mccarthy-nwwpzd` (spec) → build on a `cursor/*` branch off `main`.
-**Last updated:** 2026-09-14 (rev 4: hero locked on the 15.5% hook; GTM container `GTM-KDGH9S9` wired in)
+**Last updated:** 2026-09-14 (rev 5: HubSpot form questions need a paid seat; free-tier fallback added in §4.5)
 
 ---
 
@@ -12,7 +12,7 @@
 | # | Decision | Default to build | Status |
 |---|----------|------------------|--------|
 | 1 | URL | `/direct-booking` | ⚠ JORDAN |
-| 2 | Scheduling tool | **HubSpot Meetings**, inline embed of a **dedicated** scheduling page under Jordan's account (not his general `meetings.hubspot.com/jordan1473` link). Qualifying questions live **inside the HubSpot booking form** as contact properties. No pre-form step on our page. | Decided |
+| 2 | Scheduling tool | **HubSpot Meetings**, inline embed of a **dedicated** scheduling page under Jordan's account (not his general `meetings.hubspot.com/jordan1473` link). Qualifying questions live **inside the HubSpot booking form** as contact properties **if the portal has a paid Sales Hub / Service Hub seat** (the Form tab on the free tier is fixed at name + email). Otherwise the questions move to a **post-booking step on our page** (§4.5). No pre-form step before the calendar in either case. | ⚠ JORDAN (seat decision, §4.1) |
 | 3 | Meta conversion event | `Schedule` (standard event), fired **client-side** on HubSpot's `meetingBookSucceeded` message, with a client-generated `eventID` that is also stored on the HubSpot contact so a server-side Conversions API event can dedupe against it later. `Lead` is **not** fired on this page. | Decided |
 | 4 | Tag layer | **Google Tag Manager.** The page pushes semantic `dataLayer` events only; it never calls `fbq()` or `gtag()` itself. GTM fires the Meta Pixel `Schedule` and the GA4 event tags. The existing `GoogleTagManager` component gets mounted in the root layout (env-gated). | Decided |
 | 5 | Meta Pixel | Lives in the GTM container `GTM-KDGH9S9` (already does, per Jordan). Base + PageView on all pages via GTM; `Schedule` only from this route's `cd_dbl_call_booked` dataLayer event. | Container ID decided; tag setup in §5.1 still to do |
@@ -20,7 +20,7 @@
 | 7 | Confirmation state | Stays on-page. HubSpot's own confirmation screen stays inside the embed (and HubSpot sends a real calendar invite from Jordan's connected calendar); we swap the copy **above** the embed to a "You're booked" block. | Decided |
 | 8 | Proof section | North Star Nature Suites (luxury cabin suites, TN) — a direct booking site we designed and built, with the two stats already published on `/services/seo`. Confirmed legitimate by Jordan. Built as one data object so it can be swapped for campaign-launched sites later. | Decided |
 | 9 | Calculator | Yes. One slider, one output. | Decided |
-| 10 | Phone number on the booking form | Add `phone` as a required field on the HubSpot meeting form. Costs some conversion, buys show rate and a way to text no-shows. | ⚠ JORDAN |
+| 10 | Phone number | Paid seat: `phone` required on the HubSpot meeting form. Free tier: optional phone field in the post-booking step (§4.5). Costs some conversion, buys show rate and a way to text no-shows. | ⚠ JORDAN |
 | 11 | Chrome | No nav, no footer links except Privacy, logo **not** linked. No exit-intent modal, no chat FAB, no separate lead form. | Decided |
 | 12 | Motion | CSS-only reveals. No GSAP, no framer-motion on this route. | Decided |
 | 13 | Hero image | The dome-at-dusk image from the live ad. | ⚠ JORDAN (asset) |
@@ -287,6 +287,8 @@ Nothing else. No social icons, no phone, no email.
 
 ### 4.1 Scheduling page setup (Jordan, in HubSpot — not code) ⚠ JORDAN
 
+**Seat check first.** Adding contact properties or custom questions to a scheduling page's form is a paid Sales Hub / Service Hub feature. On the free tier the Form tab shows only First name / Last name / Email plus the CAPTCHA, block-free-domains, guests, and consent toggles, and there is no "add question" control (confirmed on Jordan's portal after the Sales Hub Professional trial ended). I believe one **Sales Hub Starter** seat is enough to unlock it, at roughly $20 per seat per month, but verify both the tier and the price on HubSpot's pricing page before buying. Starter also removes HubSpot branding from the scheduling page. If Jordan stays on the free tier, skip the form-question bullets below and build §4.5 instead.
+
 Create a **new** scheduling page rather than reusing the general `jordan1473` link, so this campaign's bookings have their own form questions and their own reporting:
 
 - Sales → Meetings → Create scheduling page → One-on-one, Jordan as organizer.
@@ -421,6 +423,37 @@ The `eventID` is generated here, handed to GTM as `meta_event_id` (the Pixel tag
 
 If `sessionStorage['cd_dbl_booked']` is already `'1'` on mount (they refreshed after booking), render the booked state and **do not** fire the events again.
 
+### 4.5 Fallback for the free tier: post-booking questions on our page
+
+Build this **only** if the HubSpot form can't take questions. It keeps the HubSpot form at name + email (the smallest possible ask at the conversion point) and collects the qualifying answers in our own UI right after the booking, when the person has already committed. Expect some bookers to skip it; that is the trade for a cheaper booking.
+
+**Flow**
+
+1. `meetingBookSucceeded` → everything in §4.4 happens exactly as written (`cd_dbl_call_booked`, booked state, attribution POST).
+2. The "You're booked" block (§3.7) gains a short form directly beneath its copy, above the HubSpot confirmation iframe, so it is the first thing on screen after the scroll. Heading and fields:
+
+   **Ships**
+   - Eyebrow: `Help us prep — 30 seconds`
+   - Lead line: `Four quick taps so the design fits your property.`
+   - `Property name` — single-line text, required
+   - `How do you take bookings today?` — radio: `Airbnb only` / `Airbnb + Vrbo` / `A booking system (Hostaway, Guesty, Beds24, Lodgify, etc.)` / `Something else` — required
+   - `How many units?` — radio: `1–2` / `3–5` / `6–10` / `10+` — required
+   - `Rough annual bookings through Airbnb` — radio: `Under $25k` / `$25–50k` / `$50–100k` / `$100k+` / `Prefer not to say` — required
+   - `Link to your website or Airbnb listing` — single-line text, optional
+   - `Best number for a reminder text` — tel input, optional (decision #10)
+   - Submit button: `Send`
+   - Success state (replaces the form): `Got it. See you on the call.`
+   - Skip link under the button, muted: `Skip for now`
+
+   Radios are large tap targets (full-width rows, ≥ 48 px tall, `aria-checked` on `role="radio"` buttons or native inputs with visually-large labels). Same panel/accent tokens as §2.1. No validation beyond required-ness; never block on the link or phone format.
+3. On submit → `POST /api/direct-booking/booked` again with the **same `eventId`** and an `answers` object: `{ property_name, booking_platform, unit_count, airbnb_annual_bookings, booking_site_link, phone }`. The route (§5.3) patches those properties onto the contact under the same 15-minute guard. `phone` maps to HubSpot's default `phone` property; the rest map to the custom properties from §4.1 (which still need to be created).
+4. Fire `cd_dbl_prep_submitted` on success and `cd_dbl_prep_skipped` on skip (add both to the §5.2 table and the GTM regex trigger).
+5. Persist a `cd_dbl_prep_done` flag in `sessionStorage` so a refresh shows the success state, not the empty form.
+
+**Server change:** the route accepts an optional `answers` object; each value is a string ≤ 200 chars; radio values are validated against the option lists above (reject anything else with 400). The attribution stamp on the first call and the answers patch on the second are independent, so either can arrive without the other.
+
+**Trade-offs to remember when reading the numbers:** the booking rate will read higher and the answer completeness lower than the paid-seat version; report "prep form completion" as its own metric next to show rate.
+
 ---
 
 ## 5. Tracking
@@ -510,7 +543,7 @@ Rules: read `window.location.search` on the lander's mount (`AttributionCapture`
 }
 ```
 
-`keepalive: true` on the fetch so it survives a tab close. If the response body is `{ status: 'pending' }`, retry once after 8 s (the contact may not be searchable yet).
+`keepalive: true` on the fetch so it survives a tab close. If the response body is `{ status: 'pending' }`, retry once after 8 s (the contact may not be searchable yet). In the §4.5 fallback the same endpoint is called a second time with an `answers` object added.
 
 **Server — `src/app/api/direct-booking/booked/route.ts`:**
 
@@ -570,6 +603,7 @@ Run `npx tsc --noEmit` and `npm run lint` before every push (repo rule). Run `np
 - [ ] Calculator: default `$50,000 → ≈ $7,750`; `$100,000 → ≈ $15,500`; keyboard-operable.
 - [ ] FAQ: one open at a time, `aria-expanded` correct, `cd_dbl_faq_open` fires.
 - [ ] Booking: skeleton → scheduler; pick time → form → HubSpot confirmation; "You're booked" block swaps in; sticky hides; refresh keeps booked state without re-firing events.
+- [ ] If built (§4.5): post-booking prep form submits, patches the contact, shows the success state, survives refresh; skip link works; both events fire.
 - [ ] `/api/direct-booking/booked` rejects malformed bodies with 400, skips contacts older than 15 minutes, never returns 5xx to the browser.
 - [ ] Tracking verification §5.4 all pass, screenshots attached to PR.
 - [ ] Lighthouse mobile report attached to PR; LCP element is the hero image.
@@ -590,7 +624,7 @@ Run `npx tsc --noEmit` and `npm run lint` before every push (repo rule). Run `np
 
 ## 9. Open items for Jordan (consolidated)
 
-1. The new HubSpot scheduling page URL, with the form questions and contact properties from §4.1 created, and the phone-field decision.
+1. **Seat decision:** buy one Sales Hub Starter seat so the HubSpot form can carry the questions (§4.1), or stay free and build the post-booking step (§4.5). Then the new scheduling page URL, the contact properties from §4.1 created either way, and the phone decision.
 2. GTM container changes in §5.1 (Schedule tag with `eventID`, GA4 event tags, and the page-view double-count decision).
 3. Hero image from the ad (and the 1200×628 OG crop). Exact CTA hex if it isn't `#FF5501`. Until it arrives, build against a placeholder dark dusk landscape from `/public` (e.g. `desert.png` or `mountain.png`) behind the same gradient, and leave a `TODO(hero-asset)` comment.
 4. URL: `/direct-booking` OK?
