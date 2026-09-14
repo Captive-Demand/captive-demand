@@ -3,7 +3,7 @@
 **Status:** Ready to build. Items tagged `⚠ JORDAN` need confirmation before **launch**, not before build — build against the defaults given.
 **Companion:** `brief.md` in this folder (the original campaign brief). This spec wins where the two disagree.
 **Branch:** `claude/loving-mccarthy-nwwpzd` (spec) → build on a `cursor/*` branch off `main`.
-**Last updated:** 2026-09-14 (rev 3: HubSpot Meetings scheduler; GTM is the tag layer; North Star proof confirmed)
+**Last updated:** 2026-09-14 (rev 4: hero locked on the 15.5% hook; GTM container `GTM-KDGH9S9` wired in)
 
 ---
 
@@ -15,7 +15,7 @@
 | 2 | Scheduling tool | **HubSpot Meetings**, inline embed of a **dedicated** scheduling page under Jordan's account (not his general `meetings.hubspot.com/jordan1473` link). Qualifying questions live **inside the HubSpot booking form** as contact properties. No pre-form step on our page. | Decided |
 | 3 | Meta conversion event | `Schedule` (standard event), fired **client-side** on HubSpot's `meetingBookSucceeded` message, with a client-generated `eventID` that is also stored on the HubSpot contact so a server-side Conversions API event can dedupe against it later. `Lead` is **not** fired on this page. | Decided |
 | 4 | Tag layer | **Google Tag Manager.** The page pushes semantic `dataLayer` events only; it never calls `fbq()` or `gtag()` itself. GTM fires the Meta Pixel `Schedule` and the GA4 event tags. The existing `GoogleTagManager` component gets mounted in the root layout (env-gated). | Decided |
-| 5 | Meta Pixel | Lives in the GTM container (already does, per Jordan). Base + PageView on all pages via GTM; `Schedule` only from this route's `cd_dbl_call_booked` dataLayer event. | ⚠ JORDAN (GTM container ID + tag setup, §5.1) |
+| 5 | Meta Pixel | Lives in the GTM container `GTM-KDGH9S9` (already does, per Jordan). Base + PageView on all pages via GTM; `Schedule` only from this route's `cd_dbl_call_booked` dataLayer event. | Container ID decided; tag setup in §5.1 still to do |
 | 6 | Attribution passthrough | UTMs + `fbclid` captured on landing, persisted in `sessionStorage`. After a booking, the page POSTs them with the booker's email to a small API route that stamps them onto the HubSpot contact the booking just created. | Decided |
 | 7 | Confirmation state | Stays on-page. HubSpot's own confirmation screen stays inside the embed (and HubSpot sends a real calendar invite from Jordan's connected calendar); we swap the copy **above** the embed to a "You're booked" block. | Decided |
 | 8 | Proof section | North Star Nature Suites (luxury cabin suites, TN) — a direct booking site we designed and built, with the two stats already published on `/services/seo`. Confirmed legitimate by Jordan. Built as one data object so it can be swapped for campaign-launched sites later. | Decided |
@@ -150,19 +150,19 @@ Sections fade/translate in on first intersection using a `[data-reveal]` attribu
 
 ## 3. Page sections and copy
 
-Everything in the **Ships** blocks is customer-facing and goes into `copy.ts` verbatim. Anything labelled *Build note* is for you, never for the page. Hero lines marked ⚠ may change after Jordan confirms the final ad copy — keep them as single constants so it's a one-line change.
+Everything in the **Ships** blocks is customer-facing and goes into `copy.ts` verbatim. Anything labelled *Build note* is for you, never for the page. The ad copy leads with Airbnb's 15.5% fee and nothing else, so the hero below is locked; ad copy is not a blocker. Keep each hero line as its own constant anyway so a last-minute word change is a one-line edit.
 
 ### 3.1 Hero
 
 **Ships**
 
 - Eyebrow: `For multi-unit, unique stays — glamping, domes, cabins, tiny homes`
-- H1 ⚠: `Airbnb's cut is 15.5% now. Your own booking site takes nothing.`
+- H1: `Airbnb's cut is 15.5% now. Your own booking site takes nothing.`
 - Subhead: `We'll design a direct booking website for your property, free. It's yours to keep. All it takes is a 15-minute call so the design fits how you actually take bookings.`
-- CTA ⚠: `Book my 15-minute call`
+- CTA: `Book my 15-minute call`
 - Trust line (directly under the button): `No sales pitch on the call. The design is yours whether you work with us or not.`
 
-*Build note:* the H1's first sentence deliberately repeats the live ad's headline word for word. If the ad headline changes, the H1's first sentence changes with it.
+*Build note:* the H1's first sentence echoes the ad's 15.5% hook on purpose. If the final ad phrases it differently at launch, change only the first sentence to match; leave the second sentence, subhead, and CTA alone.
 
 ### 3.2 How it works (`id="how"`)
 
@@ -429,9 +429,10 @@ If `sessionStorage['cd_dbl_booked']` is already `'1'` on mount (they refreshed a
 
 **Code side (small):**
 
-- Mount the existing `GoogleTagManager` component in `src/app/layout.tsx` right after `SiteGoogleAnalytics`. It is already env-gated on `NEXT_PUBLIC_GTM_CONTAINER_ID` and skips dev unless `NEXT_PUBLIC_GTM_IN_DEV=true`. ⚠ JORDAN supplies the container ID (`GTM-XXXXXXX`).
-- Change its `next/script` strategy from `lazyOnload` to **`afterInteractive`**. `lazyOnload` waits for the window `load` event, which on an ad lander means the Pixel `PageView` (and Meta's landing-page-view signal) fires late or not at all for people who bounce in two seconds. Events pushed before GTM loads are queued in `window.dataLayer`, so nothing is lost either way, but PageView timing matters.
-- Add `NEXT_PUBLIC_GTM_CONTAINER_ID` to `.env.example`, Netlify env, and `SECRETS_SCAN_OMIT_KEYS`.
+- Container: **`GTM-KDGH9S9`**. Follow the GA4 pattern in `src/lib/site.ts`: add `gtmContainerId: "GTM-KDGH9S9"` to `siteConfig`, and have `GoogleTagManager.tsx` resolve `NEXT_PUBLIC_GTM_CONTAINER_ID` first and fall back to that default (mirror `resolvedMeasurementId()` in `SiteGoogleAnalytics.tsx`). No Netlify env is required for GTM to run in production; the env var stays as an override.
+- Mount the existing `GoogleTagManager` component in `src/app/layout.tsx` as the **first child of `<body>`**, ahead of the reCAPTCHA provider. Its inline script already matches Jordan's GTM snippet byte for byte, and rendering it first puts the `<noscript>` iframe immediately after the opening `<body>` tag, which is where GTM asks for it. It still skips dev unless `NEXT_PUBLIC_GTM_IN_DEV=true`.
+- Change its `next/script` strategy from `lazyOnload` to **`afterInteractive`**. GTM's instructions say "as high in the `<head>` as possible"; `afterInteractive` is Next's recommended equivalent for tag managers (it injects the script right after hydration), whereas `lazyOnload` waits for the window `load` event, which on an ad lander means the Pixel `PageView` fires late or not at all for people who bounce in two seconds. Events pushed before GTM loads are queued in `window.dataLayer`, so nothing is lost either way, but PageView timing matters. Do not use `beforeInteractive`; it delays hydration for a script that doesn't need to block.
+- Add `NEXT_PUBLIC_GTM_CONTAINER_ID=` (commented, override only) to `.env.example`, and add the key to `SECRETS_SCAN_OMIT_KEYS` so an override set in Netlify doesn't trip the secrets scanner.
 - `trackLander(event, params)` in `src/lib/direct-booking-lander.ts` wraps `pushDataLayerEvent` from `@/lib/analytics` and adds `page_variant: 'direct-booking-v1'` to every push. **Nothing on this route calls `gtag()` or `fbq()` directly**, and nothing on this route uses `trackGa4Event` (it would double-send once GTM forwards the same event to GA4).
 
 **GA4 double-counting guard (site-wide, must be settled before launch):** the site already loads GA4 via `SiteGoogleAnalytics` (gtag, `G-N2HFM02GMY`). If the GTM container also has a Google tag / GA4 configuration firing on All Pages, every page will send two `page_view`s once GTM is mounted. Pick one:
@@ -439,7 +440,7 @@ If `sessionStorage['cd_dbl_booked']` is already `'1'` on mount (they refreshed a
 - **Default for this build:** keep `SiteGoogleAnalytics` for page views; in GTM, set the Google tag's *"Send a page view event when this configuration loads"* to **off** (`send_page_view: false`). GTM then only sends the custom events below. Same measurement ID on both, same `_ga` cookie, sessions stitch.
 - Alternative: remove `SiteGoogleAnalytics` and let GTM own GA4 entirely. Cleaner long-term, but then the main site's existing `trackGa4Event` calls (pricing modal, forms) fall back to bare dataLayer pushes and each needs a GTM tag. Out of scope unless Jordan asks.
 
-**Container side (Jordan / whoever owns the container) ⚠ JORDAN — tags, triggers, variables to add:**
+**Container side (`GTM-KDGH9S9`, Jordan / whoever owns the container) ⚠ JORDAN — tags, triggers, variables to add:**
 
 | Item | Type | Config |
 |------|------|--------|
@@ -573,7 +574,7 @@ Run `npx tsc --noEmit` and `npm run lint` before every push (repo rule). Run `np
 - [ ] Tracking verification §5.4 all pass, screenshots attached to PR.
 - [ ] Lighthouse mobile report attached to PR; LCP element is the hero image.
 - [ ] `npx tsc --noEmit`, `npm run lint`, `npm run build` all clean.
-- [ ] Netlify env set: `NEXT_PUBLIC_GTM_CONTAINER_ID`, `NEXT_PUBLIC_HUBSPOT_MEETING_URL` (both added to `SECRETS_SCAN_OMIT_KEYS`); `HUBSPOT_ACCESS_TOKEN` already present.
+- [ ] Netlify env set: `NEXT_PUBLIC_HUBSPOT_MEETING_URL` (added to `SECRETS_SCAN_OMIT_KEYS` along with `NEXT_PUBLIC_GTM_CONTAINER_ID`); `HUBSPOT_ACCESS_TOKEN` already present; GTM runs from the `siteConfig` default `GTM-KDGH9S9`.
 - [ ] GTM container published with the §5.1 tags; GA4 page views verified single, not double, on the homepage as well as the lander.
 - [ ] `X-Robots-Tag` header present on `/direct-booking`; route absent from sitemap, nav, footer, and `crawlableSiteLinks`.
 
@@ -589,10 +590,10 @@ Run `npx tsc --noEmit` and `npm run lint` before every push (repo rule). Run `np
 
 ## 9. Open items for Jordan (consolidated)
 
-1. Final ad headline + primary text + Meta CTA button (recommend **Book Now**), so the H1 and page CTA can be locked.
-2. The new HubSpot scheduling page URL, with the form questions and contact properties from §4.1 created, and the phone-field decision.
-3. GTM container ID, plus the container changes in §5.1 (Schedule tag with `eventID`, GA4 event tags, and the page-view double-count decision).
-4. Hero image from the ad (and the 1200×628 OG crop). Exact CTA hex if it isn't `#FF5501`.
-5. Confirmation that the North Star Nature Suites name and the two stats can be used on this page.
-6. URL: `/direct-booking` OK?
-7. Ads Manager URL parameters from §5.3 applied to the ad.
+1. The new HubSpot scheduling page URL, with the form questions and contact properties from §4.1 created, and the phone-field decision.
+2. GTM container changes in §5.1 (Schedule tag with `eventID`, GA4 event tags, and the page-view double-count decision).
+3. Hero image from the ad (and the 1200×628 OG crop). Exact CTA hex if it isn't `#FF5501`. Until it arrives, build against a placeholder dark dusk landscape from `/public` (e.g. `desert.png` or `mountain.png`) behind the same gradient, and leave a `TODO(hero-asset)` comment.
+4. URL: `/direct-booking` OK?
+5. Ads Manager URL parameters from §5.3 applied to the ad.
+
+Settled: ad copy leads with the 15.5% fee (hero locked, §3.1); GTM container is `GTM-KDGH9S9`; North Star Nature Suites proof is approved.
