@@ -3,7 +3,7 @@
 **Status:** Ready to build. Items tagged `⚠ JORDAN` need confirmation before **launch**, not before build — build against the defaults given.
 **Companion:** `brief.md` in this folder (the original campaign brief). This spec wins where the two disagree.
 **Branch:** `claude/loving-mccarthy-nwwpzd` (spec) → build on a `cursor/*` branch off `main`.
-**Last updated:** 2026-09-14 (rev 7: staying on the free HubSpot tier; qualifying questions move to the post-booking prep step, §4.5)
+**Last updated:** 2026-09-14 (rev 8: scheduling URL pinned to `https://meetings.hubspot.com/jordan1473`)
 
 ---
 
@@ -12,7 +12,7 @@
 | # | Decision | Default to build | Status |
 |---|----------|------------------|--------|
 | 1 | URL | `/direct-booking` | ⚠ JORDAN |
-| 2 | Scheduling tool | **HubSpot Meetings** on the **free tier**, inline embed of a **dedicated** scheduling page under Jordan's account (not his general `meetings.hubspot.com/jordan1473` link). The HubSpot form stays at first name / last name / email. The qualifying questions are a **post-booking prep step on our page** (§4.5) that writes answers onto the HubSpot contact through our API route. No pre-form step before the calendar. | Decided |
+| 2 | Scheduling tool | **HubSpot Meetings** on the **free tier**, inline embed of Jordan's scheduling page **`https://meetings.hubspot.com/jordan1473`** (his general link; campaign bookings are told apart by the `booked_call_source` stamp in §5.3, so a dedicated page is an optional later swap of one constant). The HubSpot form stays at first name / last name / email. The qualifying questions are a **post-booking prep step on our page** (§4.5) that writes answers onto the HubSpot contact through our API route. No pre-form step before the calendar. | Decided |
 | 3 | Meta conversion event | `Schedule` (standard event), fired **client-side** on HubSpot's `meetingBookSucceeded` message, with a client-generated `eventID` that is also stored on the HubSpot contact so a server-side Conversions API event can dedupe against it later. `Lead` is **not** fired on this page. | Decided |
 | 4 | Tag layer | **Google Tag Manager.** The page pushes semantic `dataLayer` events only; it never calls `fbq()` or `gtag()` itself. GTM fires the Meta Pixel `Schedule` and the GA4 event tags. The existing `GoogleTagManager` component gets mounted in the root layout (env-gated). | Decided |
 | 5 | Meta Pixel | Lives in the GTM container `GTM-KDGH9S9` (already does, per Jordan). Base + PageView on all pages via GTM; `Schedule` only from this route's `cd_dbl_call_booked` dataLayer event. | Container ID decided; tag setup in §5.1 still to do |
@@ -289,11 +289,10 @@ Nothing else. No social icons, no phone, no email.
 
 **Tier:** the portal is on the free tier and stays there. Adding questions to a scheduling page's form is a paid Sales Hub / Service Hub feature, so the HubSpot form is fixed at First name / Last name / Email (confirmed on Jordan's portal after the Sales Hub Professional trial ended). The qualifying questions are collected by §4.5 instead. Two free-tier consequences to accept: the scheduling page shows HubSpot branding inside the embed, and reminder emails may not be available (check the Automation / Additional settings area; if there's no reminder toggle, that's the tier).
 
-Create a **new** scheduling page rather than reusing the general `jordan1473` link, so this campaign's bookings have their own form questions and their own reporting:
+Jordan is using his existing general scheduling page, `https://meetings.hubspot.com/jordan1473`. Settings to check on it (Sales → Meetings Scheduler → hover the page → Edit):
 
-- Sales → Meetings → Create scheduling page → One-on-one, Jordan as organizer.
-- Internal name `Direct booking site design call`; slug e.g. `direct-booking-design` → URL `https://meetings.hubspot.com/jordan1473/direct-booking-design`.
-- Duration 15 min only. Location: Google Meet (or phone — his call). Title shown to invitees: `Direct booking site design — 15 min`.
+- **Duration: 15 minutes only.** If the page offers several durations, invitees get a duration picker before the calendar, which is an extra step and contradicts "15-minute call" everywhere on the page. Remove the other durations, or create a dedicated 15-minute page (`/jordan1473/direct-booking-design`) and swap the one URL constant in §4.2.
+- Location: Google Meet (or phone — his call). Title shown to invitees: `Direct booking site design — 15 min` (or leave the general title if this page is shared with other traffic).
 - **Form tab:** leave it alone (first name, last name, email). Leave CAPTCHA off (it adds a step on mobile and the page is only reachable from the ad), leave "block free email domains" **off** (glamping operators book with Gmail), guests off, consent off.
 - **Contact properties the prep step writes to** (create under Settings → Properties, object Contacts, group "Direct booking lander"; the property types only matter for reporting since our page renders the controls):
   1. `property_name` — single-line text
@@ -311,12 +310,12 @@ Create a **new** scheduling page rather than reusing the general `jordan1473` li
 
 ### 4.2 Config
 
-- `NEXT_PUBLIC_HUBSPOT_MEETING_URL` — the scheduling page URL **without** `?embed=true`, e.g. `https://meetings.hubspot.com/jordan1473/direct-booking-design`. Add to `.env.example` and Netlify env.
+- Default lives in code, GA4/GTM style: add `hubspotMeetingUrl: "https://meetings.hubspot.com/jordan1473"` to `siteConfig` in `src/lib/site.ts`. `NEXT_PUBLIC_HUBSPOT_MEETING_URL` is an optional override (add it commented to `.env.example`); no Netlify env is required. Store the URL **without** `?embed=true`; the resolver adds it.
 - Resolver in `src/lib/direct-booking-lander.ts`:
 
 ```ts
 export function resolveMeetingUrls(): { page: string; embed: string } | null {
-  const raw = process.env.NEXT_PUBLIC_HUBSPOT_MEETING_URL?.trim();
+  const raw = process.env.NEXT_PUBLIC_HUBSPOT_MEETING_URL?.trim() || siteConfig.hubspotMeetingUrl;
   if (!raw) return null;
   try {
     const u = new URL(raw);
@@ -333,18 +332,18 @@ export function resolveMeetingUrls(): { page: string; embed: string } | null {
 
   If the resolver returns `null`, render the booking section with a visible dev-only warning and no embed (never ship an empty section silently — `console.error` in dev; the fallback link is hidden because there is no URL).
 
-- Netlify: append `NEXT_PUBLIC_HUBSPOT_MEETING_URL` and `NEXT_PUBLIC_GTM_CONTAINER_ID` to `SECRETS_SCAN_OMIT_KEYS` in `netlify.toml` (they're `NEXT_PUBLIC_*`, so they get inlined into bundles and the secrets scanner will flag them exactly as it did for the reCAPTCHA key).
+- Netlify: append `NEXT_PUBLIC_HUBSPOT_MEETING_URL` and `NEXT_PUBLIC_GTM_CONTAINER_ID` to `SECRETS_SCAN_OMIT_KEYS` in `netlify.toml` so an override set in Netlify env doesn't trip the secrets scanner (it flagged the reCAPTCHA key the same way).
 
 ### 4.3 Loading the embed (`HubSpotMeetingsInline`, client)
 
 HubSpot's official snippet is a container div plus a script that scans the DOM once, injects the iframe, and keeps its height in sync:
 
 ```html
-<div class="meetings-iframe-container" data-src="https://meetings.hubspot.com/jordan1473/direct-booking-design?embed=true"></div>
+<div class="meetings-iframe-container" data-src="https://meetings.hubspot.com/jordan1473?embed=true"></div>
 <script src="https://static.hsappstatic.net/MeetingsEmbed/ex/MeetingsEmbedCode.js"></script>
 ```
 
-In React, render the container **first**, then inject the script **once, on demand**. Trigger: the booking section enters a `rootMargin: '800px 0px'` observer **or** the `cd-dbl:load-scheduler` custom event fires (any CTA click), whichever first. The script only scans on load, so the container must be in the DOM before it runs, and it must never be injected twice:
+That is exactly the snippet Jordan exported from HubSpot. In React, render the container **first**, then inject the script **once, on demand**. Trigger: the booking section enters a `rootMargin: '800px 0px'` observer **or** the `cd-dbl:load-scheduler` custom event fires (any CTA click), whichever first. The script only scans on load, so the container must be in the DOM before it runs, and it must never be injected twice:
 
 ```ts
 let hsEmbedLoad: Promise<void> | null = null;
@@ -388,7 +387,7 @@ useEffect(() => {
       firstName: contact.firstName,
       lastName: contact.lastName,
       startTime: payload.bookingResponse?.event?.dateString,   // verify exact field during QA
-      meetingSlug: payload.userSlug,
+      meetingSlug: payload.userSlug,                          // expect 'jordan1473'
       formGuid: payload.formGuid,
     });
   }
@@ -610,7 +609,7 @@ Run `npx tsc --noEmit` and `npm run lint` before every push (repo rule). Run `np
 - [ ] Tracking verification §5.4 all pass, screenshots attached to PR.
 - [ ] Lighthouse mobile report attached to PR; LCP element is the hero image.
 - [ ] `npx tsc --noEmit`, `npm run lint`, `npm run build` all clean.
-- [ ] Netlify env set: `NEXT_PUBLIC_HUBSPOT_MEETING_URL` (added to `SECRETS_SCAN_OMIT_KEYS` along with `NEXT_PUBLIC_GTM_CONTAINER_ID`); `HUBSPOT_ACCESS_TOKEN` already present; GTM runs from the `siteConfig` default `GTM-KDGH9S9`.
+- [ ] `HUBSPOT_ACCESS_TOKEN` present in Netlify env; GTM and the meeting URL run from their `siteConfig` defaults (`GTM-KDGH9S9`, `https://meetings.hubspot.com/jordan1473`); both `NEXT_PUBLIC_*` override keys listed in `SECRETS_SCAN_OMIT_KEYS`.
 - [ ] GTM container published with the §5.1 tags; GA4 page views verified single, not double, on the homepage as well as the lander.
 - [ ] `X-Robots-Tag` header present on `/direct-booking`; route absent from sitemap, nav, footer, and `crawlableSiteLinks`.
 
@@ -627,7 +626,7 @@ Run `npx tsc --noEmit` and `npm run lint` before every push (repo rule). Run `np
 
 ## 9. Open items for Jordan (consolidated)
 
-1. The new scheduling page URL (Overview + Schedule tabs only; the Form tab stays default) and the six contact properties from §4.1 created with the exact option strings.
+1. On the `jordan1473` scheduling page: confirm it offers **15 minutes only**, set the Schedule-tab hygiene from §4.1, and create the contact properties from §4.1 with the exact option strings.
 2. GTM container changes in §5.1 (Schedule tag with `eventID`, GA4 event tags, and the page-view double-count decision).
 3. Hero image from the ad (and the 1200×628 OG crop). Exact CTA hex if it isn't `#FF5501`. Until it arrives, build against a placeholder dark dusk landscape from `/public` (e.g. `desert.png` or `mountain.png`) behind the same gradient, and leave a `TODO(hero-asset)` comment.
 4. URL: `/direct-booking` OK?
