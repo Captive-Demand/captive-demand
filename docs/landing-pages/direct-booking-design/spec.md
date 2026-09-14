@@ -293,11 +293,11 @@ Create a **new** scheduling page rather than reusing the general `jordan1473` li
 - Internal name `Direct booking site design call`; slug e.g. `direct-booking-design` → URL `https://meetings.hubspot.com/jordan1473/direct-booking-design`.
 - Duration 15 min only. Location: Google Meet (or phone — his call). Title shown to invitees: `Direct booking site design — 15 min`.
 - **Form questions, in this order.** HubSpot meeting forms take contact properties and free-text custom questions. To get tap-to-pick answers on mobile, the three multiple-choice questions must be **contact properties** (create them under Settings → Properties, object Contacts, group "Direct booking lander"):
-  1. `Property name` → existing property `company` (single-line text), required
+  1. `Property name` → new property `property_name` (single-line text), required. (Not the default `company` property: its label shows to the invitee as "Company name", and the form label is the property label.)
   2. `How do you take bookings today?` → new property `booking_platform`, type **Radio select**, options: `Airbnb only` / `Airbnb + Vrbo` / `A booking system (Hostaway, Guesty, Beds24, Lodgify, etc.)` / `Something else` — required
   3. `How many units?` → new property `unit_count`, type **Radio select**, options: `1–2` / `3–5` / `6–10` / `10+` — required
   4. `Rough annual bookings through Airbnb` → new property `airbnb_annual_bookings`, type **Radio select**, options: `Under $25k` / `$25–50k` / `$50–100k` / `$100k+` / `Prefer not to say` — required
-  5. `Link to your website or Airbnb listing` → existing property `website`, optional
+  5. `Link to your website or Airbnb listing` → new property `booking_site_link` (single-line text, **not** URL type, so a pasted `airbnb.com/h/...` without `https://` isn't rejected), optional
   6. `Phone` → existing property `phone`, required (decision #10)
   Built-in first name, last name, email stay.
 - Reminder emails: on, 24 h and 1 h before (Meetings → the page → Automation / reminders).
@@ -305,7 +305,7 @@ Create a **new** scheduling page rather than reusing the general `jordan1473` li
 - Confirmation: HubSpot default. There is no redirect setting to worry about.
 - Also create these **contact properties** (single-line text unless noted) for the attribution stamp in §5.3. `utm_source`, `utm_medium`, `utm_campaign` already exist in the portal (the audit form writes them). New: `utm_content`, `utm_term`, `fbclid`, `meta_fbc`, `meta_event_id`, `booked_call_source` (dropdown, one option `direct-booking-lander`), `booked_call_at` (date-time).
 
-*Build note (uncertain, verify on the first test booking):* I believe radio-select and dropdown contact properties render as tap-to-pick controls in the meeting form. If they render as plain text inputs, switch the three properties to **Dropdown select** and re-test. The brief's "Do you have a website? (No / Yes — enter URL)" became the single optional `website` field because meeting forms have no conditional fields.
+*Build note:* adding a radio-select or dropdown contact property to the meeting form is the accepted way to get tap-to-pick answers (HubSpot's own custom questions are free text only). Verify the rendering on the first test booking anyway; if radio renders poorly on mobile, switch the three properties to **Dropdown select**. The brief's "Do you have a website? (No / Yes — enter URL)" became the single optional `website` field because meeting forms have no conditional fields.
 
 ### 4.2 Config
 
@@ -536,7 +536,7 @@ Meta appends `fbclid` itself.
 1. GTM Preview (Tag Assistant): every `cd_dbl_*` push appears with its params; `cd_dbl_call_booked` fires exactly the Meta `Schedule` tag and the GA4 `generate_lead` tag, and the Schedule tag shows `eventID` starting `cd-dbl-`.
 2. Meta Pixel Helper (Chrome): on load exactly one `PageView`; after a test booking exactly one `Schedule`. Refresh → no second `Schedule`. Meta Events Manager → Test events shows it with `content_name = direct-booking-design-call`.
 3. GA4 DebugView: exactly **one** `page_view` per load (the double-counting guard in §5.1 is in place), `cd_dbl_section_view` once per section, `cd_dbl_cta_click` with the right `cta_location`, `cd_dbl_calendar_loaded` and `cd_dbl_calendar_engaged` once, `generate_lead` once.
-4. HubSpot: land on the page with `?utm_source=test&utm_medium=qa&utm_campaign=c&utm_content=ad-a&utm_term=as&fbclid=abc123`, book a test slot with a throwaway email. Within a minute the contact shows `booking_platform`, `unit_count`, `airbnb_annual_bookings`, `company`, `website`, `phone` from the form **and** `utm_content = ad-a`, `fbclid = abc123`, `meta_fbc`, `meta_event_id`, `booked_call_source`. Cancel the meeting and delete the test contact afterwards.
+4. HubSpot: land on the page with `?utm_source=test&utm_medium=qa&utm_campaign=c&utm_content=ad-a&utm_term=as&fbclid=abc123`, book a test slot with a throwaway email. Within a minute the contact shows `property_name`, `booking_platform`, `unit_count`, `airbnb_annual_bookings`, `booking_site_link`, `phone` from the form **and** `utm_content = ad-a`, `fbclid = abc123`, `meta_fbc`, `meta_event_id`, `booked_call_source`. Cancel the meeting and delete the test contact afterwards.
 5. Booked state survives refresh without re-firing events.
 6. Sticky CTA: hidden on desktop; on mobile appears after the hero, hides over `#book`, gone after booking.
 7. With `static.hsappstatic.net` blocked in DevTools: fallback link renders, page otherwise intact, no console errors.
