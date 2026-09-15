@@ -1,6 +1,40 @@
-import Image from 'next/image';
+import { getImageProps } from 'next/image';
+
 import { LanderCtaButton } from '@/components/landers/direct-booking/LanderCtaButton';
 import { HERO, TRUST_LINE } from '@/components/landers/direct-booking/copy';
+
+/**
+ * Art-directed hero: portrait crop on small screens, landscape on md+.
+ * `getImageProps` + `<picture>` so only the matching file is requested.
+ */
+function HeroBackground() {
+  const shared = {
+    alt: '',
+    fill: true,
+    priority: true,
+    quality: 75,
+    sizes: '100vw',
+    className: 'object-cover',
+  } as const;
+
+  const {
+    props: { srcSet: desktop },
+  } = getImageProps({
+    ...shared,
+    src: '/direct-booking/hero-desktop.jpg',
+  });
+  const { props: img } = getImageProps({
+    ...shared,
+    src: '/direct-booking/hero-mobile.jpg',
+  });
+
+  return (
+    <picture>
+      <source media="(min-width: 768px)" srcSet={desktop} />
+      <img {...img} alt="" />
+    </picture>
+  );
+}
 
 export function Hero() {
   return (
@@ -11,16 +45,7 @@ export function Hero() {
       className="relative flex min-h-[100svh] flex-col justify-center overflow-hidden px-container-px pt-16 pb-14 text-[#FAF9F6] sm:pt-24 sm:pb-20"
     >
       <div className="absolute inset-0">
-        {/* TODO(hero-asset): swap for the dome-at-dusk export from the live ad */}
-        <Image
-          src="/desert.png"
-          alt=""
-          fill
-          priority
-          quality={75}
-          sizes="100vw"
-          className="object-cover"
-        />
+        <HeroBackground />
       </div>
       <div
         className="absolute inset-0 bg-gradient-to-b from-[#1a1512]/40 via-[#1a1512]/75 to-[#1a1512]"
