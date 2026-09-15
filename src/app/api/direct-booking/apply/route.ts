@@ -6,41 +6,45 @@ import {
   UNIT_COUNT_OPTIONS,
 } from '@/components/landers/direct-booking/copy';
 import { upsertContactProperties } from '@/lib/direct-booking-hubspot';
+import { qualifyApplication } from '@/lib/direct-booking-lander';
 import { isHubSpotConfigured } from '@/lib/hubspot-form';
 
 /**
- * Stamps the booked call onto the HubSpot contact: the Meta event id (for
- * Conversions API dedup later), the ad attribution, and the application
- * answers again in case the application write was lost.
+ * Records a free-design application on the HubSpot contact (creating it when
+ * new), so every applicant exists in the CRM with their answers and ad
+ * attribution whether or not they go on to book. The booking stamp route adds
+ * the meeting details afterwards.
  *
- * This endpoint never surfaces an error to the visitor: a booking that
- * happened is more important than a property that did not get written.
+ * Never blocks the visitor: the page decides qualification on its own and
+ * shows the calendar regardless of what happens here.
  */
 
 const MAX_BODY_BYTES = 8 * 1024;
 const MAX_STRING_LENGTH = 512;
+const MAX_NAME_LENGTH = 80;
 const MAX_ANSWER_LENGTH = 200;
 
-/** A contact not touched in this long was not created or updated by the application or booking we are stamping. */
-const CONTACT_AGE_LIMIT_MS = 60 * 60 * 1000;
-
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const EVENT_ID_PATTERN = /^cd-dbl-[0-9a-f-]{36}$/;
+const APPLICATION_ID_PATTERN = /^cd-dbl-app-[0-9a-f-]{36}$/;
 
-const BOOKED_CALL_SOURCE = 'direct-booking-lander';
+const APPLICATION_SOURCE = 'direct-booking-lander';
 
+/** Labels the questions were created with in HubSpot, for auto-generated internal names. */
 const LABEL_FALLBACKS: Record<string, string> = {
   booking_platform: APPLICATION.bookingPlatformLabel,
   unit_count: APPLICATION.unitCountLabel,
 };
 
-type Attribution = {
-  utm_source?: unknown;
-  utm_medium?: unknown;
-  utm_campaign?: unknown;
-  utm_content?: unknown;
-  utm_term?: unknown;
-  fbclid?: unknown;
+type RequestBody = {
+  applicationId?: unknown;
+  firstName?: unknown;
+  lastName?: unknown;
+  email?: unknown;
+  answers?: unknown;
+  attribution?: unknown;
+  fbc?: unknown;
+  fbp?: unknown;
+  landingUrl?: unknown;
 };
 
 type Answers = {
@@ -50,16 +54,13 @@ type Answers = {
   phone?: unknown;
 };
 
-type RequestBody = {
-  email?: unknown;
-  eventId?: unknown;
-  startTime?: unknown;
-  meetingSlug?: unknown;
-  attribution?: unknown;
-  fbc?: unknown;
-  fbp?: unknown;
-  landingUrl?: unknown;
-  answers?: unknown;
+type Attribution = {
+  utm_source?: unknown;
+  utm_medium?: unknown;
+  utm_campaign?: unknown;
+  utm_content?: unknown;
+  utm_term?: unknown;
+  fbclid?: unknown;
 };
 
 function cleanString(value: unknown, maxLength = MAX_STRING_LENGTH): string | undefined {
@@ -90,15 +91,33 @@ export async function POST(request: Request) {
       return badRequest('malformed json');
     }
 
+    const applicationId = cleanString(body.applicationId);
+    if (!applicationId || !APPLICATION_ID_PATTERN.test(applicationId)) return badRequest('applicationId');
+
     const email = cleanString(body.email);
     if (!email || !EMAIL_PATTERN.test(email)) return badRequest('email');
 
-    const eventId = cleanString(body.eventId);
-    if (!eventId || !EVENT_ID_PATTERN.test(eventId)) return badRequest('eventId');
+    const firstName = cleanString(body.firstName, MAX_NAME_LENGTH);
+    const lastName = cleanString(body.lastName, MAX_NAME_LENGTH);
+    if (!firstName || !lastName) return badRequest('name');
+
+    const answersInput: Answers =
+      body.answers && typeof body.answers === 'object' ? (body.answers as Answers) : {};
+    const bookingPlatform = pickOption(answersInput.booking_platform, BOOKING_PLATFORM_OPTIONS);
+    const unitCount = pickOption(answersInput.unit_count, UNIT_COUNT_OPTIONS);
+    const siteLink = cleanString(answersInput.booking_site_link, MAX_ANSWER_LENGTH);
+    if (!bookingPlatform || !unitCount || !siteLink) return badRequest('answers');
+    const phone = cleanString(answersInput.phone, MAX_ANSWER_LENGTH);
+
+    const qualified = qualifyApplication({
+      booking_platform: bookingPlatform,
+      unit_count: unitCount,
+      booking_site_link: siteLink,
+    });
 
     if (!isHubSpotConfigured()) {
-      console.warn('Direct booking stamp skipped: HUBSPOT_ACCESS_TOKEN is not set');
-      return NextResponse.json({ status: 'skipped', reason: 'not configured' });
+      console.warn('Direct booking application skipped: HUBSPOT_ACCESS_TOKEN is not set');
+      return NextResponse.json({ status: 'skipped', reason: 'not configured', qualified });
     }
 
     const token = process.env.HUBSPOT_ACCESS_TOKEN!.trim();
@@ -107,14 +126,17 @@ export async function POST(request: Request) {
       body.attribution && typeof body.attribution === 'object'
         ? (body.attribution as Attribution)
         : {};
-    const answersInput: Answers =
-      body.answers && typeof body.answers === 'object' ? (body.answers as Answers) : {};
 
     const properties: Record<string, string> = {
-      meta_event_id: eventId,
-      booked_call_source: BOOKED_CALL_SOURCE,
-      booked_call_at: new Date().toISOString(),
+      booking_platform: bookingPlatform,
+      unit_count: unitCount,
+      website: siteLink,
+      direct_booking_application_id: applicationId,
+      direct_booking_applied_at: new Date().toISOString(),
+      direct_booking_qualified: qualified ? 'yes' : 'no',
+      direct_booking_application_source: APPLICATION_SOURCE,
     };
+    if (phone) properties.phone = phone;
 
     const utmContent = cleanString(attribution.utm_content);
     if (utmContent) properties.utm_content = utmContent;
@@ -129,49 +151,36 @@ export async function POST(request: Request) {
     const landingUrl = cleanString(body.landingUrl);
     if (landingUrl) properties.captive_demand_form_location = landingUrl;
 
-    const bookingPlatform = pickOption(answersInput.booking_platform, BOOKING_PLATFORM_OPTIONS);
-    if (bookingPlatform) properties.booking_platform = bookingPlatform;
-    const unitCount = pickOption(answersInput.unit_count, UNIT_COUNT_OPTIONS);
-    if (unitCount) properties.unit_count = unitCount;
-    const siteLink = cleanString(answersInput.booking_site_link, MAX_ANSWER_LENGTH);
-    if (siteLink) properties.website = siteLink;
-    const phone = cleanString(answersInput.phone, MAX_ANSWER_LENGTH);
-    if (phone) properties.phone = phone;
-
+    // First touch wins on the three UTMs other forms also write.
     const firstTouch: Record<string, string> = {};
     for (const key of ['utm_source', 'utm_medium', 'utm_campaign'] as const) {
       const value = cleanString(attribution[key]);
       if (value) firstTouch[key] = value;
     }
 
-    // The application normally created the contact minutes ago; the meeting
-    // booking creates it asynchronously otherwise, so the search retries.
     const result = await upsertContactProperties(token, email, properties, {
       labelFallbacks: LABEL_FALLBACKS,
+      createIfMissing: true,
+      createOnly: { firstname: firstName, lastname: lastName },
       firstTouch,
-      maxAgeMs: CONTACT_AGE_LIMIT_MS,
-      searchAttempts: 5,
-      searchBackoffMs: 1500,
     });
 
     if (result.dropped.length > 0) {
-      console.warn(`Direct booking stamp for contact ${result.contactId ?? '?'} dropped: ${result.dropped.join('; ')}`);
+      console.warn(`Direct booking application for ${result.contactId ?? 'new contact'} dropped: ${result.dropped.join('; ')}`);
     }
     if (result.error) {
-      console.error('Direct booking contact write failed:', result.error);
-    }
-    if (result.status === 'skipped') {
-      console.warn(`Direct booking stamp skipped: ${result.reason}`);
+      console.error('Direct booking application write failed:', result.error);
     }
 
     return NextResponse.json({
       status: result.status,
-      reason: result.reason,
+      qualified,
+      created: result.created ?? false,
       written: result.written,
       dropped: result.dropped,
     });
   } catch (error) {
-    console.error('Direct booking stamp threw:', error);
+    console.error('Direct booking application threw:', error);
     return NextResponse.json({ status: 'error' });
   }
 }

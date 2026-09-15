@@ -16,8 +16,9 @@ export const LANDER_EVENTS = {
   calendarLoaded: 'cd_dbl_calendar_loaded',
   calendarEngaged: 'cd_dbl_calendar_engaged',
   faqOpen: 'cd_dbl_faq_open',
-  prepSubmitted: 'cd_dbl_prep_submitted',
-  prepSkipped: 'cd_dbl_prep_skipped',
+  applicationStarted: 'cd_dbl_application_started',
+  applicationSubmitted: 'cd_dbl_application_submitted',
+  applicationDeclined: 'cd_dbl_application_declined',
 } as const;
 
 export type LanderEvent = (typeof LANDER_EVENTS)[keyof typeof LANDER_EVENTS];
@@ -32,11 +33,11 @@ export const LOAD_SCHEDULER_EVENT = 'cd-dbl:load-scheduler';
 /** Broadcast once a booking succeeds so the sticky CTA can retire itself. */
 export const BOOKED_EVENT = 'cd-dbl:booked';
 
-/** Broadcast once the prep step is answered or skipped. */
-export const PREP_DONE_EVENT = 'cd-dbl:prep-done';
+/** Broadcast when the application record in sessionStorage changes. */
+export const APPLICATION_EVENT = 'cd-dbl:application';
 
 export const BOOKED_STORAGE_KEY = 'cd_dbl_booked';
-export const PREP_DONE_STORAGE_KEY = 'cd_dbl_prep_done';
+export const APPLICATION_STORAGE_KEY = 'cd_dbl_application';
 
 export const BOOKING_SECTION_ID = 'book';
 
@@ -60,6 +61,83 @@ export interface PrepAnswers {
   unit_count?: string;
   booking_site_link?: string;
   phone?: string;
+}
+
+/** The three answers the application requires. */
+export interface ApplicationAnswers {
+  booking_platform: string;
+  unit_count: string;
+  booking_site_link: string;
+  phone?: string;
+}
+
+/** What the page keeps in sessionStorage once the application is submitted. */
+export interface ApplicationRecord {
+  applicationId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  answers: ApplicationAnswers;
+  qualified: boolean;
+  submittedAt: string;
+}
+
+/**
+ * Who gets through to the calendar. Everyone who completes the application
+ * qualifies until a rule is added here; the page has a decline state ready.
+ * Example: decline single-unit hosts with `DECLINE_UNIT_COUNTS = ['1–2']`.
+ */
+const DECLINE_UNIT_COUNTS: readonly string[] = [];
+
+export function qualifyApplication(answers: Pick<ApplicationAnswers, 'booking_platform' | 'unit_count' | 'booking_site_link'>): boolean {
+  if (DECLINE_UNIT_COUNTS.includes(answers.unit_count)) return false;
+  return true;
+}
+
+export const APPLICATION_ENDPOINT = '/api/direct-booking/apply';
+
+/** Records the application in HubSpot. Never blocks the visitor; the page decides qualification itself. */
+export async function postApplication(record: ApplicationRecord): Promise<boolean> {
+  const attribution = getAttribution();
+  const payload = {
+    applicationId: record.applicationId,
+    firstName: record.firstName,
+    lastName: record.lastName,
+    email: record.email,
+    answers: record.answers,
+    attribution,
+    fbc: getFbc(attribution.fbclid),
+    fbp: getFbp(),
+    landingUrl: attribution.landing_url ?? window.location.href,
+  };
+  try {
+    const response = await fetch(APPLICATION_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      keepalive: true,
+    });
+    const data = (await response.json()) as { status?: string };
+    return data.status === 'ok';
+  } catch {
+    return false;
+  }
+}
+
+/** HubSpot's scheduling page pre-fills its own form from these query params. */
+export function withMeetingPrefill(
+  embedUrl: string,
+  prefill: { firstName: string; lastName: string; email: string },
+): string {
+  try {
+    const url = new URL(embedUrl);
+    url.searchParams.set('firstName', prefill.firstName);
+    url.searchParams.set('lastName', prefill.lastName);
+    url.searchParams.set('email', prefill.email);
+    return url.toString();
+  } catch {
+    return embedUrl;
+  }
 }
 
 interface BookingStampInput {
