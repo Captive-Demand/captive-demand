@@ -3,7 +3,7 @@
 **Status:** Ready to build. Items tagged `⚠ JORDAN` need confirmation before **launch**, not before build — build against the defaults given.
 **Companion:** `brief.md` in this folder (the original campaign brief). This spec wins where the two disagree.
 **Branch:** `claude/loving-mccarthy-nwwpzd` (spec) → build on a `cursor/*` branch off `main`.
-**Last updated:** 2026-09-14 (rev 8: scheduling URL pinned to `https://meetings.hubspot.com/jordan1473`)
+**Last updated:** 2026-09-15 (rev 9: application gates the calendar; host card; deliverable copy)
 
 ---
 
@@ -12,7 +12,7 @@
 | # | Decision | Default to build | Status |
 |---|----------|------------------|--------|
 | 1 | URL | `/direct-booking` | ⚠ JORDAN |
-| 2 | Scheduling tool | **HubSpot Meetings** on the **free tier**, inline embed of Jordan's scheduling page **`https://meetings.hubspot.com/jordan1473`** (his general link; campaign bookings are told apart by the `booked_call_source` stamp in §5.3, so a dedicated page is an optional later swap of one constant). The HubSpot form stays at first name / last name / email. The qualifying questions are a **post-booking prep step on our page** (§4.5) that writes answers onto the HubSpot contact through our API route. No pre-form step before the calendar. | Decided |
+| 2 | Scheduling tool | **HubSpot Meetings** on the **free tier**, inline embed of Jordan's scheduling page **`https://meetings.hubspot.com/jordan1473`** (his general link; campaign bookings are told apart by the `booked_call_source` stamp in §5.3, so a dedicated page is an optional later swap of one constant). The HubSpot form stays at first name / last name / email. The qualifying questions are an **application that gates the calendar** (§4.5): name, email, two taps, and the listing link. Submitting decides qualification on the page, writes the applicant to HubSpot (creating the contact), and opens the prefilled scheduler. | Decided |
 | 3 | Meta conversion event | `Schedule` (standard event), fired **client-side** on HubSpot's `meetingBookSucceeded` message, with a client-generated `eventID` that is also stored on the HubSpot contact so a server-side Conversions API event can dedupe against it later. `Lead` is **not** fired on this page. | Decided |
 | 4 | Tag layer | **Google Tag Manager.** The page pushes semantic `dataLayer` events only; it never calls `fbq()` or `gtag()` itself. GTM fires the Meta Pixel `Schedule` and the GA4 event tags. The existing `GoogleTagManager` component gets mounted in the root layout (env-gated). | Decided |
 | 5 | Meta Pixel | Lives in the GTM container `GTM-KDGH9S9` (already does, per Jordan). Base + PageView on all pages via GTM; `Schedule` only from this route's `cd_dbl_call_booked` dataLayer event. | Container ID decided; tag setup in §5.1 still to do |
@@ -20,7 +20,7 @@
 | 7 | Confirmation state | Stays on-page. HubSpot's own confirmation screen stays inside the embed (and HubSpot sends a real calendar invite from Jordan's connected calendar); we swap the copy **above** the embed to a "You're booked" block. | Decided |
 | 8 | Proof section | North Star Nature Suites (luxury cabin suites, TN) — a direct booking site we designed and built, with the two stats already published on `/services/seo`. Confirmed legitimate by Jordan. Built as one data object so it can be swapped for campaign-launched sites later. | Decided |
 | 9 | Calculator | Yes. One slider, one output. | Decided |
-| 10 | Phone number | Optional field in the post-booking prep step (§4.5). Zero cost to the booking itself; gives a way to text no-shows when provided. | Decided |
+| 10 | Phone number | Optional field on the application (§4.5). Gives a way to text no-shows when provided. | Decided |
 | 11 | Chrome | No nav, no footer links except Privacy, logo **not** linked. No exit-intent modal, no chat FAB, no separate lead form. | Decided |
 | 12 | Motion | CSS-only reveals. No GSAP, no framer-motion on this route. | Decided |
 | 13 | Hero image | The dome-at-dusk image from the live ad. | ⚠ JORDAN (asset) |
@@ -423,35 +423,20 @@ The `eventID` is generated here, handed to GTM as `meta_event_id` (the Pixel tag
 
 If `sessionStorage['cd_dbl_booked']` is already `'1'` on mount (they refreshed after booking), render the booked state and **do not** fire the events again.
 
-### 4.5 Post-booking prep step (IN SCOPE — this is where the qualifying questions live)
+### 4.5 The application (gates the calendar)
 
-The HubSpot form stays at name + email (the smallest possible ask at the conversion point) and the qualifying answers are collected in our own UI right after the booking, when the person has already committed. Expect some bookers to skip it; that is the trade for a cheaper booking, and the skip rate is a metric we report.
+The offer is selective: applicants must answer to be considered, and the answers are used to qualify them. The calendar is not shown until the application is submitted.
 
 **Flow**
 
-1. `meetingBookSucceeded` → everything in §4.4 happens exactly as written (`cd_dbl_call_booked`, booked state, attribution POST).
-2. The "You're booked" block (§3.7) gains a short form directly beneath its copy, above the HubSpot confirmation iframe, so it is the first thing on screen after the scroll. Heading and fields:
+1. Section 06 opens as `Apply for your free design` with the intro line and the application form (first name, last name, email, `How do you take bookings today?` chips, `How many units?` chips, listing link, optional phone). Everything but the phone is required.
+2. On submit the page decides qualification itself with `qualifyApplication()` in `src/lib/direct-booking-lander.ts` (everyone qualifies until a rule is added there; the decline state is built), pushes `cd_dbl_application_submitted` (with `application_event_id`, `qualified`, `booking_platform`, `unit_count`), and POSTs the record to `/api/direct-booking/apply`.
+3. The apply route creates the HubSpot contact (or updates an existing one by email) with the answers, the listing link in the default `website` property, phone, attribution, and `direct_booking_application_id` / `direct_booking_applied_at` / `direct_booking_qualified` / `direct_booking_application_source` where those properties exist. Missing properties are dropped, never fatal.
+4. Qualified → the heading becomes `You're in. Pick a time.`, the host card and the HubSpot scheduler appear, with the scheduler URL carrying `firstName`, `lastName`, `email` so HubSpot's own form is prefilled. Declined → `Not the right fit right now.` and no calendar; `cd_dbl_application_declined` fires.
+5. Booking then works exactly as §4.4; the stamp route adds `meta_event_id`, `booked_call_source`, `booked_call_at` to the same contact.
+6. The application record lives in `sessionStorage` (`cd_dbl_application`), so a refresh keeps the calendar open.
 
-   **Ships**
-   - Eyebrow: `Help us prep — 30 seconds`
-   - Lead line: `Two quick taps and a link, so the design fits your property.`
-   - Text fields carry placeholder text (`airbnb.com/h/your-place or yourproperty.com`, `(615) 555-0123`) and a one-line hint beneath.
-   - `How do you take bookings today?` — radio: `Airbnb only` / `Airbnb + Vrbo` / `A booking system (Hostaway, Guesty, Beds24, Lodgify, etc.)` / `Something else` — required
-   - `How many units?` — radio: `1–2` / `3–5` / `6–10` / `10+` — required
-   - `Link to your website or Airbnb listing` — single-line text, optional
-   - `Best number for a reminder text` — tel input, optional (decision #10)
-   - Submit button: `Send`
-   - Success state (replaces the form): `Got it. See you on the call.`
-   - Skip link under the button, muted: `Skip for now`
-
-   Radios are large tap targets (full-width rows, ≥ 48 px tall, `aria-checked` on `role="radio"` buttons or native inputs with visually-large labels). Same panel/accent tokens as §2.1. No validation beyond required-ness; never block on the link or phone format.
-3. On submit → `POST /api/direct-booking/booked` again with the **same `eventId`** and an `answers` object: `{ booking_platform, unit_count, booking_site_link, phone }` (the link is stored in HubSpot's default `website` property). The route (§5.3) patches those properties onto the contact under the same 15-minute guard. `phone` maps to HubSpot's default `phone` property; the rest map to the custom properties from §4.1.
-4. Fire `cd_dbl_prep_submitted` on success and `cd_dbl_prep_skipped` on skip (both are in the §5.2 table and the GTM regex trigger).
-5. Persist a `cd_dbl_prep_done` flag in `sessionStorage` so a refresh shows the success state, not the empty form.
-
-**Server change:** the route accepts an optional `answers` object; each value is a string ≤ 200 chars; radio values are validated against the option lists above (reject anything else with 400). The attribution stamp on the first call and the answers patch on the second are independent, so either can arrive without the other.
-
-**Reading the numbers:** report "prep form completion" (`cd_dbl_prep_submitted` ÷ `cd_dbl_call_booked`) as its own metric next to show rate. If completion is low, the first lever is the lead line copy. (The revenue question was cut before launch as too much to ask.)
+**Reading the numbers:** application starts → submits → bookings is the funnel. `cd_dbl_application_submitted` is also a Meta `SubmitApplication` standard event (§5.1), which has several times the volume of `Schedule` and can carry campaign optimisation until booked calls have enough volume on their own.
 
 ---
 
@@ -482,9 +467,13 @@ The HubSpot form stays at name + email (the smallest possible ask at the convers
 | `DLV - meta_event_id` | Data Layer Variable | `meta_event_id` |
 | `DLV - cta_location`, `DLV - section`, `DLV - question`, `DLV - lead_source`, `DLV - page_variant` | Data Layer Variables | same-named keys |
 | `CE - cd_dbl_call_booked` | Custom Event trigger | event name `cd_dbl_call_booked` |
-| `CE - cd_dbl_*` | Custom Event trigger, regex | `^cd_dbl_(cta_click\|section_view\|calculator_used\|calendar_loaded\|calendar_engaged\|faq_open\|prep_submitted\|prep_skipped)$` |
+| `CE - cd_dbl_*` | Custom Event trigger, regex | `^cd_dbl_(cta_click\|section_view\|calculator_used\|calendar_loaded\|calendar_engaged\|faq_open\|application_started\|application_declined)$` |
 | Meta – Schedule | Meta Pixel event tag (whatever template the base uses) | Event `Schedule`; object properties `content_name = direct-booking-design-call`, `content_category = unique-stays`; **Event ID = `{{DLV - meta_event_id}}`**; trigger `CE - cd_dbl_call_booked` |
 | GA4 – generate_lead | GA4 event tag | event name `generate_lead`; params `lead_source`, `page_variant`; trigger `CE - cd_dbl_call_booked` |
+| `CE - cd_dbl_application_submitted` | Custom Event trigger | event name `cd_dbl_application_submitted` |
+| `DLV - application_event_id` | Data Layer Variable | `application_event_id` |
+| Meta – SubmitApplication | Meta Pixel event tag | Event `SubmitApplication`; `content_name = direct-booking-design-application`; **Event ID = `{{DLV - application_event_id}}`**; trigger `CE - cd_dbl_application_submitted` |
+| GA4 – application_submitted | GA4 event tag | event name `cd_dbl_application_submitted`; params `qualified`, `booking_platform`, `unit_count`, `page_variant`; trigger `CE - cd_dbl_application_submitted` |
 | GA4 – cd_dbl events | GA4 event tag | event name `{{Event}}`; params `cta_location`, `section`, `question`, `page_variant`; trigger `CE - cd_dbl_*` |
 
 Do **not** add a `Lead` tag for this page. Do not fire `Schedule` on any other trigger.
@@ -500,8 +489,9 @@ Do **not** add a `Lead` tag for this page. Do not fire `Schedule` on any other t
 | `cd_dbl_calendar_loaded` | scheduler iframe `load` | — |
 | `cd_dbl_calendar_engaged` | first focus into the scheduler iframe (blur proxy) | — |
 | `cd_dbl_faq_open` | FAQ item opened | `question` (first 60 chars) |
-| `cd_dbl_prep_submitted` | prep step (§4.5) submitted successfully | — |
-| `cd_dbl_prep_skipped` | prep step skip link | — |
+| `cd_dbl_application_started` | first focus into the application form | — |
+| `cd_dbl_application_submitted` | application submitted | `application_event_id`, `qualified`, `booking_platform`, `unit_count` |
+| `cd_dbl_application_declined` | application submitted but not qualified | — |
 
 Every push also carries `page_variant: 'direct-booking-v1'`. `cd_dbl_section_view` is the scroll-depth instrument: it gives the funnel the brief wants (hero → how → math → … → book) as named steps instead of percentages. GA4 enhanced measurement already records 90% scroll; leave it on.
 
@@ -607,7 +597,7 @@ Run `npx tsc --noEmit` and `npm run lint` before every push (repo rule). Run `np
 - [ ] Calculator: default `$50,000 → ≈ $7,750`; `$100,000 → ≈ $15,500`; keyboard-operable.
 - [ ] FAQ: one open at a time, `aria-expanded` correct, `cd_dbl_faq_open` fires.
 - [ ] Booking: skeleton → scheduler; pick time → form → HubSpot confirmation; "You're booked" block swaps in; sticky hides; refresh keeps booked state without re-firing events.
-- [ ] Prep step (§4.5): submits, patches the contact, shows the success state, survives refresh; skip link works; both events fire; radio values match the HubSpot property options exactly.
+- [ ] Application (§4.5): required fields enforced, submit creates the HubSpot contact with answers and attribution, qualified state shows the prefilled scheduler, declined state shows no calendar, refresh keeps the state, `cd_dbl_application_started/submitted` fire.
 - [ ] `/api/direct-booking/booked` rejects malformed bodies with 400, skips contacts older than 15 minutes, never returns 5xx to the browser.
 - [ ] Tracking verification §5.4 all pass, screenshots attached to PR.
 - [ ] Lighthouse mobile report attached to PR; LCP element is the hero image.
@@ -625,7 +615,7 @@ Run `npx tsc --noEmit` and `npm run lint` before every push (repo rule). Run `np
 - Do not add the HubSpot tracking script (`js.hs-scripts.com`) to this page; attribution goes through the API route, and the tracking script is another third-party download the page doesn't need.
 - Do not import `FAQSection`, `CTAButton`, `ShorePartnershipChrome`, `GhlBookingCardContent`, or anything from `@/components/shore-partnership`.
 - Do not invent statistics, testimonials, or client names.
-- Do not put the prep questions before the calendar. They come after `meetingBookSucceeded`, never before.
+- Do not show the calendar before the application is submitted; the application is the gate.
 
 ## 9. Open items for Jordan (consolidated)
 

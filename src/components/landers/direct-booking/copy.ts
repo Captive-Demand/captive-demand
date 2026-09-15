@@ -3,7 +3,7 @@
  * hard-codes visible text, so a copy change is a one-line edit here.
  */
 
-export const CTA_TEXT = 'Book my 15-minute call';
+export const CTA_TEXT = 'Apply for my free design';
 
 export const TRUST_LINE =
   'No sales pitch on the call. The design is yours whether you work with us or not.';
@@ -27,13 +27,13 @@ export const HOW_IT_WORKS = {
   steps: [
     {
       numeral: '01',
-      title: 'Book a 15-minute call',
-      body: "Pick a time that works. Tell us about your property, how you take bookings now, and what's frustrating you.",
+      title: 'Apply in about a minute',
+      body: "Tell us how you take bookings, how many units you have, and where your listing lives. If it's a fit, you'll pick a time for a 15-minute call right there.",
     },
     {
       numeral: '02',
       title: 'We design your booking site',
-      body: 'About a week later, we walk you through a design built for your property — your photos, your units, your booking flow.',
+      body: 'On the call we ask what you actually need. About a week later, we walk you through a design built for your property — your photos, your units, your booking flow.',
     },
     {
       numeral: '03',
@@ -107,16 +107,26 @@ export const HOST_CARD = {
 } as const;
 
 export const BOOKING = {
-  eyebrow: 'Pick a time',
-  h2: 'Pick a time',
-  trustLine: '15 minutes. No pitch. The design is yours to keep.',
+  eyebrow: 'Apply',
+  h2: 'Apply for your free design',
+  intro:
+    "We take these on a few at a time, and not every property is a fit. Tell us about yours. If it is, you'll pick a time for the call right here.",
+  qualified: {
+    eyebrow: "You're in",
+    h2: "You're in. Pick a time.",
+    trustLine: '15 minutes. No pitch. The design is yours to keep.',
+  },
+  declined: {
+    eyebrow: 'Thanks for applying',
+    h2: 'Not the right fit right now.',
+    body: "From what you've shared, a free design isn't the right fit for your property at the moment. We've kept your application, and if that changes we'll reach out.",
+  },
   fallbackLink: 'Calendar not loading? Open it in a new tab.',
   booked: {
     eyebrow: "You're booked",
     h2: "You're booked.",
-    body: "A calendar invite with the video link is on its way to your inbox. On the call we'll ask about your property and how you take bookings today. About a week later we'll walk you through the design.",
-    prepLine:
-      "One thing to have handy: a link to your current website or Airbnb listing, if you didn't add it on the form.",
+    body: "A calendar invite with the video link is on its way to your inbox. On the call we'll ask what you'd want the site to do that it doesn't do now. About a week later we'll walk you through the design.",
+    prepLine: 'Nothing to prepare. We already have your listing.',
   },
 } as const;
 
@@ -129,20 +139,27 @@ export const BOOKING_PLATFORM_OPTIONS = [
 
 export const UNIT_COUNT_OPTIONS = ['1–2', '3–5', '6–10', '10+'] as const;
 
-export const PREP = {
-  eyebrow: 'Help us prep — 30 seconds',
-  leadLine: 'Two quick taps and a link, so the design fits your property.',
+export const APPLICATION = {
+  eyebrow: 'Your application — about a minute',
+  leadLine: 'Two quick taps and a link. We use them to decide whether your property is a fit.',
+  firstNameLabel: 'First name',
+  firstNamePlaceholder: 'Jordan',
+  lastNameLabel: 'Last name',
+  lastNamePlaceholder: 'Schneider',
+  emailLabel: 'Email',
+  emailPlaceholder: 'you@yourproperty.com',
+  emailHint: 'The calendar invite goes here.',
   bookingPlatformLabel: 'How do you take bookings today?',
   unitCountLabel: 'How many units?',
   siteLinkLabel: 'Link to your website or Airbnb listing',
   siteLinkPlaceholder: 'airbnb.com/h/your-place or yourproperty.com',
-  siteLinkHint: 'We use it to see your photos and units before the call.',
+  siteLinkHint: 'We look at your photos and units before we decide.',
   phoneLabel: 'Best number for a reminder text',
   phonePlaceholder: '(615) 555-0123',
-  phoneHint: 'Optional. One text the day before, nothing else.',
-  submit: 'Send',
-  success: 'Got it. See you on the call.',
-  skip: 'Skip for now',
+  phoneHint: 'Optional. One text the day before the call, nothing else.',
+  submit: 'Send my application',
+  submitting: 'Sending…',
+  requiredNote: 'Everything except the phone number is required.',
 } as const;
 
 export const FAQ = {
@@ -162,6 +179,11 @@ export const FAQ = {
     {
       question: 'Is the design really free?',
       answer: 'Yes. You keep it: the full design of your homepage and booking flow, delivered as a PDF and image files any developer can build from. No card, no contract.',
+    },
+    {
+      question: 'What does it take to qualify?',
+      answer:
+        "We look at how you take bookings today, how many units you have, and your current listing. If it's a fit, the calendar opens right after you apply. If it isn't, we say so instead of wasting your fifteen minutes.",
     },
     {
       question: 'What if I want you to build it?',
