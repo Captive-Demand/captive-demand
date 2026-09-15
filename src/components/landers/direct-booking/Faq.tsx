@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 
+import { EyebrowHeading } from '@/components/ui/eyebrow-heading';
 import { FAQ } from '@/components/landers/direct-booking/copy';
 import { LANDER_EVENTS, trackLander } from '@/lib/direct-booking-lander';
 
@@ -17,16 +18,14 @@ export function Faq() {
   };
 
   return (
-    <section id="faq" data-reveal className="px-container-px py-14 sm:py-20">
-      <div className="mx-auto max-w-3xl">
-        <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-[#FF5501]">
-          {FAQ.eyebrow}
-        </p>
-        <h2 className="mt-4 font-nohemi text-3xl font-normal tracking-[-0.01em] sm:text-4xl">
+    <section id="faq" data-reveal className="px-[clamp(1rem,5vw,3rem)] pb-16 md:pb-24">
+      <div className="mx-auto flex max-w-3xl flex-col gap-[18px]">
+        <EyebrowHeading category="07" label={FAQ.eyebrow} />
+        <h2 className="m-0 font-[Nohemi,sans-serif] text-[34px] font-light leading-[1.08] tracking-[-0.02em] md:text-[44px]">
           {FAQ.h2}
         </h2>
 
-        <div className="mt-8 space-y-3">
+        <div className="flex flex-col gap-2.5">
           {FAQ.items.map((item, index) => {
             const open = openIndex === index;
             const panelId = `faq-panel-${index}`;
@@ -35,30 +34,32 @@ export function Faq() {
             return (
               <div
                 key={item.question}
-                className={`rounded-2xl border transition-colors duration-200 ${
-                  open ? 'border-white/20 bg-white/[0.08]' : 'border-white/10 bg-white/[0.04]'
+                className={`overflow-hidden rounded-3xl transition-colors duration-200 ${
+                  open
+                    ? 'bg-[#1a1512] text-[#FAF9F6] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)]'
+                    : 'border border-[#1a1512]/5 bg-[#f3f4f6] text-[#1a1512] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.65)] hover:bg-[#e8e8e8]'
                 }`}
               >
-                <h3>
+                <h3 className="m-0">
                   <button
                     type="button"
                     id={buttonId}
                     aria-expanded={open}
                     aria-controls={panelId}
                     onClick={() => toggle(index, item.question)}
-                    className="flex min-h-[64px] w-full items-center justify-between gap-4 px-5 py-4 text-left"
+                    className="flex min-h-[72px] w-full items-center justify-between gap-4 px-5 py-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5501]/60 focus-visible:ring-inset"
                   >
-                    <span className="font-nohemi text-lg font-normal sm:text-xl">
+                    <span className="font-[Nohemi,sans-serif] text-lg font-normal tracking-[-0.01em] md:text-xl">
                       {item.question}
                     </span>
                     <span
                       aria-hidden
-                      className={`relative grid size-9 shrink-0 place-items-center rounded-full border border-white/10 transition-transform duration-200 ${
-                        open ? 'rotate-45 bg-white/10' : ''
+                      className={`relative grid size-5 shrink-0 place-items-center transition-transform duration-200 ${
+                        open ? 'rotate-45' : ''
                       }`}
                     >
-                      <span className="absolute h-px w-3.5 bg-current" />
-                      <span className="absolute h-3.5 w-px bg-current" />
+                      <span className="absolute h-px w-[18px] bg-current" />
+                      <span className="absolute h-[18px] w-px bg-current" />
                     </span>
                   </button>
                 </h3>
@@ -68,7 +69,7 @@ export function Faq() {
                     id={panelId}
                     role="region"
                     aria-labelledby={buttonId}
-                    className="px-5 pb-6 pt-0 text-[17px] leading-relaxed text-[#FAF9F6]/65"
+                    className="px-5 pt-0 pb-6 text-[15px] leading-[1.55] text-[#FAF9F6]/[0.72] md:text-base"
                   >
                     {item.answer}
                   </div>

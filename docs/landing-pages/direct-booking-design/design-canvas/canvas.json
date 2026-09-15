@@ -1,0 +1,18 @@
+{
+  "pages": [
+    { "id": "page-1", "name": "Lander" },
+    { "id": "page-2", "name": "Hero explorations" }
+  ],
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 390, "h": 6020, "title": "Mobile — lead direction, Alt A hero", "page": "page-1" },
+    { "file": "Desktop.dc.html", "x": 520, "y": 0, "w": 1440, "h": 1750, "title": "Desktop — lead direction, Alt A hero", "page": "page-1" },
+    { "file": "DirectionA.dc.html", "x": 0, "y": 0, "w": 390, "h": 844, "title": "Alt A — all ink (chosen hero)", "page": "page-2" },
+    { "file": "DirectionC.dc.html", "x": 520, "y": 0, "w": 390, "h": 844, "title": "Alt C — the fee is the hero", "page": "page-2" }
+  ],
+  "annotations": [
+    { "id": "note-placeholders", "x": 0, "y": -190, "w": 400, "page": "page-1", "text": "The custom dusk image is in at both crops: portrait on the phone board, landscape on desktop. The calendar card marks where the live HubSpot scheduler renders; it is drawn, not embedded." },
+    { "id": "note-lead", "x": 520, "y": -190, "w": 520, "page": "page-1", "text": "Alt A hero folded in: single orange eyebrow, tighter headline, button directly beneath, hero shortened so the next section peeks above the fold. One sentence of the offer kept under the headline so the free design is stated in the first screen. Below the hero the page still turns from ink to paper after the calculator." },
+    { "id": "note-alts", "x": 0, "y": -190, "w": 500, "page": "page-2", "text": "Hero explorations kept for reference. Alt A was chosen and merged into the lead boards; Alt C stays here in case the fee-as-hero idea is wanted for an ad variant later." }
+  ],
+  "launch": { "view": "canvas", "page": "page-1" }
+}

@@ -14,11 +14,16 @@ import { TheCatch } from '@/components/landers/direct-booking/TheCatch';
 import { NoiseOverlay } from '@/components/ui/NoiseOverlay';
 import { resolveMeetingUrls } from '@/lib/direct-booking-lander';
 
+/**
+ * Ink for the first screen and the math (continuity with the ad), then warm
+ * paper for the agenda, proof, calendar, and FAQ so the white HubSpot embed
+ * sits on a native surface. The catch is the one ink block on the paper half.
+ */
 export function DirectBookingLander() {
   const meeting = resolveMeetingUrls();
 
   return (
-    <div className="relative min-h-svh bg-[#1a1512] text-[#FAF9F6]">
+    <div className="relative min-h-svh bg-[#1a1512] font-sans text-[#FAF9F6]">
       <NoiseOverlay opacity={0.02} />
 
       <AttributionCapture />
@@ -29,11 +34,13 @@ export function DirectBookingLander() {
         <Hero />
         <HowItWorks />
         <FeeMath />
-        <CallAgenda />
-        <Proof />
-        <TheCatch />
-        <BookingSection pageUrl={meeting?.page ?? null} embedUrl={meeting?.embed ?? null} />
-        <Faq />
+        <div className="bg-[#FAF9F6] text-[#1a1512]">
+          <CallAgenda />
+          <Proof />
+          <TheCatch />
+          <BookingSection pageUrl={meeting?.page ?? null} embedUrl={meeting?.embed ?? null} />
+          <Faq />
+        </div>
         <LanderFooter />
       </div>
 

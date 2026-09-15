@@ -10,6 +10,7 @@ import {
   LOAD_SCHEDULER_EVENT,
   trackLander,
 } from '@/lib/direct-booking-lander';
+import { SITE_MARKETING_WHITE_SHADOW } from '@/lib/site-surfaces';
 
 export interface ScheduledDetails {
   email?: string;
@@ -174,7 +175,10 @@ export function HubSpotMeetingsInline({
   }, [onScheduled]);
 
   return (
-    <div className="rounded-2xl bg-[#FAF9F6] p-2 sm:p-3">
+    <div
+      className="rounded-3xl border border-[#e8e8e8] bg-white p-2 sm:p-3"
+      style={SITE_MARKETING_WHITE_SHADOW}
+    >
       <div className="relative min-h-[640px]">
         {status !== 'ready' && status !== 'failed' && (
           <div

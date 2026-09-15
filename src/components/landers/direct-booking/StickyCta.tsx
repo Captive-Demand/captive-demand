@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 
 import { CTA_TEXT } from '@/components/landers/direct-booking/copy';
+import { ArrowIcon } from '@/components/landers/direct-booking/icons';
+import { CTA_BUTTON_CLASS } from '@/components/landers/direct-booking/LanderCtaButton';
 import { useSessionFlag } from '@/components/landers/direct-booking/useSessionFlag';
 import {
   BOOKED_EVENT,
@@ -70,9 +72,10 @@ export function StickyCta() {
         type="button"
         onClick={handleClick}
         tabIndex={shown ? 0 : -1}
-        className="flex min-h-14 w-full items-center justify-center rounded-xl bg-[#FF5501] text-[17px] font-medium text-white transition-transform duration-150 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5501]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1a1512]"
+        className={`${CTA_BUTTON_CLASS} focus-visible:ring-offset-[#1a1512]`}
       >
         {CTA_TEXT}
+        <ArrowIcon />
       </button>
     </div>
   );

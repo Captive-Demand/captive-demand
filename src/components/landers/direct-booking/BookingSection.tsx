@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef } from 'react';
 
+import { EyebrowHeading } from '@/components/ui/eyebrow-heading';
 import { BOOKING, PREP } from '@/components/landers/direct-booking/copy';
 import {
   HubSpotMeetingsInline,
@@ -20,11 +21,16 @@ import {
   trackLander,
   type PrepAnswers,
 } from '@/lib/direct-booking-lander';
+import { SITE_MARKETING_WHITE_SHADOW } from '@/lib/site-surfaces';
 
 interface BookingSectionProps {
   pageUrl: string | null;
   embedUrl: string | null;
 }
+
+const H2_CLASS =
+  'm-0 font-[Nohemi,sans-serif] text-[34px] font-light leading-[1.08] tracking-[-0.02em] md:text-[44px]';
+const BODY_CLASS = 'm-0 max-w-3xl text-[15px] leading-[1.6] text-[#1a1512]/70 md:text-[17px]';
 
 export function BookingSection({ pageUrl, embedUrl }: BookingSectionProps) {
   const [booked, markBooked] = useSessionFlag(BOOKED_STORAGE_KEY, BOOKED_EVENT);
@@ -79,26 +85,21 @@ export function BookingSection({ pageUrl, embedUrl }: BookingSectionProps) {
   );
 
   return (
-    <section id={BOOKING_SECTION_ID} data-reveal className="px-container-px py-14 sm:py-20">
-      <div className="mx-auto max-w-5xl">
-        <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-[#FF5501]">
-          {booked ? BOOKING.booked.eyebrow : BOOKING.eyebrow}
-        </p>
-        <h2 className="mt-4 font-nohemi text-3xl font-normal tracking-[-0.01em] sm:text-4xl">
-          {booked ? BOOKING.booked.h2 : BOOKING.h2}
-        </h2>
+    <section id={BOOKING_SECTION_ID} data-reveal className="px-[clamp(1rem,5vw,3rem)] pb-14 md:pb-20">
+      <div className="mx-auto flex max-w-3xl flex-col gap-[18px] md:max-w-5xl">
+        <EyebrowHeading category="06" label={booked ? BOOKING.booked.eyebrow : BOOKING.eyebrow} />
+        <h2 className={H2_CLASS}>{booked ? BOOKING.booked.h2 : BOOKING.h2}</h2>
 
         {booked ? (
           <>
-            <p className="mt-6 max-w-3xl text-[17px] leading-relaxed text-[#FAF9F6]/65">
-              {BOOKING.booked.body}
-            </p>
-            <p className="mt-4 max-w-3xl text-[17px] leading-relaxed text-[#FAF9F6]/65">
-              {BOOKING.booked.prepLine}
-            </p>
+            <p className={BODY_CLASS}>{BOOKING.booked.body}</p>
+            <p className={BODY_CLASS}>{BOOKING.booked.prepLine}</p>
 
             {prepDone ? (
-              <p className="mt-8 rounded-2xl border border-white/10 bg-white/[0.04] p-6 text-[17px]">
+              <p
+                className="m-0 max-w-3xl rounded-3xl border border-[#e8e8e8] bg-white p-6 text-[17px]"
+                style={SITE_MARKETING_WHITE_SHADOW}
+              >
                 {PREP.success}
               </p>
             ) : (
@@ -106,10 +107,10 @@ export function BookingSection({ pageUrl, embedUrl }: BookingSectionProps) {
             )}
           </>
         ) : (
-          <p className="mt-4 text-[17px] leading-relaxed text-[#FAF9F6]/65">{BOOKING.trustLine}</p>
+          <p className={BODY_CLASS}>{BOOKING.trustLine}</p>
         )}
 
-        <div className="mt-10">
+        <div className="mt-1">
           {pageUrl && embedUrl ? (
             <HubSpotMeetingsInline
               pageUrl={pageUrl}
@@ -135,7 +136,7 @@ function SchedulerUnavailable() {
   if (process.env.NODE_ENV === 'production') return null;
 
   return (
-    <div className="rounded-2xl border border-dashed border-[#FF5501]/60 p-6 text-[15px] text-[#FAF9F6]/65">
+    <div className="rounded-2xl border border-dashed border-[#FF5501]/60 p-6 text-[15px] text-[#1a1512]/65">
       Scheduler unavailable: no valid HubSpot meeting URL is configured.
     </div>
   );
