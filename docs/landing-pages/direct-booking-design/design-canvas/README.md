@@ -16,9 +16,9 @@ every value in them is lifted from the site's real tokens and components.
 
 The build expects, in the same folder: `nohemi-300.b64` and `nohemi-400.b64`
 (base64 of `public/fonts/Nohemi-Light-*.ttf` and `Nohemi-Regular-*.ttf`),
-plus `hero-placeholder.jpg`, `northstar.jpg` (downsampled from
-`public/mountain.png` and `public/northstarnaturesuites.png`, each under
-70 KB) and `public/captive-demand-logo.png`. Then `node build.mjs`.
+plus `hero-mobile.jpg`, `hero-desktop.jpg`, `northstar.jpg` (downsampled
+from `public/direct-booking/hero-*.jpg` and `public/northstarnaturesuites.png`,
+each under 70 KB) and `public/captive-demand-logo.png`. Then `node build.mjs`.
 
 ## Values worth copying into code
 
