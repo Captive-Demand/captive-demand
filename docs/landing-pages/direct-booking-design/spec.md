@@ -104,6 +104,8 @@ The root layout wraps every route in `<main class="bg-[#fafafa]">`. The lander's
 
 ## 2. Design
 
+> **Superseded by the design canvas.** The shipped look follows the artboards in `docs/landing-pages/direct-booking-design/design-canvas/` (lead direction: ink hero and calculator, then paper for the agenda, proof, calendar, and FAQ, with the catch as one ink block). The tokens below still apply; where the canvas and this section differ, the canvas wins.
+
 ### 2.1 Tokens for this route
 
 | Token | Value | Use |

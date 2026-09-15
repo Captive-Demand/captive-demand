@@ -9,11 +9,17 @@ export const TRUST_LINE =
   'No sales pitch on the call. The design is yours whether you work with us or not.';
 
 export const HERO = {
-  eyebrow: 'For multi-unit, unique stays — glamping, domes, cabins, tiny homes',
+  eyebrow: 'For multi-unit unique stays — glamping, domes, cabins, tiny homes',
+  /** Phone-width eyebrow; the full line wraps to two on 390px. */
+  eyebrowShort: 'For multi-unit unique stays',
   h1FirstSentence: "Airbnb's cut is 15.5% now.",
+  /** Rendered in orange inside h1FirstSentence. Must be a substring of it. */
+  h1Highlight: '15.5%',
   h1SecondSentence: 'Your own booking site takes nothing.',
   subhead:
     "We'll design a direct booking website for your property, free. It's yours to keep. All it takes is a 15-minute call so the design fits how you actually take bookings.",
+  /** Phone-width subhead: the offer in one sentence so the button stays on the first screen. */
+  subheadShort: "We'll design your direct booking website, free. It's yours to keep.",
 } as const;
 
 export const HOW_IT_WORKS = {
@@ -76,7 +82,12 @@ export const PROOF_CARD = {
   caption: 'Direct booking site designed and built by Captive Demand',
   image: '/northstarnaturesuites.png',
   imageAlt: 'North Star Nature Suites direct booking website',
-  stats: ['+289% direct bookings', 'OTA dependency down 60%'],
+  /** Shown in the browser-frame address pill; display only, not a link. */
+  url: 'northstarnaturesuites.com',
+  stats: [
+    { value: '+289%', label: 'direct bookings' },
+    { value: '−60%', label: 'OTA dependency' },
+  ],
 } as const;
 
 export const THE_CATCH = {

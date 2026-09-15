@@ -8,7 +8,9 @@ import {
   PREP,
   UNIT_COUNT_OPTIONS,
 } from '@/components/landers/direct-booking/copy';
+import { CTA_BUTTON_CLASS } from '@/components/landers/direct-booking/LanderCtaButton';
 import { LANDER_EVENTS, trackLander, type PrepAnswers } from '@/lib/direct-booking-lander';
+import { SITE_MARKETING_WHITE_SHADOW } from '@/lib/site-surfaces';
 
 interface PrepFormProps {
   onSubmit: (answers: PrepAnswers) => void;
@@ -16,9 +18,9 @@ interface PrepFormProps {
 }
 
 const FIELD_CLASS =
-  'mt-2 w-full rounded-xl border border-white/10 bg-white/[0.06] px-4 py-3 text-[17px] text-[#FAF9F6] placeholder:text-[#FAF9F6]/40 focus:border-[#FF5501]/60 focus:outline-none focus:ring-2 focus:ring-[#FF5501]/40';
+  'mt-2 w-full rounded-xl border border-[#e0e0e0] bg-[#fafafa] px-4 py-3 text-[17px] text-[#1a1512] placeholder:text-[#1a1512]/40 transition-colors focus:border-[#E8480C] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF5501]/30';
 
-const LABEL_CLASS = 'block text-[15px] font-medium text-[#FAF9F6]';
+const LABEL_CLASS = 'block text-[15px] font-medium text-[#1a1512]';
 
 function RadioRow({
   name,
@@ -34,7 +36,7 @@ function RadioRow({
   onChange: (next: string) => void;
 }) {
   return (
-    <fieldset>
+    <fieldset className="m-0 border-0 p-0">
       <legend className={LABEL_CLASS}>{label}</legend>
       <div className="mt-2 space-y-2">
         {options.map((option) => {
@@ -44,8 +46,8 @@ function RadioRow({
               key={option}
               className={`flex min-h-12 w-full cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-[16px] transition-colors ${
                 selected
-                  ? 'border-[#FF5501] bg-[#FF5501]/10'
-                  : 'border-white/10 bg-white/[0.04] hover:border-white/20'
+                  ? 'border-[#FF5501] bg-[#FF5501]/[0.08]'
+                  : 'border-[#1a1512]/10 bg-[#f3f4f6] hover:border-[#1a1512]/25'
               }`}
             >
               <input
@@ -100,11 +102,13 @@ export function PrepForm({ onSubmit, onSkip }: PrepFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mt-8 rounded-2xl border border-white/10 bg-white/[0.04] p-6 sm:p-8">
-      <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-[#FF5501]">
-        {PREP.eyebrow}
-      </p>
-      <p className="mt-3 text-[17px] leading-relaxed text-[#FAF9F6]/65">{PREP.leadLine}</p>
+    <form
+      onSubmit={handleSubmit}
+      className="mt-2 max-w-3xl rounded-3xl border border-[#e8e8e8] bg-white p-6 sm:p-8"
+      style={SITE_MARKETING_WHITE_SHADOW}
+    >
+      <p className="m-0 font-mono text-[11px] uppercase tracking-[0.18em] text-[#FF5501]">{PREP.eyebrow}</p>
+      <p className="mt-3 mb-0 text-[17px] leading-relaxed text-[#1a1512]/70">{PREP.leadLine}</p>
 
       <div className="mt-6 space-y-6">
         <div>
@@ -174,17 +178,14 @@ export function PrepForm({ onSubmit, onSkip }: PrepFormProps) {
         </div>
       </div>
 
-      <button
-        type="submit"
-        className="mt-8 flex min-h-14 w-full items-center justify-center rounded-xl bg-[#FF5501] text-[17px] font-medium text-white transition-transform duration-150 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5501]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1a1512] sm:w-auto sm:px-10"
-      >
+      <button type="submit" className={`${CTA_BUTTON_CLASS} mt-8 focus-visible:ring-offset-white`}>
         {PREP.submit}
       </button>
 
       <button
         type="button"
         onClick={handleSkip}
-        className="mt-4 block min-h-11 text-[15px] text-[#FAF9F6]/65 underline underline-offset-4 transition-colors hover:text-[#FAF9F6]"
+        className="mt-4 block min-h-11 text-[15px] text-[#1a1512]/60 underline underline-offset-4 transition-colors hover:text-[#1a1512]"
       >
         {PREP.skip}
       </button>
