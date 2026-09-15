@@ -175,7 +175,7 @@ Three cards; horizontal strip on `md+`, stacked on mobile. Small numerals `01 / 
 - Eyebrow: `How it works`
 - Step 1 title: `Book a 15-minute call` — body: `Pick a time that works. Tell us about your property, how you take bookings now, and what's frustrating you.`
 - Step 2 title: `We design your booking site` — body: `About a week later, we walk you through a design built for your property — your photos, your units, your booking flow.`
-- Step 3 title: `It's yours` — body: `Keep the design. Build it yourself, hire whoever you want, or ask us to build and run it. No obligation either way.`
+- Step 3 title: `It's yours` — body: `You get the full design of your homepage and booking flow as a PDF and image files any developer can build from. Build it yourself, hire whoever you want, or ask us to build and run it. No obligation either way.`
 
 ### 3.3 What 15.5% costs you (`id="math"`)
 
@@ -244,6 +244,7 @@ Three cards; horizontal strip on `md+`, stacked on mobile. Small numerals `01 / 
 - Eyebrow: `Pick a time`
 - H2: `Pick a time`
 - Trust line: `15 minutes. No pitch. The design is yours to keep.`
+- Host card directly above the embed (white card, 56 px round photo of Jordan from `/Jordan.jpeg`): eyebrow `Who you'll be talking to`, name `Jordan Schneider`, role `CMO, Captive Demand`, line `Jordan hosts on Airbnb himself. The 15.5% on this page is from his own account, and he's the one on the call and the design walkthrough. No handoff to a sales team.`
 - Embed below, inside a light panel (`bg-[#FAF9F6] rounded-2xl p-2 sm:p-3`) because HubSpot's scheduler renders on white and can't be themed dark.
 - Fallback link (only rendered if the HubSpot embed script fails to load): `Calendar not loading? Open it in a new tab.` → the scheduling page URL (without `embed=true`), `target="_blank" rel="noopener"`.
 
@@ -266,7 +267,7 @@ Five items, all collapsed by default, one open at a time, `<button aria-expanded
 - H2: `Before you book`
 - Q: `Do I need a website already?` — A: `No. Most people we talk to either don't have one or have one they're embarrassed by. Either is fine.`
 - Q: `I only use Airbnb. Does this still make sense?` — A: `Yes — that's the most common situation. We'll talk through what it takes to add direct booking alongside Airbnb without double-booking.`
-- Q: `Is the design really free?` — A: `Yes. You keep it. No card, no contract.`
+- Q: `Is the design really free?` — A: `Yes. You keep it: the full design of your homepage and booking flow, delivered as a PDF and image files any developer can build from. No card, no contract.`
 - Q: `What if I want you to build it?` — A: `We'll tell you what that costs on the second call. It's a monthly service. No pressure.`
 - Q: `How long until I see the design?` — A: `About a week after the first call.`
 

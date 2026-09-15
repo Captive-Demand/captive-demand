@@ -38,7 +38,7 @@ export const HOW_IT_WORKS = {
     {
       numeral: '03',
       title: "It's yours",
-      body: 'Keep the design. Build it yourself, hire whoever you want, or ask us to build and run it. No obligation either way.',
+      body: 'You get the full design of your homepage and booking flow as a PDF and image files any developer can build from. Build it yourself, hire whoever you want, or ask us to build and run it. No obligation either way.',
     },
   ],
 } as const;
@@ -96,6 +96,16 @@ export const THE_CATCH = {
   body: "There isn't one, but here's the honest version. We design the site free because some people who see the design want us to build it and run it for them. That's a paid monthly service, and we'll tell you exactly what it costs on the second call — not before, and not by surprise. If you'd rather take the design somewhere else, that's fine. You'll still have a design that's better than what you've got.",
 } as const;
 
+/** Who is on the other end of the call. Shown right above the calendar. */
+export const HOST_CARD = {
+  eyebrow: "Who you'll be talking to",
+  name: 'Jordan Schneider',
+  role: 'CMO, Captive Demand',
+  line: "Jordan hosts on Airbnb himself. The 15.5% on this page is from his own account, and he's the one on the call and the design walkthrough. No handoff to a sales team.",
+  photo: '/Jordan.jpeg',
+  photoAlt: 'Jordan Schneider',
+} as const;
+
 export const BOOKING = {
   eyebrow: 'Pick a time',
   h2: 'Pick a time',
@@ -151,7 +161,7 @@ export const FAQ = {
     },
     {
       question: 'Is the design really free?',
-      answer: 'Yes. You keep it. No card, no contract.',
+      answer: 'Yes. You keep it: the full design of your homepage and booking flow, delivered as a PDF and image files any developer can build from. No card, no contract.',
     },
     {
       question: 'What if I want you to build it?',

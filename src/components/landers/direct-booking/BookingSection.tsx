@@ -8,6 +8,7 @@ import {
   HubSpotMeetingsInline,
   type ScheduledDetails,
 } from '@/components/landers/direct-booking/HubSpotMeetingsInline';
+import { HostCard } from '@/components/landers/direct-booking/HostCard';
 import { PrepForm } from '@/components/landers/direct-booking/PrepForm';
 import { useSessionFlag } from '@/components/landers/direct-booking/useSessionFlag';
 import {
@@ -109,6 +110,8 @@ export function BookingSection({ pageUrl, embedUrl }: BookingSectionProps) {
         ) : (
           <p className={BODY_CLASS}>{BOOKING.trustLine}</p>
         )}
+
+        <HostCard />
 
         <div className="mt-1">
           {pageUrl && embedUrl ? (
