@@ -2,7 +2,7 @@ import nodemailer from 'nodemailer';
 import { NextResponse } from 'next/server';
 
 import { parseAnnualCompanyRevenue, revenueLabel } from '@/lib/annual-company-revenue';
-import { submitHubSpotAdsForm, submitHubSpotAuditForm } from '@/lib/hubspot-form';
+import { submitHubSpotAdsForm, submitHubSpotAuditForm, submitHubSpotContactForm } from '@/lib/hubspot-form';
 import { isRecaptchaVerificationEnabled } from '@/lib/recaptcha-config';
 
 type Body = {
@@ -254,6 +254,28 @@ export async function POST(request: Request) {
       });
       if (!hubspot.ok) {
         console.error('Ads request HubSpot submit failed:', hubspot.error);
+      }
+    }
+
+    if (!isShorePartnership && !isAdsForm && !isPricingModal) {
+      const hubspot = await submitHubSpotContactForm({
+        fullName: displayName,
+        email,
+        company: businessName,
+        annualCompanyRevenue: revenueParsed ?? undefined,
+        annualCompanyRevenueLabel: revenueParsed ? annualRevenueLabel : undefined,
+        service: body.service,
+        budget: body.budget,
+        message: body.message,
+        utmSource: body.utmSource,
+        utmMedium: body.utmMedium,
+        utmCampaign: body.utmCampaign,
+        pageUri: body.pageUri,
+        pageName: body.pageName,
+        hutk: body.hutk,
+      });
+      if (!hubspot.ok) {
+        console.error('Contact form HubSpot submit failed:', hubspot.error);
       }
     }
 

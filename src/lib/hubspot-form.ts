@@ -346,3 +346,336 @@ async function syncHubSpotContactAdsProperties(
 
   return patchContactProperties(token, found.id, properties);
 }
+
+export type HubSpotContactSubmission = HubSpotAttribution & {
+  fullName: string;
+  email: string;
+  company: string;
+  annualCompanyRevenue?: string;
+  annualCompanyRevenueLabel?: string;
+  service?: string;
+  budget?: string;
+  message?: string;
+};
+
+/** Contact properties written by the /contact form. Created in the portal if missing. */
+export const CONTACT_FORM_PROPERTIES = {
+  annualCompanyRevenue: 'annual_company_revenue',
+  service: 'service_interested_in',
+  budget: 'project_budget',
+  message: 'project_message',
+} as const;
+
+const CONTACT_FORM_PROPERTY_DEFS: Array<{
+  name: string;
+  label: string;
+  type: 'string' | 'enumeration';
+  fieldType: 'text' | 'textarea' | 'select';
+  options?: Array<{ label: string; value: string }>;
+}> = [
+  {
+    name: CONTACT_FORM_PROPERTIES.annualCompanyRevenue,
+    label: 'Annual company revenue',
+    type: 'enumeration',
+    fieldType: 'select',
+    options: [
+      { label: 'Under $250k', value: 'under_250k' },
+      { label: '$250k - $500k', value: '250k_500k' },
+      { label: '$500k - $1M', value: '500k_1m' },
+      { label: '$1M+', value: '1m_plus' },
+    ],
+  },
+  {
+    name: CONTACT_FORM_PROPERTIES.service,
+    label: 'Service interested in',
+    type: 'enumeration',
+    fieldType: 'select',
+    options: [
+      { label: 'Website Design/Development', value: 'Website Design/Development' },
+      { label: 'SEO/AEO', value: 'SEO/AEO' },
+      { label: 'Email Marketing', value: 'Email Marketing' },
+      { label: 'Marketing Automation', value: 'Marketing Automation' },
+      { label: 'Software Development', value: 'Software Development' },
+      { label: 'Not sure yet', value: 'Not sure yet' },
+    ],
+  },
+  {
+    name: CONTACT_FORM_PROPERTIES.budget,
+    label: 'Project budget',
+    type: 'enumeration',
+    fieldType: 'select',
+    options: [
+      { label: 'Under $5K', value: 'Under $5K' },
+      { label: '$5K–$10K', value: '$5K–$10K' },
+      { label: '$10K–$25K', value: '$10K–$25K' },
+      { label: '$25K+', value: '$25K+' },
+      { label: "Let's talk", value: "Let's talk" },
+    ],
+  },
+  {
+    name: CONTACT_FORM_PROPERTIES.message,
+    label: 'Project details',
+    type: 'string',
+    fieldType: 'textarea',
+  },
+];
+
+let contactFormPropertiesReady: Promise<void> | null = null;
+
+async function hubspotJson<T>(
+  token: string,
+  url: string,
+  init: RequestInit,
+): Promise<{ ok: boolean; status: number; body: T | string }> {
+  try {
+    const response = await fetch(url, {
+      ...init,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        ...(init.headers ?? {}),
+      },
+    });
+    const text = await response.text();
+    if (!text) return { ok: response.ok, status: response.status, body: '' };
+    try {
+      return { ok: response.ok, status: response.status, body: JSON.parse(text) as T };
+    } catch {
+      return { ok: response.ok, status: response.status, body: text };
+    }
+  } catch (error) {
+    return { ok: false, status: 0, body: error instanceof Error ? error.message : 'Network error' };
+  }
+}
+
+async function provisionContactFormProperties(token: string): Promise<void> {
+  for (const def of CONTACT_FORM_PROPERTY_DEFS) {
+    const existing = await hubspotJson(
+      token,
+      `https://api.hubapi.com/crm/v3/properties/contacts/${def.name}`,
+      { method: 'GET' },
+    );
+    if (existing.ok) continue;
+    if (existing.status !== 404) {
+      console.error(`HubSpot property lookup ${def.name} failed:`, existing.body);
+      continue;
+    }
+
+    const created = await hubspotJson(token, 'https://api.hubapi.com/crm/v3/properties/contacts', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: def.name,
+        label: def.label,
+        type: def.type,
+        fieldType: def.fieldType,
+        groupName: 'contactinformation',
+        hasUniqueValue: false,
+        hidden: false,
+        ...(def.options
+          ? {
+              options: def.options.map((option, displayOrder) => ({
+                label: option.label,
+                value: option.value,
+                hidden: false,
+                displayOrder,
+              })),
+            }
+          : {}),
+      }),
+    });
+    if (!created.ok) {
+      console.error(`HubSpot property create ${def.name} failed:`, created.body);
+    }
+  }
+}
+
+function ensureContactFormProperties(token: string): Promise<void> {
+  if (!contactFormPropertiesReady) {
+    contactFormPropertiesReady = provisionContactFormProperties(token).catch((error) => {
+      contactFormPropertiesReady = null;
+      console.error('HubSpot contact form property provision failed:', error);
+    });
+  }
+  return contactFormPropertiesReady;
+}
+
+async function upsertContactByEmail(
+  token: string,
+  email: string,
+  properties: Record<string, string>,
+): Promise<{ id?: string; error?: string }> {
+  const upserted = await hubspotJson<{ results?: Array<{ id?: string }> }>(
+    token,
+    'https://api.hubapi.com/crm/v3/objects/contacts/batch/upsert',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        inputs: [
+          {
+            id: email,
+            idProperty: 'email',
+            properties: { ...properties, email },
+          },
+        ],
+      }),
+    },
+  );
+
+  if (upserted.ok && typeof upserted.body !== 'string') {
+    const id = upserted.body.results?.[0]?.id;
+    if (id) return { id };
+  }
+
+  if (!upserted.ok) {
+    console.error('HubSpot contact upsert failed:', upserted.body);
+  }
+
+  const found = await findContactIdByEmail(token, email);
+  if (found.id) {
+    const patched = await patchContactProperties(token, found.id, properties);
+    if (!patched.ok) return { error: patched.error };
+    return { id: found.id };
+  }
+
+  const created = await hubspotJson<{ id?: string }>(
+    token,
+    'https://api.hubapi.com/crm/v3/objects/contacts',
+    {
+      method: 'POST',
+      body: JSON.stringify({ properties: { ...properties, email } }),
+    },
+  );
+  if (created.ok && typeof created.body !== 'string' && created.body.id) {
+    return { id: created.body.id };
+  }
+
+  return {
+    error:
+      typeof created.body === 'string'
+        ? created.body
+        : `HubSpot create ${created.status}: ${JSON.stringify(created.body).slice(0, 400)}`,
+  };
+}
+
+async function createContactNote(
+  token: string,
+  contactId: string,
+  body: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const created = await hubspotJson<{ id?: string }>(
+    token,
+    'https://api.hubapi.com/crm/v3/objects/notes',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        properties: {
+          hs_timestamp: Date.now().toString(),
+          hs_note_body: body,
+        },
+        associations: [
+          {
+            to: { id: contactId },
+            types: [{ associationCategory: 'HUBSPOT_DEFINED', associationTypeId: 202 }],
+          },
+        ],
+      }),
+    },
+  );
+
+  if (created.ok) return { ok: true };
+  return {
+    ok: false,
+    error:
+      typeof created.body === 'string'
+        ? created.body
+        : `HubSpot note ${created.status}: ${JSON.stringify(created.body).slice(0, 400)}`,
+  };
+}
+
+function buildContactFormNote(input: HubSpotContactSubmission): string {
+  const lines = [
+    'Website contact form',
+    `Name: ${input.fullName.trim()}`,
+    `Email: ${input.email.trim()}`,
+    `Company: ${input.company.trim()}`,
+    input.annualCompanyRevenueLabel
+      ? `Annual company revenue: ${input.annualCompanyRevenueLabel}`
+      : '',
+    input.service?.trim() ? `Service interested in: ${input.service.trim()}` : '',
+    input.budget?.trim() ? `Project budget: ${input.budget.trim()}` : '',
+    input.pageUri?.trim() ? `Page: ${input.pageUri.trim()}` : '',
+    input.message?.trim() ? `\nProject details:\n${input.message.trim()}` : '',
+  ];
+  return lines.filter(Boolean).join('\n');
+}
+
+export function buildHubSpotContactProperties(
+  input: HubSpotContactSubmission,
+): Record<string, string> {
+  const { firstname, lastname } = splitPersonName(input.fullName);
+  const properties: Record<string, string> = {};
+
+  if (firstname) properties.firstname = firstname;
+  if (lastname) properties.lastname = lastname;
+  if (input.company.trim()) properties.company = input.company.trim();
+  if (input.annualCompanyRevenue?.trim()) {
+    properties[CONTACT_FORM_PROPERTIES.annualCompanyRevenue] = input.annualCompanyRevenue.trim();
+  }
+  if (input.service?.trim()) properties[CONTACT_FORM_PROPERTIES.service] = input.service.trim();
+  if (input.budget?.trim()) properties[CONTACT_FORM_PROPERTIES.budget] = input.budget.trim();
+  if (input.message?.trim()) properties[CONTACT_FORM_PROPERTIES.message] = input.message.trim();
+  if (input.pageUri?.trim()) properties.captive_demand_form_location = input.pageUri.trim();
+  if (input.utmSource?.trim()) properties.utm_source = input.utmSource.trim();
+  if (input.utmMedium?.trim()) properties.utm_medium = input.utmMedium.trim();
+  if (input.utmCampaign?.trim()) properties.utm_campaign = input.utmCampaign.trim();
+
+  return properties;
+}
+
+/**
+ * Writes a /contact submission onto the HubSpot contact. The page form was
+ * never posted to a HubSpot form, so collected-forms created a contact with
+ * whatever it could guess (often just first name) and dropped the rest.
+ */
+export async function submitHubSpotContactForm(
+  input: HubSpotContactSubmission,
+): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
+  const token = process.env.HUBSPOT_ACCESS_TOKEN?.trim();
+  if (!token) {
+    return { ok: true, skipped: true };
+  }
+
+  await ensureContactFormProperties(token);
+
+  const email = input.email.trim();
+  if (!email) return { ok: false, error: 'email required' };
+
+  const allProperties = buildHubSpotContactProperties(input);
+  const customNames = new Set<string>(Object.values(CONTACT_FORM_PROPERTIES));
+  const standardProperties: Record<string, string> = {};
+  const customProperties: Record<string, string> = {};
+  for (const [key, value] of Object.entries(allProperties)) {
+    if (customNames.has(key)) customProperties[key] = value;
+    else standardProperties[key] = value;
+  }
+
+  // Standard fields first so a missing custom property cannot drop name/company.
+  const upserted = await upsertContactByEmail(token, email, standardProperties);
+  if (!upserted.id) {
+    return { ok: false, error: upserted.error ?? 'contact not written' };
+  }
+
+  if (Object.keys(customProperties).length > 0) {
+    const custom = await patchContactProperties(token, upserted.id, customProperties);
+    if (!custom.ok) {
+      console.error('HubSpot contact form custom properties failed:', custom.error);
+    }
+  }
+
+  const note = await createContactNote(token, upserted.id, buildContactFormNote(input));
+  if (!note.ok) {
+    console.error('HubSpot contact form note failed:', note.error);
+  }
+
+  return { ok: true };
+}

@@ -9,6 +9,7 @@ import { trackGa4Event } from '@/lib/analytics';
 import { recaptchaErrorMessage } from '@/lib/recaptcha-errors';
 import { SITE_FORM_ANCHOR_TEXT_CLASS } from '@/lib/site-surfaces';
 import { useRecaptchaToken } from '@/hooks/useRecaptchaToken';
+import { getAuditFormBrowserContext } from '@/lib/form-browser-context';
 
 type Tab = 'message' | 'call';
 
@@ -46,6 +47,7 @@ export function ContactFormCard() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          source: 'contact_form',
           fullName: formData.fullName,
           email: formData.email,
           businessName: formData.businessName,
@@ -54,6 +56,7 @@ export function ContactFormCard() {
           budget: formData.budget,
           message: formData.message,
           recaptchaToken: recaptcha.token,
+          ...getAuditFormBrowserContext(),
         }),
       });
       if (res.ok) {
@@ -155,13 +158,20 @@ export function ContactFormCard() {
             </p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-6"
+            // HubSpot collected-forms was creating a contact from this HTML
+            // without mapping our field names. We write the contact ourselves.
+            data-hs-do-not-collect="true"
+          >
             <div>
               <label htmlFor="fullName" className={labelBase}>
                 Full Name *
               </label>
               <input
                 id="fullName"
+                name="fullName"
                 type="text"
                 required
                 placeholder="Spencer Donaldson"
@@ -178,6 +188,7 @@ export function ContactFormCard() {
               </label>
               <input
                 id="email"
+                name="email"
                 type="email"
                 required
                 placeholder="spencer@company.com"
@@ -194,6 +205,7 @@ export function ContactFormCard() {
               </label>
               <input
                 id="businessName"
+                name="company"
                 type="text"
                 required
                 autoComplete="organization"
@@ -211,6 +223,7 @@ export function ContactFormCard() {
               </label>
               <select
                 id="annualCompanyRevenue"
+                name="annual_company_revenue"
                 required
                 className={inputBase}
                 value={formData.annualCompanyRevenue}
@@ -235,6 +248,7 @@ export function ContactFormCard() {
               </label>
               <select
                 id="service"
+                name="service_interested_in"
                 required
                 className={inputBase}
                 value={formData.service}
@@ -263,6 +277,7 @@ export function ContactFormCard() {
               </label>
               <select
                 id="budget"
+                name="project_budget"
                 className={inputBase}
                 value={formData.budget}
                 onChange={(e) =>
@@ -295,6 +310,7 @@ export function ContactFormCard() {
               </label>
               <textarea
                 id="message"
+                name="project_message"
                 rows={4}
                 placeholder="What are you building? What's the goal? Any timeline?"
                 className={`${inputBase} resize-none`}
