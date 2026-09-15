@@ -56,10 +56,8 @@ export function trackLander(event: LanderEvent, params?: Record<string, unknown>
 export const BOOKING_STAMP_ENDPOINT = '/api/direct-booking/booked';
 
 export interface PrepAnswers {
-  property_name?: string;
   booking_platform?: string;
   unit_count?: string;
-  airbnb_annual_bookings?: string;
   booking_site_link?: string;
   phone?: string;
 }
