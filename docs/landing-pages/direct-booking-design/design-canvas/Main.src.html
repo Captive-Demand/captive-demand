@@ -1,0 +1,341 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+  <style>
+    /*@@COMMON@@*/
+  </style>
+</helmet>
+<div style="width: 390px; position: relative; background: #1a1512; overflow: hidden;">
+
+  <!-- Top bar: mark only, no exits -->
+  <div style="position: absolute; top: 0; left: 0; right: 0; z-index: 3; display: flex; align-items: center; justify-content: space-between; padding: 16px 20px;">
+    <img src="captive-demand-logo.png" alt="Captive Demand" style="height: 26px; width: auto; filter: brightness(0) invert(1);">
+    <span class="mono" style="font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(250,249,246,0.5);">Nashville, TN</span>
+  </div>
+
+  <!-- Hero -->
+  <section style="position: relative; min-height: 800px; display: flex; flex-direction: column; justify-content: flex-end; padding: 120px 20px 44px; box-sizing: border-box;">
+    <div style="position: absolute; inset: 0; background: url(./hero-placeholder.jpg) center 35% / cover no-repeat; filter: saturate(0.5) brightness(0.6) contrast(1.05) sepia(0.2);"></div>
+    <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(26,21,18,0.10) 0%, rgba(26,21,18,0.45) 40%, rgba(26,21,18,0.90) 72%, #1a1512 100%);"></div>
+    <div style="position: absolute; inset: 0; background: linear-gradient(210deg, rgba(255,85,1,0.18) 0%, rgba(255,85,1,0) 45%);"></div>
+    <div class="noise"></div>
+    <div style="position: relative; z-index: 2; display: flex; flex-direction: column; gap: 18px;">
+      <div style="display: flex; flex-direction: column; gap: 6px;">
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <svg width="6" height="28" viewBox="0 0 6 28" fill="none"><path d="M5 1H1V27H5" stroke="rgba(250,249,246,0.25)" stroke-width="1.5"></path></svg>
+          <div style="display: flex; align-items: center; gap: 6px; padding: 4px;">
+            <span class="mono" style="font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(250,249,246,0.45);">For:</span>
+            <span class="display" style="font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 400; color: rgba(250,249,246,0.9);">Multi-unit unique stays</span>
+          </div>
+          <svg width="6" height="28" viewBox="0 0 6 28" fill="none"><path d="M1 1H5V27H1" stroke="rgba(250,249,246,0.25)" stroke-width="1.5"></path></svg>
+        </div>
+        <span class="mono" style="font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(250,249,246,0.45); padding-left: 10px;">Glamping · domes · cabins · tiny homes</span>
+      </div>
+      <h1 class="display" style="margin: 0; font-weight: 300; font-size: 44px; line-height: 1.02; color: #FAF9F6;">Airbnb's cut is <span style="color: #ff5501; font-weight: 400;">15.5%</span> now. Your own booking site takes nothing.</h1>
+      <p style="margin: 0; font-size: 17px; line-height: 1.55; color: rgba(250,249,246,0.72);">We'll design a direct booking website for your property, free. It's yours to keep. All it takes is a 15-minute call so the design fits how you actually take bookings.</p>
+      <a class="cta" href="#book">Book my 15-minute call <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></a>
+      <div style="display: flex; gap: 8px; align-items: flex-start; color: rgba(250,249,246,0.62); font-size: 13px; line-height: 1.45;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff5501" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 1px;"><path d="M20 6L9 17l-5-5"></path></svg>
+        <span>No sales pitch on the call. The design is yours whether you work with us or not.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section style="padding: 60px 20px 40px; display: flex; flex-direction: column; gap: 28px;">
+    <div style="display: flex; align-items: center; gap: 4px;">
+      <svg width="6" height="28" viewBox="0 0 6 28" fill="none"><path d="M5 1H1V27H5" stroke="rgba(250,249,246,0.25)" stroke-width="1.5"></path></svg>
+      <div style="display: flex; align-items: center; gap: 6px; padding: 4px;">
+        <span class="mono" style="font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(250,249,246,0.45);">01:</span>
+        <span class="display" style="font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 400; color: rgba(250,249,246,0.9);">How it works</span>
+      </div>
+      <svg width="6" height="28" viewBox="0 0 6 28" fill="none"><path d="M1 1H5V27H1" stroke="rgba(250,249,246,0.25)" stroke-width="1.5"></path></svg>
+    </div>
+    <ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0;">
+      <li style="display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 0 14px; padding: 0 0 26px;">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+          <span class="mono" style="font-size: 11px; letter-spacing: 0.18em; color: #ff5501; padding-top: 7px;">01</span>
+          <span style="flex: 1; width: 1px; background: rgba(250,249,246,0.14);"></span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <h3 class="display" style="margin: 0; font-weight: 400; font-size: 22px; line-height: 1.2; letter-spacing: -0.01em; color: #FAF9F6;">Book a 15-minute call</h3>
+          <p style="margin: 0; font-size: 15px; line-height: 1.55; color: rgba(250,249,246,0.65);">Pick a time that works. Tell us about your property, how you take bookings now, and what's frustrating you.</p>
+        </div>
+      </li>
+      <li style="display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 0 14px; padding: 0 0 26px;">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+          <span class="mono" style="font-size: 11px; letter-spacing: 0.18em; color: #ff5501; padding-top: 7px;">02</span>
+          <span style="flex: 1; width: 1px; background: rgba(250,249,246,0.14);"></span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <h3 class="display" style="margin: 0; font-weight: 400; font-size: 22px; line-height: 1.2; letter-spacing: -0.01em; color: #FAF9F6;">We design your booking site</h3>
+          <p style="margin: 0; font-size: 15px; line-height: 1.55; color: rgba(250,249,246,0.65);">About a week later, we walk you through a design built for your property — your photos, your units, your booking flow.</p>
+        </div>
+      </li>
+      <li style="display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 0 14px; padding: 0;">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+          <span class="mono" style="font-size: 11px; letter-spacing: 0.18em; color: #ff5501; padding-top: 7px;">03</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <h3 class="display" style="margin: 0; font-weight: 400; font-size: 22px; line-height: 1.2; letter-spacing: -0.01em; color: #FAF9F6;">It's yours</h3>
+          <p style="margin: 0; font-size: 15px; line-height: 1.55; color: rgba(250,249,246,0.65);">Keep the design. Build it yourself, hire whoever you want, or ask us to build and run it. No obligation either way.</p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <!-- The math -->
+  <section style="padding: 28px 20px 64px; display: flex; flex-direction: column; gap: 20px;">
+    <div style="display: flex; align-items: center; gap: 4px;">
+      <svg width="6" height="28" viewBox="0 0 6 28" fill="none"><path d="M5 1H1V27H5" stroke="rgba(250,249,246,0.25)" stroke-width="1.5"></path></svg>
+      <div style="display: flex; align-items: center; gap: 6px; padding: 4px;">
+        <span class="mono" style="font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(250,249,246,0.45);">02:</span>
+        <span class="display" style="font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 400; color: rgba(250,249,246,0.9);">The math</span>
+      </div>
+      <svg width="6" height="28" viewBox="0 0 6 28" fill="none"><path d="M1 1H5V27H1" stroke="rgba(250,249,246,0.25)" stroke-width="1.5"></path></svg>
+    </div>
+    <h2 class="display" style="margin: 0; font-weight: 300; font-size: 34px; line-height: 1.08; color: #FAF9F6;">What 15.5% actually costs you</h2>
+    <p style="margin: 0; font-size: 16px; line-height: 1.6; color: rgba(250,249,246,0.65);">If you do $50,000 a year through Airbnb, about $7,750 of it is fees. Every guest who rebooks with you directly is a booking you keep all of. Most operators we talk to already have repeat guests who'd happily book direct. They just don't have a site worth sending them to.</p>
+
+    <div class="raised" style="border-radius: 24px; padding: 22px 20px 20px; color: #1a1512; display: flex; flex-direction: column; gap: 14px;">
+      <span class="mono" style="font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #999999;">Your annual bookings through Airbnb</span>
+      <div class="display" style="font-weight: 300; font-size: 44px; line-height: 1; color: #1a1512;">$50,000</div>
+      <div style="position: relative; height: 28px; display: flex; align-items: center;">
+        <div style="height: 6px; width: 100%; border-radius: 999px; background: #e3e1df;"></div>
+        <div style="position: absolute; left: 0; height: 6px; width: 8%; border-radius: 999px; background: #ff5501;"></div>
+        <div style="position: absolute; left: 8%; margin-left: -14px; width: 28px; height: 28px; border-radius: 999px; background: #1a1512; box-shadow: 0 2px 6px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.18);"></div>
+      </div>
+      <div class="mono" style="display: flex; justify-content: space-between; font-size: 10px; letter-spacing: 0.08em; color: #999999;">
+        <span>$10k</span>
+        <span>$500k</span>
+      </div>
+      <div style="height: 1px; background: rgba(26,21,18,0.08);"></div>
+      <div style="display: flex; flex-direction: column; gap: 6px;">
+        <span class="mono" style="font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #999999;">Estimated annual fees</span>
+        <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+          <span class="display" style="font-size: 38px; font-weight: 400; color: #ff5501; line-height: 1;">≈ $7,750</span>
+          <span style="font-size: 15px; color: #1a1512;">a year in Airbnb fees</span>
+        </div>
+        <span style="font-size: 12px; color: #6b6663;">Based on Airbnb's 15.5% host-only service fee.</span>
+      </div>
+    </div>
+
+    <a class="cta" href="#book" style="margin-top: 8px;">Book my 15-minute call <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></a>
+    <div style="display: flex; gap: 8px; align-items: flex-start; color: rgba(250,249,246,0.62); font-size: 13px; line-height: 1.45;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff5501" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 1px;"><path d="M20 6L9 17l-5-5"></path></svg>
+      <span>No sales pitch on the call. The design is yours whether you work with us or not.</span>
+    </div>
+  </section>
+
+  <!-- Paper half -->
+  <div style="background: #FAF9F6; color: #1a1512; position: relative;">
+
+    <!-- The call -->
+    <section style="padding: 60px 20px 56px; display: flex; flex-direction: column; gap: 20px;">
+      <div style="display: flex; align-items: center; gap: 4px;">
+        <svg width="6" height="28" viewBox="0 0 6 28" fill="none"><path d="M5 1H1V27H5" stroke="rgba(26,21,18,0.2)" stroke-width="1.5"></path></svg>
+        <div style="display: flex; align-items: center; gap: 6px; padding: 4px;">
+          <span class="mono" style="font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(26,21,18,0.4);">03:</span>
+          <span class="display" style="font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 400; color: #1a1512;">The call</span>
+        </div>
+        <svg width="6" height="28" viewBox="0 0 6 28" fill="none"><path d="M1 1H5V27H1" stroke="rgba(26,21,18,0.2)" stroke-width="1.5"></path></svg>
+      </div>
+      <h2 class="display" style="margin: 0; font-weight: 300; font-size: 34px; line-height: 1.08; color: #1a1512;">What the call is actually for</h2>
+      <p style="margin: 0; font-size: 16px; line-height: 1.6; color: rgba(26,21,18,0.7);">We're not going to pitch you. We're going to ask:</p>
+      <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px;">
+        <li class="grey-row" style="border-radius: 16px; padding: 14px 16px; display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; align-items: start;">
+          <span class="mono" style="font-size: 10px; letter-spacing: 0.12em; color: #ff5501; padding-top: 5px;">01</span>
+          <span style="font-size: 15px; line-height: 1.5; color: #1a1512;">Where you manage your calendar and bookings today — Airbnb only, Vrbo, a booking system?</span>
+        </li>
+        <li class="grey-row" style="border-radius: 16px; padding: 14px 16px; display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; align-items: start;">
+          <span class="mono" style="font-size: 10px; letter-spacing: 0.12em; color: #ff5501; padding-top: 5px;">02</span>
+          <span style="font-size: 15px; line-height: 1.5; color: #1a1512;">Whether you have a website, and if so, what's wrong with it</span>
+        </li>
+        <li class="grey-row" style="border-radius: 16px; padding: 14px 16px; display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; align-items: start;">
+          <span class="mono" style="font-size: 10px; letter-spacing: 0.12em; color: #ff5501; padding-top: 5px;">03</span>
+          <span style="font-size: 15px; line-height: 1.5; color: #1a1512;">How many units you have and what makes them different</span>
+        </li>
+        <li class="grey-row" style="border-radius: 16px; padding: 14px 16px; display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; align-items: start;">
+          <span class="mono" style="font-size: 10px; letter-spacing: 0.12em; color: #ff5501; padding-top: 5px;">04</span>
+          <span style="font-size: 15px; line-height: 1.5; color: #1a1512;">What a guest goes through today if they want to book direct</span>
+        </li>
+        <li class="grey-row" style="border-radius: 16px; padding: 14px 16px; display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; align-items: start;">
+          <span class="mono" style="font-size: 10px; letter-spacing: 0.12em; color: #ff5501; padding-top: 5px;">05</span>
+          <span style="font-size: 15px; line-height: 1.5; color: #1a1512;">What you'd want the site to do that it doesn't do now</span>
+        </li>
+      </ul>
+      <p style="margin: 0; font-size: 15px; line-height: 1.6; color: rgba(26,21,18,0.7);">That's it. Fifteen minutes, maybe twenty if you're chatty. We use it to design something that fits your property instead of a generic template.</p>
+    </section>
+
+    <!-- Proof -->
+    <section style="padding: 8px 20px 60px; display: flex; flex-direction: column; gap: 20px;">
+      <div style="display: flex; align-items: center; gap: 4px;">
+        <svg width="6" height="28" viewBox="0 0 6 28" fill="none"><path d="M5 1H1V27H5" stroke="rgba(26,21,18,0.2)" stroke-width="1.5"></path></svg>
+        <div style="display: flex; align-items: center; gap: 6px; padding: 4px;">
+          <span class="mono" style="font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(26,21,18,0.4);">04:</span>
+          <span class="display" style="font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 400; color: #1a1512;">Who you're talking to</span>
+        </div>
+        <svg width="6" height="28" viewBox="0 0 6 28" fill="none"><path d="M1 1H5V27H1" stroke="rgba(26,21,18,0.2)" stroke-width="1.5"></path></svg>
+      </div>
+      <h2 class="display" style="margin: 0; font-weight: 300; font-size: 34px; line-height: 1.08; color: #1a1512;">We've done this for unique stays before</h2>
+      <p style="margin: 0; font-size: 16px; line-height: 1.6; color: rgba(26,21,18,0.7);">We're a Nashville agency that builds websites and runs ads for hospitality businesses, including unique stays. We know the booking platforms — which ones sync with Airbnb and Vrbo without double-booking, which ones let guests book without leaving your site. We've looked at a lot of glamping websites. Most of them are losing bookings they don't know about.</p>
+      <figure class="paper-card" style="margin: 0; border-radius: 16px; overflow: hidden;">
+        <div style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: #f6f5f6; border-bottom: 1px solid #e8e8e8;">
+          <span style="width: 9px; height: 9px; border-radius: 999px; background: #d9d6d3;"></span>
+          <span style="width: 9px; height: 9px; border-radius: 999px; background: #d9d6d3;"></span>
+          <span style="width: 9px; height: 9px; border-radius: 999px; background: #d9d6d3;"></span>
+          <span class="mono" style="flex: 1; text-align: center; font-size: 10px; color: #999999; background: #ffffff; border: 1px solid #e8e8e8; border-radius: 999px; padding: 5px 10px; margin-left: 6px;">northstarnaturesuites.com</span>
+        </div>
+        <img src="northstar.jpg" alt="North Star Nature Suites website" style="display: block; width: 100%; height: auto;">
+      </figure>
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+        <span style="font-size: 15px; font-weight: 500; color: #1a1512;">North Star Nature Suites — luxury cabin suites, Tennessee</span>
+        <span style="font-size: 13px; color: rgba(26,21,18,0.6);">Direct booking site designed and built by Captive Demand</span>
+      </div>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <span class="mono" style="display: inline-flex; align-items: center; gap: 8px; background: #e8e8e8; border-radius: 999px; padding: 8px 12px; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #1a1512;"><span style="color: #ff5501; font-weight: 500;">+289%</span> direct bookings</span>
+        <span class="mono" style="display: inline-flex; align-items: center; gap: 8px; background: #e8e8e8; border-radius: 999px; padding: 8px 12px; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #1a1512;"><span style="color: #ff5501; font-weight: 500;">−60%</span> OTA dependency</span>
+      </div>
+    </section>
+
+    <!-- The catch -->
+    <section style="padding: 0 20px 60px;">
+      <div style="position: relative; overflow: hidden; border-radius: 24px; background: #1a1512; color: #FAF9F6; padding: 32px 22px 26px; box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.15), 0 20px 48px rgba(26,21,18,0.18); display: flex; flex-direction: column; gap: 18px;">
+        <div class="noise"></div>
+        <div style="display: flex; align-items: center; gap: 4px; position: relative;">
+          <svg width="6" height="28" viewBox="0 0 6 28" fill="none"><path d="M5 1H1V27H5" stroke="rgba(250,249,246,0.25)" stroke-width="1.5"></path></svg>
+          <div style="display: flex; align-items: center; gap: 6px; padding: 4px;">
+            <span class="mono" style="font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(250,249,246,0.45);">05:</span>
+            <span class="display" style="font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 400; color: rgba(250,249,246,0.9);">Straight answer</span>
+          </div>
+          <svg width="6" height="28" viewBox="0 0 6 28" fill="none"><path d="M1 1H5V27H1" stroke="rgba(250,249,246,0.25)" stroke-width="1.5"></path></svg>
+        </div>
+        <h2 class="display" style="margin: 0; font-weight: 300; font-size: 32px; line-height: 1.08; color: #FAF9F6; position: relative;">So what's the catch?</h2>
+        <p style="margin: 0; font-size: 16px; line-height: 1.6; color: rgba(250,249,246,0.72); position: relative;">There isn't one, but here's the honest version. We design the site free because some people who see the design want us to build it and run it for them. That's a paid monthly service, and we'll tell you exactly what it costs on the second call — not before, and not by surprise. If you'd rather take the design somewhere else, that's fine. You'll still have a design that's better than what you've got.</p>
+        <a class="cta" href="#book" style="position: relative;">Book my 15-minute call <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></a>
+        <div style="display: flex; gap: 8px; align-items: flex-start; color: rgba(250,249,246,0.62); font-size: 13px; line-height: 1.45; position: relative;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff5501" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 1px;"><path d="M20 6L9 17l-5-5"></path></svg>
+          <span>No sales pitch on the call. The design is yours whether you work with us or not.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Booking -->
+    <section id="book" style="padding: 0 20px 60px; display: flex; flex-direction: column; gap: 18px;">
+      <div style="display: flex; align-items: center; gap: 4px;">
+        <svg width="6" height="28" viewBox="0 0 6 28" fill="none"><path d="M5 1H1V27H5" stroke="rgba(26,21,18,0.2)" stroke-width="1.5"></path></svg>
+        <div style="display: flex; align-items: center; gap: 6px; padding: 4px;">
+          <span class="mono" style="font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(26,21,18,0.4);">06:</span>
+          <span class="display" style="font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 400; color: #1a1512;">Pick a time</span>
+        </div>
+        <svg width="6" height="28" viewBox="0 0 6 28" fill="none"><path d="M1 1H5V27H1" stroke="rgba(26,21,18,0.2)" stroke-width="1.5"></path></svg>
+      </div>
+      <h2 class="display" style="margin: 0; font-weight: 300; font-size: 34px; line-height: 1.08; color: #1a1512;">Pick a time</h2>
+      <p style="margin: 0; font-size: 15px; line-height: 1.6; color: rgba(26,21,18,0.7);">15 minutes. No pitch. The design is yours to keep.</p>
+
+      <div class="paper-card" style="border-radius: 24px; padding: 18px 16px 20px; display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-size: 15px; font-weight: 500; color: #1a1512;">September 2026</span>
+          <div style="display: flex; gap: 6px;">
+            <span style="width: 32px; height: 32px; border-radius: 999px; border: 1px solid #e8e8e8; display: flex; align-items: center; justify-content: center; color: #1a1512;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg></span>
+            <span style="width: 32px; height: 32px; border-radius: 999px; border: 1px solid #e8e8e8; display: flex; align-items: center; justify-content: center; color: #1a1512;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg></span>
+          </div>
+        </div>
+        <div class="mono" style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; font-size: 10px; letter-spacing: 0.08em; color: #999999; text-align: center;">
+          <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; font-size: 14px; text-align: center;">
+          <span style="height: 40px; display: flex; align-items: center; justify-content: center; color: #c4c0bc;">13</span>
+          <span style="height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 999px; background: #f3f4f6; color: #1a1512;">14</span>
+          <span style="height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 999px; background: #f3f4f6; color: #1a1512;">15</span>
+          <span style="height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 999px; background: #ff5501; color: #ffffff; font-weight: 500;">16</span>
+          <span style="height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 999px; background: #f3f4f6; color: #1a1512;">17</span>
+          <span style="height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 999px; background: #f3f4f6; color: #1a1512;">18</span>
+          <span style="height: 40px; display: flex; align-items: center; justify-content: center; color: #c4c0bc;">19</span>
+          <span style="height: 40px; display: flex; align-items: center; justify-content: center; color: #c4c0bc;">20</span>
+          <span style="height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 999px; background: #f3f4f6; color: #1a1512;">21</span>
+          <span style="height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 999px; background: #f3f4f6; color: #1a1512;">22</span>
+          <span style="height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 999px; background: #f3f4f6; color: #1a1512;">23</span>
+          <span style="height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 999px; background: #f3f4f6; color: #1a1512;">24</span>
+          <span style="height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 999px; background: #f3f4f6; color: #1a1512;">25</span>
+          <span style="height: 40px; display: flex; align-items: center; justify-content: center; color: #c4c0bc;">26</span>
+          <span style="height: 40px; display: flex; align-items: center; justify-content: center; color: #c4c0bc;">27</span>
+          <span style="height: 40px; display: flex; align-items: center; justify-content: center; color: #c4c0bc;">28</span>
+          <span style="height: 40px; display: flex; align-items: center; justify-content: center; color: #c4c0bc;">29</span>
+          <span style="height: 40px; display: flex; align-items: center; justify-content: center; color: #c4c0bc;">30</span>
+          <span style="height: 40px; display: flex; align-items: center; justify-content: center; color: #c4c0bc;">1</span>
+          <span style="height: 40px; display: flex; align-items: center; justify-content: center; color: #c4c0bc;">2</span>
+          <span style="height: 40px; display: flex; align-items: center; justify-content: center; color: #c4c0bc;">3</span>
+        </div>
+        <div style="height: 1px; background: #e8e8e8;"></div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <span style="font-size: 13px; font-weight: 500; color: #1a1512;">Wednesday, September 16</span>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <span style="height: 44px; padding: 0 16px; display: inline-flex; align-items: center; border-radius: 12px; border: 1px solid #e8e8e8; font-size: 14px; color: #1a1512;">9:00 AM</span>
+            <span style="height: 44px; padding: 0 16px; display: inline-flex; align-items: center; border-radius: 12px; background: #1a1512; color: #FAF9F6; font-size: 14px;">11:30 AM</span>
+            <span style="height: 44px; padding: 0 16px; display: inline-flex; align-items: center; border-radius: 12px; border: 1px solid #e8e8e8; font-size: 14px; color: #1a1512;">2:00 PM</span>
+          </div>
+          <span class="mono" style="font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #999999;">Times shown in your time zone · 15 min · Google Meet</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section style="padding: 0 20px 64px; display: flex; flex-direction: column; gap: 18px;">
+      <div style="display: flex; align-items: center; gap: 4px;">
+        <svg width="6" height="28" viewBox="0 0 6 28" fill="none"><path d="M5 1H1V27H5" stroke="rgba(26,21,18,0.2)" stroke-width="1.5"></path></svg>
+        <div style="display: flex; align-items: center; gap: 6px; padding: 4px;">
+          <span class="mono" style="font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(26,21,18,0.4);">07:</span>
+          <span class="display" style="font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 400; color: #1a1512;">Questions</span>
+        </div>
+        <svg width="6" height="28" viewBox="0 0 6 28" fill="none"><path d="M1 1H5V27H1" stroke="rgba(26,21,18,0.2)" stroke-width="1.5"></path></svg>
+      </div>
+      <h2 class="display" style="margin: 0; font-weight: 300; font-size: 34px; line-height: 1.08; color: #1a1512;">Before you book</h2>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <div style="border-radius: 24px; background: #1a1512; color: #FAF9F6; padding: 20px 20px 22px; display: flex; flex-direction: column; gap: 10px; box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.12);">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+            <span class="display" style="font-size: 18px; font-weight: 400; letter-spacing: -0.01em;">Do I need a website already?</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="flex-shrink: 0;"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg>
+          </div>
+          <p style="margin: 0; font-size: 15px; line-height: 1.55; color: rgba(250,249,246,0.72);">No. Most people we talk to either don't have one or have one they're embarrassed by. Either is fine.</p>
+        </div>
+        <div class="grey-row" style="border-radius: 24px; padding: 22px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+          <span class="display" style="font-size: 18px; font-weight: 400; letter-spacing: -0.01em; color: #1a1512;">I only use Airbnb. Does this still make sense?</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1512" stroke-width="1.5" stroke-linecap="round" style="flex-shrink: 0;"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+        </div>
+        <div class="grey-row" style="border-radius: 24px; padding: 22px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+          <span class="display" style="font-size: 18px; font-weight: 400; letter-spacing: -0.01em; color: #1a1512;">Is the design really free?</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1512" stroke-width="1.5" stroke-linecap="round" style="flex-shrink: 0;"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+        </div>
+        <div class="grey-row" style="border-radius: 24px; padding: 22px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+          <span class="display" style="font-size: 18px; font-weight: 400; letter-spacing: -0.01em; color: #1a1512;">What if I want you to build it?</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1512" stroke-width="1.5" stroke-linecap="round" style="flex-shrink: 0;"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+        </div>
+        <div class="grey-row" style="border-radius: 24px; padding: 22px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+          <span class="display" style="font-size: 18px; font-weight: 400; letter-spacing: -0.01em; color: #1a1512;">How long until I see the design?</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1512" stroke-width="1.5" stroke-linecap="round" style="flex-shrink: 0;"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <footer style="background: #1a1512; color: #FAF9F6; padding: 36px 20px 40px; display: flex; flex-direction: column; gap: 16px; border-top: 1px solid rgba(255,255,255,0.08);">
+    <img src="captive-demand-logo.png" alt="Captive Demand" style="height: 24px; width: auto; align-self: flex-start; filter: brightness(0) invert(1);">
+    <div class="mono" style="display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(250,249,246,0.5);">
+      <span>Nashville, TN</span>
+      <a href="#" style="color: rgba(250,249,246,0.7); text-decoration: none;">Privacy</a>
+      <span>© 2026 Captive Demand</span>
+    </div>
+  </footer>
+</div>
+</x-dc>
+</body>
+</html>
