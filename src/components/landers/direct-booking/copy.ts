@@ -119,23 +119,17 @@ export const BOOKING_PLATFORM_OPTIONS = [
 
 export const UNIT_COUNT_OPTIONS = ['1–2', '3–5', '6–10', '10+'] as const;
 
-export const ANNUAL_BOOKINGS_OPTIONS = [
-  'Under $25k',
-  '$25–50k',
-  '$50–100k',
-  '$100k+',
-  'Prefer not to say',
-] as const;
-
 export const PREP = {
   eyebrow: 'Help us prep — 30 seconds',
-  leadLine: 'Four quick taps so the design fits your property.',
-  propertyNameLabel: 'Property name',
+  leadLine: 'Two quick taps and a link, so the design fits your property.',
   bookingPlatformLabel: 'How do you take bookings today?',
   unitCountLabel: 'How many units?',
-  annualBookingsLabel: 'Rough annual bookings through Airbnb',
   siteLinkLabel: 'Link to your website or Airbnb listing',
+  siteLinkPlaceholder: 'airbnb.com/h/your-place or yourproperty.com',
+  siteLinkHint: 'We use it to see your photos and units before the call.',
   phoneLabel: 'Best number for a reminder text',
+  phonePlaceholder: '(615) 555-0123',
+  phoneHint: 'Optional. One text the day before, nothing else.',
   submit: 'Send',
   success: 'Got it. See you on the call.',
   skip: 'Skip for now',

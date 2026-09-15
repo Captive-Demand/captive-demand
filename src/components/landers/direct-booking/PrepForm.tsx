@@ -3,7 +3,6 @@
 import { useState } from 'react';
 
 import {
-  ANNUAL_BOOKINGS_OPTIONS,
   BOOKING_PLATFORM_OPTIONS,
   PREP,
   UNIT_COUNT_OPTIONS,
@@ -17,12 +16,13 @@ interface PrepFormProps {
   onSkip: () => void;
 }
 
-const FIELD_CLASS =
-  'mt-2 w-full rounded-xl border border-[#e0e0e0] bg-[#fafafa] px-4 py-3 text-[17px] text-[#1a1512] placeholder:text-[#1a1512]/40 transition-colors focus:border-[#E8480C] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF5501]/30';
-
 const LABEL_CLASS = 'block text-[15px] font-medium text-[#1a1512]';
+const HINT_CLASS = 'mt-1.5 block text-[13px] text-[#1a1512]/55';
+const FIELD_CLASS =
+  'mt-2 block w-full rounded-xl border border-[#e0e0e0] bg-[#fafafa] px-4 py-3 text-[17px] text-[#1a1512] placeholder:text-[#1a1512]/35 transition-colors focus:border-[#E8480C] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF5501]/30';
 
-function RadioRow({
+/** Tap-to-pick chips: the native radio stays in the DOM for keyboard and screen readers. */
+function ChipGroup({
   name,
   label,
   options,
@@ -36,18 +36,18 @@ function RadioRow({
   onChange: (next: string) => void;
 }) {
   return (
-    <fieldset className="m-0 border-0 p-0">
+    <fieldset className="m-0 min-w-0 border-0 p-0">
       <legend className={LABEL_CLASS}>{label}</legend>
-      <div className="mt-2 space-y-2">
+      <div className="mt-2.5 flex flex-wrap gap-2">
         {options.map((option) => {
           const selected = value === option;
           return (
             <label
               key={option}
-              className={`flex min-h-12 w-full cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-[16px] transition-colors ${
+              className={`inline-flex min-h-11 cursor-pointer items-center rounded-full border px-4 py-2 text-[15px] leading-snug transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[#FF5501]/60 has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-white ${
                 selected
-                  ? 'border-[#FF5501] bg-[#FF5501]/[0.08]'
-                  : 'border-[#1a1512]/10 bg-[#f3f4f6] hover:border-[#1a1512]/25'
+                  ? 'border-[#1a1512] bg-[#1a1512] text-[#FAF9F6]'
+                  : 'border-[#1a1512]/10 bg-[#f3f4f6] text-[#1a1512] hover:border-[#1a1512]/30'
               }`}
             >
               <input
@@ -57,9 +57,9 @@ function RadioRow({
                 checked={selected}
                 onChange={() => onChange(option)}
                 required
-                className="size-4 accent-[#FF5501]"
+                className="sr-only"
               />
-              <span>{option}</span>
+              {option}
             </label>
           );
         })}
@@ -70,13 +70,12 @@ function RadioRow({
 
 /**
  * The qualifying questions HubSpot's free tier cannot put on the scheduling
- * form. Asked after the booking is secured, never before it.
+ * form. Asked after the booking is secured, never before it. The listing link
+ * doubles as the property name, so we don't ask for that separately.
  */
 export function PrepForm({ onSubmit, onSkip }: PrepFormProps) {
-  const [propertyName, setPropertyName] = useState('');
   const [platform, setPlatform] = useState('');
   const [units, setUnits] = useState('');
-  const [annual, setAnnual] = useState('');
   const [siteLink, setSiteLink] = useState('');
   const [phone, setPhone] = useState('');
 
@@ -84,10 +83,8 @@ export function PrepForm({ onSubmit, onSkip }: PrepFormProps) {
     event.preventDefault();
 
     const answers: PrepAnswers = {
-      property_name: propertyName.trim() || undefined,
       booking_platform: platform || undefined,
       unit_count: units || undefined,
-      airbnb_annual_bookings: annual || undefined,
       booking_site_link: siteLink.trim() || undefined,
       phone: phone.trim() || undefined,
     };
@@ -104,28 +101,14 @@ export function PrepForm({ onSubmit, onSkip }: PrepFormProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mt-2 max-w-3xl rounded-3xl border border-[#e8e8e8] bg-white p-6 sm:p-8"
+      className="mt-2 max-w-3xl rounded-3xl border border-[#e8e8e8] bg-white p-5 sm:p-8"
       style={SITE_MARKETING_WHITE_SHADOW}
     >
       <p className="m-0 font-mono text-[11px] uppercase tracking-[0.18em] text-[#FF5501]">{PREP.eyebrow}</p>
-      <p className="mt-3 mb-0 text-[17px] leading-relaxed text-[#1a1512]/70">{PREP.leadLine}</p>
+      <p className="mt-2 mb-0 text-[17px] leading-relaxed text-[#1a1512]/70">{PREP.leadLine}</p>
 
-      <div className="mt-6 space-y-6">
-        <div>
-          <label htmlFor="prep-property-name" className={LABEL_CLASS}>
-            {PREP.propertyNameLabel}
-          </label>
-          <input
-            id="prep-property-name"
-            type="text"
-            required
-            value={propertyName}
-            onChange={(event) => setPropertyName(event.target.value)}
-            className={FIELD_CLASS}
-          />
-        </div>
-
-        <RadioRow
+      <div className="mt-7 flex flex-col gap-7">
+        <ChipGroup
           name="prep-booking-platform"
           label={PREP.bookingPlatformLabel}
           options={BOOKING_PLATFORM_OPTIONS}
@@ -133,7 +116,7 @@ export function PrepForm({ onSubmit, onSkip }: PrepFormProps) {
           onChange={setPlatform}
         />
 
-        <RadioRow
+        <ChipGroup
           name="prep-unit-count"
           label={PREP.unitCountLabel}
           options={UNIT_COUNT_OPTIONS}
@@ -141,54 +124,55 @@ export function PrepForm({ onSubmit, onSkip }: PrepFormProps) {
           onChange={setUnits}
         />
 
-        <RadioRow
-          name="prep-annual-bookings"
-          label={PREP.annualBookingsLabel}
-          options={ANNUAL_BOOKINGS_OPTIONS}
-          value={annual}
-          onChange={setAnnual}
-        />
+        <div className="grid gap-7 sm:grid-cols-2 sm:gap-6">
+          <div>
+            <label htmlFor="prep-site-link" className={LABEL_CLASS}>
+              {PREP.siteLinkLabel}
+            </label>
+            <input
+              id="prep-site-link"
+              type="text"
+              inputMode="url"
+              autoComplete="url"
+              placeholder={PREP.siteLinkPlaceholder}
+              value={siteLink}
+              onChange={(event) => setSiteLink(event.target.value)}
+              className={FIELD_CLASS}
+            />
+            <span className={HINT_CLASS}>{PREP.siteLinkHint}</span>
+          </div>
 
-        <div>
-          <label htmlFor="prep-site-link" className={LABEL_CLASS}>
-            {PREP.siteLinkLabel}
-          </label>
-          <input
-            id="prep-site-link"
-            type="text"
-            inputMode="url"
-            value={siteLink}
-            onChange={(event) => setSiteLink(event.target.value)}
-            className={FIELD_CLASS}
-          />
-        </div>
-
-        <div>
-          <label htmlFor="prep-phone" className={LABEL_CLASS}>
-            {PREP.phoneLabel}
-          </label>
-          <input
-            id="prep-phone"
-            type="tel"
-            inputMode="tel"
-            value={phone}
-            onChange={(event) => setPhone(event.target.value)}
-            className={FIELD_CLASS}
-          />
+          <div>
+            <label htmlFor="prep-phone" className={LABEL_CLASS}>
+              {PREP.phoneLabel}
+            </label>
+            <input
+              id="prep-phone"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              placeholder={PREP.phonePlaceholder}
+              value={phone}
+              onChange={(event) => setPhone(event.target.value)}
+              className={FIELD_CLASS}
+            />
+            <span className={HINT_CLASS}>{PREP.phoneHint}</span>
+          </div>
         </div>
       </div>
 
-      <button type="submit" className={`${CTA_BUTTON_CLASS} mt-8 focus-visible:ring-offset-white`}>
-        {PREP.submit}
-      </button>
-
-      <button
-        type="button"
-        onClick={handleSkip}
-        className="mt-4 block min-h-11 text-[15px] text-[#1a1512]/60 underline underline-offset-4 transition-colors hover:text-[#1a1512]"
-      >
-        {PREP.skip}
-      </button>
+      <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
+        <button type="submit" className={`${CTA_BUTTON_CLASS} focus-visible:ring-offset-white sm:min-w-[200px]`}>
+          {PREP.submit}
+        </button>
+        <button
+          type="button"
+          onClick={handleSkip}
+          className="min-h-11 self-start text-[15px] text-[#1a1512]/60 underline underline-offset-4 transition-colors hover:text-[#1a1512] sm:self-auto"
+        >
+          {PREP.skip}
+        </button>
+      </div>
     </form>
   );
 }

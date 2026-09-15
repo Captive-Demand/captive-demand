@@ -297,11 +297,9 @@ Jordan is using his existing general scheduling page, `https://meetings.hubspot.
 - Location: Google Meet (or phone — his call). Title shown to invitees: `Direct booking site design — 15 min` (or leave the general title if this page is shared with other traffic).
 - **Form tab:** leave it alone (first name, last name, email). Leave CAPTCHA off (it adds a step on mobile and the page is only reachable from the ad), leave "block free email domains" **off** (glamping operators book with Gmail), guests off, consent off.
 - **Contact properties the prep step writes to** (create under Settings → Properties, object Contacts, group "Direct booking lander"; the property types only matter for reporting since our page renders the controls):
-  1. `property_name` — single-line text
-  2. `booking_platform` — Radio select or Dropdown select, options: `Airbnb only` / `Airbnb + Vrbo` / `A booking system (Hostaway, Guesty, Beds24, Lodgify, etc.)` / `Something else`
-  3. `unit_count` — Radio select or Dropdown select, options: `1–2` / `3–5` / `6–10` / `10+`
-  4. `airbnb_annual_bookings` — Radio select or Dropdown select, options: `Under $25k` / `$25–50k` / `$50–100k` / `$100k+` / `Prefer not to say`
-  5. `booking_site_link` — single-line text (**not** URL type)
+  1. `booking_platform` — Radio select or Dropdown select, options: `Airbnb only` / `Airbnb + Vrbo` / `A booking system (Hostaway, Guesty, Beds24, Lodgify, etc.)` / `Something else`
+  2. `unit_count` — Radio select or Dropdown select, options: `1–2` / `3–5` / `6–10` / `10+`
+  The listing link is written to the default `website` property and phone to the default `phone` property; no custom property is needed for either.
   Phone uses the default `phone` property. **The option strings must match §4.5 exactly**, because the API route writes the page's radio values straight into these enumeration properties and HubSpot rejects values that aren't defined options.
 - Reminder emails: turn on 24 h and 1 h before if the tier offers the toggle.
 - Availability: minimum notice 4 h, booking window 14 days, 15-min buffer after. (Show-rate hygiene; his call.)
@@ -435,11 +433,10 @@ The HubSpot form stays at name + email (the smallest possible ask at the convers
 
    **Ships**
    - Eyebrow: `Help us prep — 30 seconds`
-   - Lead line: `Four quick taps so the design fits your property.`
-   - `Property name` — single-line text, required
+   - Lead line: `Two quick taps and a link, so the design fits your property.`
+   - Text fields carry placeholder text (`airbnb.com/h/your-place or yourproperty.com`, `(615) 555-0123`) and a one-line hint beneath.
    - `How do you take bookings today?` — radio: `Airbnb only` / `Airbnb + Vrbo` / `A booking system (Hostaway, Guesty, Beds24, Lodgify, etc.)` / `Something else` — required
    - `How many units?` — radio: `1–2` / `3–5` / `6–10` / `10+` — required
-   - `Rough annual bookings through Airbnb` — radio: `Under $25k` / `$25–50k` / `$50–100k` / `$100k+` / `Prefer not to say` — required
    - `Link to your website or Airbnb listing` — single-line text, optional
    - `Best number for a reminder text` — tel input, optional (decision #10)
    - Submit button: `Send`
@@ -447,13 +444,13 @@ The HubSpot form stays at name + email (the smallest possible ask at the convers
    - Skip link under the button, muted: `Skip for now`
 
    Radios are large tap targets (full-width rows, ≥ 48 px tall, `aria-checked` on `role="radio"` buttons or native inputs with visually-large labels). Same panel/accent tokens as §2.1. No validation beyond required-ness; never block on the link or phone format.
-3. On submit → `POST /api/direct-booking/booked` again with the **same `eventId`** and an `answers` object: `{ property_name, booking_platform, unit_count, airbnb_annual_bookings, booking_site_link, phone }`. The route (§5.3) patches those properties onto the contact under the same 15-minute guard. `phone` maps to HubSpot's default `phone` property; the rest map to the custom properties from §4.1.
+3. On submit → `POST /api/direct-booking/booked` again with the **same `eventId`** and an `answers` object: `{ booking_platform, unit_count, booking_site_link, phone }` (the link is stored in HubSpot's default `website` property). The route (§5.3) patches those properties onto the contact under the same 15-minute guard. `phone` maps to HubSpot's default `phone` property; the rest map to the custom properties from §4.1.
 4. Fire `cd_dbl_prep_submitted` on success and `cd_dbl_prep_skipped` on skip (both are in the §5.2 table and the GTM regex trigger).
 5. Persist a `cd_dbl_prep_done` flag in `sessionStorage` so a refresh shows the success state, not the empty form.
 
 **Server change:** the route accepts an optional `answers` object; each value is a string ≤ 200 chars; radio values are validated against the option lists above (reject anything else with 400). The attribution stamp on the first call and the answers patch on the second are independent, so either can arrive without the other.
 
-**Reading the numbers:** report "prep form completion" (`cd_dbl_prep_submitted` ÷ `cd_dbl_call_booked`) as its own metric next to show rate. If completion is low, the first lever is the lead line copy, the second is cutting the revenue question.
+**Reading the numbers:** report "prep form completion" (`cd_dbl_prep_submitted` ÷ `cd_dbl_call_booked`) as its own metric next to show rate. If completion is low, the first lever is the lead line copy. (The revenue question was cut before launch as too much to ask.)
 
 ---
 
@@ -555,8 +552,9 @@ Rules: read `window.location.search` on the lander's mount (`AttributionCapture`
 - Reuse `findContactIdByEmail` and `patchContactProperties` from `src/lib/hubspot-form.ts` (export them; they're module-private today). Reuse `isHubSpotConfigured()`; if the token is missing, return `{ status: 'skipped' }` and log.
 - Validate: `email` matches a basic email regex, `eventId` matches `^cd-dbl-[0-9a-f-]{36}$`, all strings ≤ 512 chars, body ≤ 8 KB. Reject anything else with 400.
 - Search the contact by email. Bump the search to ~5 attempts with 1.5 s backoff (the meeting booking creates the contact asynchronously). Keep total wall time under ~8 s so Netlify's function timeout isn't hit; if still not found, return `{ status: 'pending' }` (client retries once).
-- **Guardrail:** request `createdate` and `lastmodifieddate` in the search and only patch if the contact was created or modified in the last **15 minutes**. Otherwise return `{ status: 'skipped' }`. This stops anyone from using the endpoint to rewrite attribution on arbitrary existing contacts.
+- **Guardrail:** request `createdate` and `lastmodifieddate` in the search and only patch if the contact was created or modified in the last **60 minutes**. Otherwise return `{ status: 'skipped' }`. This stops anyone from using the endpoint to rewrite attribution on arbitrary existing contacts.
 - Patch, never overwriting a non-empty `utm_source` / `utm_medium` / `utm_campaign` (first touch wins for the properties other forms also write). Always write: `utm_content`, `utm_term`, `fbclid`, `meta_fbc`, `meta_event_id`, `booked_call_source = 'direct-booking-lander'`, `booked_call_at` (ISO now), `captive_demand_form_location = landingUrl`.
+- HubSpot rejects a whole PATCH when any one property is unknown or its value is not a defined option. The route therefore loads the portal's contact property catalog (needs the private app's `crm.schemas.contacts.read` scope), resolves each key by internal name and then by the label the question was created with, maps radio answers onto the property's option values, and drops anything unresolved. Whatever HubSpot still rejects is removed and the PATCH retried. Dropped properties are logged and returned in the response.
 - Log failures with `console.error` and return 200 `{ status: 'error' }` — this endpoint must never surface an error to the visitor.
 
 Cost per booked call by creative then reads straight out of HubSpot: contacts with `booked_call_source = direct-booking-lander`, grouped by `utm_content`, against Ads Manager spend by ad. Ads Manager's own `Schedule` count is the cross-check.
@@ -574,7 +572,7 @@ Meta appends `fbclid` itself.
 1. GTM Preview (Tag Assistant): every `cd_dbl_*` push appears with its params; `cd_dbl_call_booked` fires exactly the Meta `Schedule` tag and the GA4 `generate_lead` tag, and the Schedule tag shows `eventID` starting `cd-dbl-`.
 2. Meta Pixel Helper (Chrome): on load exactly one `PageView`; after a test booking exactly one `Schedule`. Refresh → no second `Schedule`. Meta Events Manager → Test events shows it with `content_name = direct-booking-design-call`.
 3. GA4 DebugView: exactly **one** `page_view` per load (the double-counting guard in §5.1 is in place), `cd_dbl_section_view` once per section, `cd_dbl_cta_click` with the right `cta_location`, `cd_dbl_calendar_loaded` and `cd_dbl_calendar_engaged` once, `generate_lead` once.
-4. HubSpot: land on the page with `?utm_source=test&utm_medium=qa&utm_campaign=c&utm_content=ad-a&utm_term=as&fbclid=abc123`, book a test slot with a throwaway email. Within a minute the contact shows `utm_content = ad-a`, `fbclid = abc123`, `meta_fbc`, `meta_event_id`, `booked_call_source`; then fill in the prep step and confirm `property_name`, `booking_platform`, `unit_count`, `airbnb_annual_bookings`, `booking_site_link`, `phone` land on the same contact. Cancel the meeting and delete the test contact afterwards.
+4. HubSpot: land on the page with `?utm_source=test&utm_medium=qa&utm_campaign=c&utm_content=ad-a&utm_term=as&fbclid=abc123`, book a test slot with a throwaway email. Within a minute the contact shows `utm_content = ad-a`, `fbclid = abc123`, `meta_fbc`, `meta_event_id`, `booked_call_source`; then fill in the prep step and confirm `booking_platform`, `unit_count`, `website`, `phone` land on the same contact. Cancel the meeting and delete the test contact afterwards.
 5. Booked state survives refresh without re-firing events.
 6. Sticky CTA: hidden on desktop; on mobile appears after the hero, hides over `#book`, gone after booking.
 7. With `static.hsappstatic.net` blocked in DevTools: fallback link renders, page otherwise intact, no console errors.
