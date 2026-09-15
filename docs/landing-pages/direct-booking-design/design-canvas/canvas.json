@@ -1,14 +1,18 @@
 {
+  "pages": [
+    { "id": "page-1", "name": "Lander" },
+    { "id": "page-2", "name": "Hero explorations" }
+  ],
   "artboards": [
-    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 390, "h": 6100, "title": "Mobile — lead direction, ink to paper" },
-    { "file": "Desktop.dc.html", "x": 520, "y": 0, "w": 1440, "h": 1850, "title": "Desktop — lead direction" },
-    { "file": "DirectionA.dc.html", "x": 2100, "y": 0, "w": 390, "h": 844, "title": "Alt A — all ink" },
-    { "file": "DirectionC.dc.html", "x": 2620, "y": 0, "w": 390, "h": 844, "title": "Alt C — the fee is the hero" }
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 390, "h": 5900, "title": "Mobile — lead direction, Alt A hero", "page": "page-1" },
+    { "file": "Desktop.dc.html", "x": 520, "y": 0, "w": 1440, "h": 1750, "title": "Desktop — lead direction, Alt A hero", "page": "page-1" },
+    { "file": "DirectionA.dc.html", "x": 0, "y": 0, "w": 390, "h": 844, "title": "Alt A — all ink (chosen hero)", "page": "page-2" },
+    { "file": "DirectionC.dc.html", "x": 520, "y": 0, "w": 390, "h": 844, "title": "Alt C — the fee is the hero", "page": "page-2" }
   ],
   "annotations": [
-    { "id": "note-placeholders", "x": 0, "y": -190, "w": 400, "text": "Placeholders: the hero photo stands in for the dome-at-dusk ad image (same crop, same colour grade). The calendar card marks where the live HubSpot scheduler renders; it is drawn, not embedded." },
-    { "id": "note-lead", "x": 520, "y": -190, "w": 520, "text": "Lead direction: the first screen stays on ink and orange for ad continuity, then the page turns to the agency's warm paper after the calculator, so the call agenda, proof, and the white HubSpot embed sit on a native surface instead of looking like holes in a dark page. The catch is the one dark block on paper, right before the calendar." },
-    { "id": "note-alts", "x": 2100, "y": -190, "w": 500, "text": "Two alternates beside the lead. Alt A keeps every section on ink with tactile dark cards: maximum continuity, but the white HubSpot calendar will always look pasted in. Alt C makes the fee the hero and demotes the photo to a card: strongest message match, weakest sense of place." }
+    { "id": "note-placeholders", "x": 0, "y": -190, "w": 400, "page": "page-1", "text": "Placeholders: the hero photo stands in for the custom dusk image (same crop, same colour grade). The calendar card marks where the live HubSpot scheduler renders; it is drawn, not embedded." },
+    { "id": "note-lead", "x": 520, "y": -190, "w": 520, "page": "page-1", "text": "Alt A hero folded in: single orange eyebrow, tighter headline, button directly beneath, hero shortened so the next section peeks above the fold. One sentence of the offer kept under the headline so the free design is stated in the first screen. Below the hero the page still turns from ink to paper after the calculator." },
+    { "id": "note-alts", "x": 0, "y": -190, "w": 500, "page": "page-2", "text": "Hero explorations kept for reference. Alt A was chosen and merged into the lead boards; Alt C stays here in case the fee-as-hero idea is wanted for an ad variant later." }
   ],
-  "launch": { "view": "canvas" }
+  "launch": { "view": "canvas", "page": "page-1" }
 }
