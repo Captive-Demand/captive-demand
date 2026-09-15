@@ -17,21 +17,19 @@ function HeroBackground() {
     className: 'object-cover',
   } as const;
 
-  const {
-    props: { srcSet: desktop },
-  } = getImageProps({
+  const { props: desktop } = getImageProps({
     ...shared,
     src: '/direct-booking/hero-desktop.jpg',
   });
-  const { props: img } = getImageProps({
+  const { props: mobile } = getImageProps({
     ...shared,
     src: '/direct-booking/hero-mobile.jpg',
   });
 
   return (
     <picture>
-      <source media="(min-width: 768px)" srcSet={desktop} />
-      <img {...img} alt="" />
+      <source media="(min-width: 768px)" srcSet={desktop.srcSet ?? desktop.src} />
+      <img {...mobile} alt="" />
     </picture>
   );
 }
