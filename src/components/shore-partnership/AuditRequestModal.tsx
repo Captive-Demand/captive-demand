@@ -5,6 +5,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Check, X } from 'lucide-react';
 
 import { ShoreAuditPhoneInput } from '@/components/shore-partnership/ShoreAuditPhoneInput';
+import { validatePhone } from '@/lib/phone';
 import { ShoreAuditUrlInputs } from '@/components/shore-partnership/ShoreAuditUrlInputs';
 import { CTAButton } from '@/components/ui/CTAButton';
 import { useRecaptchaToken } from '@/hooks/useRecaptchaToken';
@@ -57,6 +58,7 @@ export function AuditRequestModal({
   });
   const [status, setStatus] = useState<'idle' | 'submitting' | 'error' | 'success'>('idle');
   const [submitError, setSubmitError] = useState('');
+  const [phoneError, setPhoneError] = useState(false);
 
   const dismiss = useCallback(() => {
     onOpenChange(false);
@@ -67,6 +69,7 @@ export function AuditRequestModal({
 
     const timer = window.setTimeout(() => {
       setSiteUrls(['']);
+      setPhoneError(false);
       setForm({ fullName: '', email: '', phone: '', portfolioCompany: '', trap: '' });
       setStatus('idle');
       setSubmitError('');
@@ -97,6 +100,13 @@ export function AuditRequestModal({
     if (form.trap) return;
     setSubmitError('');
 
+    const phoneCheck = validatePhone(form.phone);
+    if (!phoneCheck.ok) {
+      setPhoneError(true);
+      return;
+    }
+    setPhoneError(false);
+
     const recaptcha = await getToken(recaptchaAction);
     if (!recaptcha.ok) {
       setSubmitError(recaptcha.error);
@@ -107,8 +117,7 @@ export function AuditRequestModal({
     setStatus('submitting');
 
     const email = form.email.trim();
-    const fullName =
-      variant === 'compact' ? email.split('@')[0] || 'Website visitor' : form.fullName.trim();
+    const fullName = form.fullName.trim();
     const businessName =
       variant === 'compact' ? 'Exit intent audit request' : form.portfolioCompany.trim();
 
@@ -117,7 +126,7 @@ export function AuditRequestModal({
       email,
       fullName,
       businessName,
-      phone: form.phone,
+      phone: phoneCheck.e164 ?? form.phone,
       siteUrls,
       recaptchaToken: recaptcha.token,
     });
@@ -259,24 +268,25 @@ export function AuditRequestModal({
                     id="modal-audit-phone"
                     value={form.phone}
                     onChange={(phone) => setForm((f) => ({ ...f, phone }))}
+                    showError={phoneError}
                   />
+
+                  <div>
+                    <label htmlFor="modal-audit-name" className={SITE_FORM_LABEL_CLASS}>
+                      Your name
+                    </label>
+                    <input
+                      id="modal-audit-name"
+                      required
+                      autoComplete="name"
+                      value={form.fullName}
+                      onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))}
+                      className={`${SITE_FORM_INPUT_CLASS} mt-2`}
+                    />
+                  </div>
 
                   {!isCompact ? (
                     <>
-                      <div>
-                        <label htmlFor="modal-audit-name" className={SITE_FORM_LABEL_CLASS}>
-                          Your name
-                        </label>
-                        <input
-                          id="modal-audit-name"
-                          required
-                          autoComplete="name"
-                          value={form.fullName}
-                          onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))}
-                          className={`${SITE_FORM_INPUT_CLASS} mt-2`}
-                        />
-                      </div>
-
                       <div>
                         <label htmlFor="modal-audit-portfolio" className={SITE_FORM_LABEL_CLASS}>
                           Company name

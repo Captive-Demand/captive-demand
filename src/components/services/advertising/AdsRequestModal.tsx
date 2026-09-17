@@ -5,6 +5,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Check, X } from 'lucide-react';
 
 import { ShoreAuditPhoneInput } from '@/components/shore-partnership/ShoreAuditPhoneInput';
+import { validatePhone } from '@/lib/phone';
 import { CTAButton } from '@/components/ui/CTAButton';
 import { useRecaptchaToken } from '@/hooks/useRecaptchaToken';
 import { submitAdsRequestForm } from '@/lib/ads-request-form';
@@ -48,6 +49,7 @@ export function AdsRequestModal({
   const [platforms, setPlatforms] = useState<string[]>([]);
   const [status, setStatus] = useState<'idle' | 'submitting' | 'error' | 'success'>('idle');
   const [submitError, setSubmitError] = useState('');
+  const [phoneError, setPhoneError] = useState(false);
 
   const dismiss = useCallback(() => {
     onOpenChange(false);
@@ -57,6 +59,7 @@ export function AdsRequestModal({
     if (open) return;
 
     const timer = window.setTimeout(() => {
+      setPhoneError(false);
       setForm({
         fullName: '',
         email: '',
@@ -102,6 +105,13 @@ export function AdsRequestModal({
     if (form.trap) return;
     setSubmitError('');
 
+    const phoneCheck = validatePhone(form.phone);
+    if (!phoneCheck.ok) {
+      setPhoneError(true);
+      return;
+    }
+    setPhoneError(false);
+
     if (platforms.length === 0) {
       setSubmitError('Select at least one platform option.');
       setStatus('error');
@@ -120,7 +130,7 @@ export function AdsRequestModal({
     const ok = await submitAdsRequestForm({
       email: form.email,
       fullName: form.fullName,
-      phone: form.phone,
+      phone: phoneCheck.e164 ?? form.phone,
       company: form.company,
       website: form.website,
       platforms,
@@ -267,6 +277,7 @@ export function AdsRequestModal({
                     id="ads-phone"
                     value={form.phone}
                     onChange={(phone) => setForm((current) => ({ ...current, phone }))}
+                    showError={phoneError}
                   />
 
                   <div>

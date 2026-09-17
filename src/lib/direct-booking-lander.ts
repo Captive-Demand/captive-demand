@@ -68,7 +68,8 @@ export interface ApplicationAnswers {
   booking_platform: string;
   unit_count: string;
   booking_site_link: string;
-  phone?: string;
+  /** E.164, validated by the form. */
+  phone: string;
 }
 
 /** What the page keeps in sessionStorage once the application is submitted. */

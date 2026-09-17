@@ -1,27 +1,8 @@
-import { SITE_FORM_INPUT_CLASS, SITE_FORM_LABEL_CLASS } from '@/lib/site-surfaces';
+import { PhoneField, type PhoneFieldProps } from '@/components/ui/PhoneField';
 
-interface ShoreAuditPhoneInputProps {
-  id: string;
-  value: string;
-  onChange: (value: string) => void;
-}
+type ShoreAuditPhoneInputProps = Pick<PhoneFieldProps, 'id' | 'value' | 'onChange' | 'showError'>;
 
-export function ShoreAuditPhoneInput({ id, value, onChange }: ShoreAuditPhoneInputProps) {
-  return (
-    <div>
-      <label htmlFor={id} className={SITE_FORM_LABEL_CLASS}>
-        Phone number
-      </label>
-      <input
-        id={id}
-        required
-        type="tel"
-        autoComplete="tel"
-        inputMode="tel"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className={`${SITE_FORM_INPUT_CLASS} mt-2`}
-      />
-    </div>
-  );
+/** Kept for existing imports; the shared PhoneField does the work. */
+export function ShoreAuditPhoneInput(props: ShoreAuditPhoneInputProps) {
+  return <PhoneField {...props} />;
 }

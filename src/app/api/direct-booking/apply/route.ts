@@ -8,6 +8,7 @@ import {
 import { upsertContactProperties } from '@/lib/direct-booking-hubspot';
 import { qualifyApplication } from '@/lib/direct-booking-lander';
 import { isHubSpotConfigured } from '@/lib/hubspot-form';
+import { validatePhone } from '@/lib/phone';
 
 /**
  * Records a free-design application on the HubSpot contact (creating it when
@@ -107,7 +108,9 @@ export async function POST(request: Request) {
     const unitCount = pickOption(answersInput.unit_count, UNIT_COUNT_OPTIONS);
     const siteLink = cleanString(answersInput.booking_site_link, MAX_ANSWER_LENGTH);
     if (!bookingPlatform || !unitCount || !siteLink) return badRequest('answers');
-    const phone = cleanString(answersInput.phone, MAX_ANSWER_LENGTH);
+    const phoneCheck = validatePhone(cleanString(answersInput.phone, MAX_ANSWER_LENGTH));
+    if (!phoneCheck.ok || !phoneCheck.e164) return badRequest('phone');
+    const phone = phoneCheck.e164;
 
     const qualified = qualifyApplication({
       booking_platform: bookingPlatform,
@@ -135,8 +138,8 @@ export async function POST(request: Request) {
       direct_booking_applied_at: new Date().toISOString(),
       direct_booking_qualified: qualified ? 'yes' : 'no',
       direct_booking_application_source: APPLICATION_SOURCE,
+      phone,
     };
-    if (phone) properties.phone = phone;
 
     const utmContent = cleanString(attribution.utm_content);
     if (utmContent) properties.utm_content = utmContent;

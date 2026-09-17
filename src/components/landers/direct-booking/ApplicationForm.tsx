@@ -2,6 +2,9 @@
 
 import { useRef, useState } from 'react';
 
+import { PhoneField } from '@/components/ui/PhoneField';
+import { validatePhone } from '@/lib/phone';
+
 import {
   APPLICATION,
   BOOKING_PLATFORM_OPTIONS,
@@ -91,6 +94,7 @@ export function ApplicationForm({ onSubmit, submitting = false }: ApplicationFor
   const [units, setUnits] = useState('');
   const [siteLink, setSiteLink] = useState('');
   const [phone, setPhone] = useState('');
+  const [phoneError, setPhoneError] = useState(false);
   const started = useRef(false);
 
   const markStarted = () => {
@@ -102,6 +106,14 @@ export function ApplicationForm({ onSubmit, submitting = false }: ApplicationFor
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (submitting) return;
+
+    const phoneCheck = validatePhone(phone);
+    if (!phoneCheck.ok || !phoneCheck.e164) {
+      setPhoneError(true);
+      return;
+    }
+    setPhoneError(false);
+
     onSubmit({
       firstName: firstName.trim(),
       lastName: lastName.trim(),
@@ -110,7 +122,7 @@ export function ApplicationForm({ onSubmit, submitting = false }: ApplicationFor
         booking_platform: platform,
         unit_count: units,
         booking_site_link: siteLink.trim(),
-        phone: phone.trim() || undefined,
+        phone: phoneCheck.e164,
       },
     });
   };
@@ -212,22 +224,20 @@ export function ApplicationForm({ onSubmit, submitting = false }: ApplicationFor
             <span className={HINT_CLASS}>{APPLICATION.siteLinkHint}</span>
           </div>
 
-          <div>
-            <label htmlFor="app-phone" className={LABEL_CLASS}>
-              {APPLICATION.phoneLabel}
-            </label>
-            <input
-              id="app-phone"
-              type="tel"
-              inputMode="tel"
-              autoComplete="tel"
-              placeholder={APPLICATION.phonePlaceholder}
-              value={phone}
-              onChange={(event) => setPhone(event.target.value)}
-              className={FIELD_CLASS}
-            />
-            <span className={HINT_CLASS}>{APPLICATION.phoneHint}</span>
-          </div>
+          <PhoneField
+            id="app-phone"
+            label={APPLICATION.phoneLabel}
+            placeholder={APPLICATION.phonePlaceholder}
+            hint={APPLICATION.phoneHint}
+            value={phone}
+            onChange={setPhone}
+            showError={phoneError}
+            labelClassName={LABEL_CLASS}
+            inputClassName={FIELD_CLASS}
+            invalidClassName="border-red-500 focus:border-red-500 focus:ring-red-500/30"
+            errorClassName="mt-1.5 block text-[13px] leading-snug text-red-600"
+            hintClassName={HINT_CLASS}
+          />
         </div>
       </div>
 

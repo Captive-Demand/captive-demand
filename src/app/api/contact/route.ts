@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 
 import { parseAnnualCompanyRevenue, revenueLabel } from '@/lib/annual-company-revenue';
 import { submitHubSpotAdsForm, submitHubSpotAuditForm, submitHubSpotContactForm } from '@/lib/hubspot-form';
+import { validatePhone } from '@/lib/phone';
 import { isRecaptchaVerificationEnabled } from '@/lib/recaptcha-config';
 
 type Body = {
@@ -100,6 +101,7 @@ function formatLeadBody(params: {
   businessName: string;
   annualRevenueLabel: string;
   replyEmail: string;
+  phone?: string;
   extra?: string;
 }): string {
   const lines = [
@@ -107,7 +109,8 @@ function formatLeadBody(params: {
     `Business Name: ${params.businessName}`,
     `Annual Company Revenue: ${params.annualRevenueLabel}`,
     `Reply-to email: ${params.replyEmail}`,
-  ];
+    params.phone ? `Phone: ${params.phone}` : '',
+  ].filter(Boolean);
   if (params.extra?.trim()) {
     lines.push('', params.extra.trim());
   }
@@ -202,7 +205,8 @@ export async function POST(request: Request) {
     const isAdsForm = isAdsFormSource(body.source);
     const shoreFormSource = body.source?.trim() ?? 'main-form';
 
-    const phone = body.phone?.trim();
+    const phoneCheck = validatePhone(body.phone);
+    const phone = phoneCheck.e164;
     const website = body.website?.trim();
     const platforms = (body.platforms ?? []).map((item) => item.trim()).filter(Boolean);
     const monthlyBudget = body.monthlyBudget?.trim();
@@ -215,8 +219,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Business name is required' }, { status: 400 });
     }
 
-    if ((isShoreAudit || isAdsForm) && !phone) {
-      return NextResponse.json({ error: 'Phone is required' }, { status: 400 });
+    // Every lead form collects a phone number, and a number we cannot dial is
+    // a lead we cannot follow up. Validate here too so nothing bypasses the UI.
+    if (!phone) {
+      return NextResponse.json(
+        { error: phoneCheck.message ?? 'A valid phone number is required' },
+        { status: 400 },
+      );
     }
 
     if (isAdsForm && !website) {
@@ -261,6 +270,7 @@ export async function POST(request: Request) {
       const hubspot = await submitHubSpotContactForm({
         fullName: displayName,
         email,
+        phone,
         company: businessName,
         annualCompanyRevenue: revenueParsed ?? undefined,
         annualCompanyRevenueLabel: revenueParsed ? annualRevenueLabel : undefined,
@@ -356,6 +366,7 @@ export async function POST(request: Request) {
           businessName,
           annualRevenueLabel,
           replyEmail: email,
+          phone,
         });
         try {
           await sendLeadToCeo(transporter, {
@@ -379,6 +390,7 @@ export async function POST(request: Request) {
           businessName,
           annualRevenueLabel,
           replyEmail: email,
+          phone,
           extra: extraLines || undefined,
         });
 
@@ -396,6 +408,7 @@ export async function POST(request: Request) {
       console.warn('Pricing lead accepted; configure SMTP + CEO_EMAIL to send mail.', {
         displayName,
         email,
+        phone,
         businessName,
         annualCompanyRevenue: annualRevenueLabel,
       });
@@ -403,6 +416,7 @@ export async function POST(request: Request) {
       console.log('Ads request lead (no SMTP):', {
         displayName,
         email,
+        phone,
         businessName,
         website,
         platforms,
@@ -412,6 +426,7 @@ export async function POST(request: Request) {
       console.log('Shore partnership lead (no SMTP):', {
         displayName,
         email,
+        phone,
         businessName,
         message: body.message?.slice(0, 500),
       });
@@ -419,6 +434,7 @@ export async function POST(request: Request) {
       console.log('Contact form (no SMTP):', {
         displayName,
         email,
+        phone,
         businessName,
         annualCompanyRevenue: annualRevenueLabel,
       });

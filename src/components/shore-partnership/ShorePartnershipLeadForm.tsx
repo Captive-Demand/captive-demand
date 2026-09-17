@@ -6,6 +6,8 @@ import { Check } from 'lucide-react';
 
 import { CTAButton } from '@/components/ui/CTAButton';
 import { useRecaptchaToken } from '@/hooks/useRecaptchaToken';
+import { PhoneField } from '@/components/ui/PhoneField';
+import { validatePhone } from '@/lib/phone';
 import { trackGa4Event } from '@/lib/analytics';
 import { markShoreFormSubmitted } from '@/lib/shore-form-session';
 import {
@@ -30,9 +32,11 @@ export function ShorePartnershipLeadForm() {
   const [submitted, setSubmitted] = useState(false);
   const [status, setStatus] = useState<'idle' | 'submitting' | 'error'>('idle');
   const [submitError, setSubmitError] = useState('');
+  const [phoneError, setPhoneError] = useState(false);
   const [form, setForm] = useState({
     fullName: '',
     email: '',
+    phone: '',
     portfolioCompany: '',
     siteCount: '',
     message: '',
@@ -43,6 +47,13 @@ export function ShorePartnershipLeadForm() {
     e.preventDefault();
     if (form.trap) return;
     setSubmitError('');
+
+    const phoneCheck = validatePhone(form.phone);
+    if (!phoneCheck.ok) {
+      setPhoneError(true);
+      return;
+    }
+    setPhoneError(false);
 
     const recaptcha = await getToken('shore_partnership_form');
     if (!recaptcha.ok) {
@@ -59,6 +70,7 @@ export function ShorePartnershipLeadForm() {
           source: 'main-form',
           fullName: form.fullName.trim(),
           email: form.email.trim(),
+          phone: phoneCheck.e164,
           businessName: form.portfolioCompany.trim(),
           siteCount: form.siteCount,
           message: form.message.trim(),
@@ -173,6 +185,13 @@ export function ShorePartnershipLeadForm() {
               placeholder="you@portfolio-company.com"
             />
           </div>
+          <PhoneField
+            id="shore-phone"
+            value={form.phone}
+            onChange={(phone) => setForm((f) => ({ ...f, phone }))}
+            showError={phoneError}
+            className="md:col-span-1"
+          />
           <div className="md:col-span-1">
             <label htmlFor="shore-portfolio-company" className={SITE_FORM_LABEL_CLASS}>
               Portfolio company name

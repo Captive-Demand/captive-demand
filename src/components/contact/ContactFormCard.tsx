@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { CTAButton } from '@/components/ui/CTAButton';
+import { PhoneField } from '@/components/ui/PhoneField';
+import { validatePhone } from '@/lib/phone';
 import { Check } from 'lucide-react';
 import { ANNUAL_COMPANY_REVENUE_OPTIONS, type AnnualCompanyRevenue } from '@/lib/annual-company-revenue';
 import { CalEmbed } from './CalEmbed';
@@ -19,9 +21,11 @@ export function ContactFormCard() {
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [phoneError, setPhoneError] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
+    phone: '',
     businessName: '',
     annualCompanyRevenue: '' as AnnualCompanyRevenue | '',
     service: '',
@@ -34,6 +38,13 @@ export function ContactFormCard() {
     e.preventDefault();
     if (formData.website) return; // honeypot: reject if filled (bot)
     setSubmitError('');
+
+    const phoneCheck = validatePhone(formData.phone);
+    if (!phoneCheck.ok) {
+      setPhoneError(true);
+      return;
+    }
+    setPhoneError(false);
 
     const recaptcha = await getToken('contact_form');
     if (!recaptcha.ok) {
@@ -50,6 +61,7 @@ export function ContactFormCard() {
           source: 'contact_form',
           fullName: formData.fullName,
           email: formData.email,
+          phone: phoneCheck.e164,
           businessName: formData.businessName,
           annualCompanyRevenue: formData.annualCompanyRevenue,
           service: formData.service,
@@ -82,7 +94,7 @@ export function ContactFormCard() {
         // Fallback: open mailto and show success
         const subject = encodeURIComponent(`Project inquiry from ${formData.fullName}`);
         const body = encodeURIComponent(
-          `Name: ${formData.fullName}\nEmail: ${formData.email}\nBusiness: ${formData.businessName}\nRevenue: ${formData.annualCompanyRevenue}\nService: ${formData.service}\nBudget: ${formData.budget}\n\nMessage:\n${formData.message}`
+          `Name: ${formData.fullName}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nBusiness: ${formData.businessName}\nRevenue: ${formData.annualCompanyRevenue}\nService: ${formData.service}\nBudget: ${formData.budget}\n\nMessage:\n${formData.message}`
         );
         window.location.href = `mailto:hello@captivedemand.com?subject=${subject}&body=${body}`;
         trackGa4Event('generate_lead', {
@@ -96,7 +108,7 @@ export function ContactFormCard() {
     } catch {
       const subject = encodeURIComponent(`Project inquiry from ${formData.fullName}`);
       const body = encodeURIComponent(
-        `Name: ${formData.fullName}\nEmail: ${formData.email}\nBusiness: ${formData.businessName}\nRevenue: ${formData.annualCompanyRevenue}\nService: ${formData.service}\nBudget: ${formData.budget}\n\nMessage:\n${formData.message}`
+        `Name: ${formData.fullName}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nBusiness: ${formData.businessName}\nRevenue: ${formData.annualCompanyRevenue}\nService: ${formData.service}\nBudget: ${formData.budget}\n\nMessage:\n${formData.message}`
       );
       window.location.href = `mailto:hello@captivedemand.com?subject=${subject}&body=${body}`;
       trackGa4Event('generate_lead', {
@@ -199,6 +211,16 @@ export function ContactFormCard() {
                 }
               />
             </div>
+            <PhoneField
+              id="phone"
+              label="Phone Number *"
+              value={formData.phone}
+              onChange={(phone) => setFormData((p) => ({ ...p, phone }))}
+              showError={phoneError}
+              labelClassName={labelBase}
+              inputClassName={inputBase}
+              errorClassName="mt-2 block font-mono text-[12px] text-red-600"
+            />
             <div>
               <label htmlFor="businessName" className={labelBase}>
                 Business Name *

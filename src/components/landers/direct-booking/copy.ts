@@ -154,12 +154,12 @@ export const APPLICATION = {
   siteLinkLabel: 'Link to your website or Airbnb listing',
   siteLinkPlaceholder: 'airbnb.com/h/your-place or yourproperty.com',
   siteLinkHint: 'We look at your photos and units before we decide.',
-  phoneLabel: 'Best number for a reminder text',
+  phoneLabel: 'Best number to reach you',
   phonePlaceholder: '(615) 555-0123',
-  phoneHint: 'Optional. One text the day before the call, nothing else.',
+  phoneHint: 'One text the day before the call, nothing else.',
   submit: 'Send my application',
   submitting: 'Sending…',
-  requiredNote: 'Everything except the phone number is required.',
+  requiredNote: 'All fields are required.',
 } as const;
 
 export const FAQ = {

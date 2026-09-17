@@ -17,6 +17,8 @@ import {
 } from '@/lib/annual-company-revenue';
 import { trackGa4Event } from '@/lib/analytics';
 import { recaptchaErrorMessage } from '@/lib/recaptcha-errors';
+import { validatePhone } from '@/lib/phone';
+import { PhoneField } from '@/components/ui/PhoneField';
 import { useRecaptchaToken } from '@/hooks/useRecaptchaToken';
 
 const sans = { fontFamily: 'var(--font-pricing-sans), system-ui, sans-serif' } as const;
@@ -35,6 +37,7 @@ export function PricingQualifyModal() {
   const [step, setStep] = useState<ModalStep>('form');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [businessName, setBusinessName] = useState('');
   const [annualRevenue, setAnnualRevenue] = useState<AnnualCompanyRevenue>('500k_1m');
   const [fieldErrors, setFieldErrors] = useState<{
@@ -42,6 +45,7 @@ export function PricingQualifyModal() {
     email?: boolean;
     businessName?: boolean;
     annualRevenue?: boolean;
+    phone?: boolean;
   }>({});
   const [submitError, setSubmitError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -59,6 +63,7 @@ export function PricingQualifyModal() {
     setStep('form');
     setName('');
     setEmail('');
+    setPhone('');
     setBusinessName('');
     setAnnualRevenue('500k_1m');
     setFieldErrors({});
@@ -99,6 +104,7 @@ export function PricingQualifyModal() {
     const next: typeof fieldErrors = {};
     if (!name.trim()) next.name = true;
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) next.email = true;
+    if (!validatePhone(phone).ok) next.phone = true;
     if (!businessName.trim()) next.businessName = true;
     if (!annualRevenue) next.annualRevenue = true;
     setFieldErrors(next);
@@ -124,6 +130,7 @@ export function PricingQualifyModal() {
         body: JSON.stringify({
           name: name.trim(),
           email: email.trim(),
+          phone: validatePhone(phone).e164,
           businessName: businessName.trim(),
           annualCompanyRevenue: annualRevenue,
           recaptchaToken: recaptcha.token,
@@ -260,6 +267,20 @@ export function PricingQualifyModal() {
                     </p>
                   )}
                 </div>
+
+                <PhoneField
+                  id="pq-phone"
+                  label="Phone Number"
+                  value={phone}
+                  onChange={setPhone}
+                  showError={!!fieldErrors.phone}
+                  onFocus={trackPricingFormEngagement}
+                  className="mb-5"
+                  labelClassName="mb-2 block font-mono text-[10px] uppercase tracking-[0.1em] text-white/55"
+                  inputClassName={`${inputClass(false)} font-mono`}
+                  invalidClassName="border-red-500 bg-red-500/10"
+                  errorClassName="mt-1 block font-mono text-xs text-red-400"
+                />
 
                 <div className="mb-5">
                   <label htmlFor="pq-business" className="mb-2 block text-[10px] uppercase tracking-[0.1em] text-white/55" style={mono}>

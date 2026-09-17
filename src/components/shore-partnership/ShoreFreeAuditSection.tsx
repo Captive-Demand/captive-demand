@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Check } from 'lucide-react';
 
 import { ShoreAuditPhoneInput } from '@/components/shore-partnership/ShoreAuditPhoneInput';
+import { validatePhone } from '@/lib/phone';
 import { ShoreAuditUrlInputs } from '@/components/shore-partnership/ShoreAuditUrlInputs';
 import { ShoreReveal } from '@/components/shore-partnership/ShoreReveal';
 import { ShoreSectionHeader } from '@/components/shore-partnership/ShoreSectionHeader';
@@ -27,6 +28,7 @@ export function ShoreFreeAuditSection() {
   const [submitted, setSubmitted] = useState(false);
   const [status, setStatus] = useState<'idle' | 'submitting' | 'error'>('idle');
   const [submitError, setSubmitError] = useState('');
+  const [phoneError, setPhoneError] = useState(false);
   const [siteUrls, setSiteUrls] = useState(['']);
   const [form, setForm] = useState({
     fullName: '',
@@ -41,6 +43,13 @@ export function ShoreFreeAuditSection() {
     if (form.trap) return;
     setSubmitError('');
 
+    const phoneCheck = validatePhone(form.phone);
+    if (!phoneCheck.ok) {
+      setPhoneError(true);
+      return;
+    }
+    setPhoneError(false);
+
     const recaptcha = await getToken('shore_audit_form');
     if (!recaptcha.ok) {
       setSubmitError(recaptcha.error);
@@ -53,7 +62,7 @@ export function ShoreFreeAuditSection() {
       email: form.email,
       fullName: form.fullName,
       businessName: form.portfolioCompany,
-      phone: form.phone,
+      phone: phoneCheck.e164 ?? form.phone,
       siteUrls,
       recaptchaToken: recaptcha.token,
     });
@@ -138,6 +147,7 @@ export function ShoreFreeAuditSection() {
                       id="audit-phone"
                       value={form.phone}
                       onChange={(phone) => setForm((f) => ({ ...f, phone }))}
+                      showError={phoneError}
                     />
 
                     <div>

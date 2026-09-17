@@ -5,6 +5,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { X } from 'lucide-react';
 
 import { ShoreAuditPhoneInput } from '@/components/shore-partnership/ShoreAuditPhoneInput';
+import { validatePhone } from '@/lib/phone';
 import { ShoreAuditUrlInputs } from '@/components/shore-partnership/ShoreAuditUrlInputs';
 import { useRecaptchaToken } from '@/hooks/useRecaptchaToken';
 import { trackGa4Event } from '@/lib/analytics';
@@ -28,8 +29,10 @@ export function ShoreExitIntentModal() {
   const { getToken } = useRecaptchaToken();
   const [open, setOpen] = useState(false);
   const [siteUrls, setSiteUrls] = useState(['']);
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [phoneError, setPhoneError] = useState(false);
   const [status, setStatus] = useState<'idle' | 'submitting' | 'error' | 'success'>('idle');
   const reduceMotion = useReducedMotion();
   const armedRef = useRef(false);
@@ -87,6 +90,13 @@ export function ShoreExitIntentModal() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const phoneCheck = validatePhone(phone);
+    if (!phoneCheck.ok) {
+      setPhoneError(true);
+      return;
+    }
+    setPhoneError(false);
+
     const recaptcha = await getToken('shore_exit_intent');
     if (!recaptcha.ok) {
       setStatus('error');
@@ -98,9 +108,9 @@ export function ShoreExitIntentModal() {
     const ok = await submitShoreAuditForm({
       source: 'exit-intent',
       email,
-      fullName: email.split('@')[0] || 'Shore visitor',
+      fullName: fullName.trim(),
       businessName: 'Exit intent audit request',
-      phone,
+      phone: phoneCheck.e164 ?? phone,
       siteUrls,
       recaptchaToken: recaptcha.token,
     });
@@ -199,6 +209,20 @@ export function ShoreExitIntentModal() {
 
                 <form onSubmit={handleSubmit} className="mt-8 space-y-5">
                   <div>
+                    <label htmlFor="exit-name" className={SITE_FORM_LABEL_CLASS}>
+                      Your name
+                    </label>
+                    <input
+                      id="exit-name"
+                      required
+                      autoComplete="name"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className={`${SITE_FORM_INPUT_CLASS} mt-2`}
+                    />
+                  </div>
+
+                  <div>
                     <label htmlFor="exit-email" className={SITE_FORM_LABEL_CLASS}>
                       Work email
                     </label>
@@ -213,7 +237,7 @@ export function ShoreExitIntentModal() {
                     />
                   </div>
 
-                  <ShoreAuditPhoneInput id="exit-phone" value={phone} onChange={setPhone} />
+                  <ShoreAuditPhoneInput id="exit-phone" value={phone} onChange={setPhone} showError={phoneError} />
 
                   <ShoreAuditUrlInputs
                     urls={siteUrls}

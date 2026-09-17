@@ -7,6 +7,7 @@ import {
 } from '@/components/landers/direct-booking/copy';
 import { upsertContactProperties } from '@/lib/direct-booking-hubspot';
 import { isHubSpotConfigured } from '@/lib/hubspot-form';
+import { validatePhone } from '@/lib/phone';
 
 /**
  * Stamps the booked call onto the HubSpot contact: the Meta event id (for
@@ -135,8 +136,8 @@ export async function POST(request: Request) {
     if (unitCount) properties.unit_count = unitCount;
     const siteLink = cleanString(answersInput.booking_site_link, MAX_ANSWER_LENGTH);
     if (siteLink) properties.website = siteLink;
-    const phone = cleanString(answersInput.phone, MAX_ANSWER_LENGTH);
-    if (phone) properties.phone = phone;
+    const phoneCheck = validatePhone(cleanString(answersInput.phone, MAX_ANSWER_LENGTH));
+    if (phoneCheck.ok && phoneCheck.e164) properties.phone = phoneCheck.e164;
 
     const firstTouch: Record<string, string> = {};
     for (const key of ['utm_source', 'utm_medium', 'utm_campaign'] as const) {

@@ -350,6 +350,8 @@ async function syncHubSpotContactAdsProperties(
 export type HubSpotContactSubmission = HubSpotAttribution & {
   fullName: string;
   email: string;
+  /** E.164, already validated by the route. */
+  phone?: string;
   company: string;
   annualCompanyRevenue?: string;
   annualCompanyRevenueLabel?: string;
@@ -597,6 +599,7 @@ function buildContactFormNote(input: HubSpotContactSubmission): string {
     'Website contact form',
     `Name: ${input.fullName.trim()}`,
     `Email: ${input.email.trim()}`,
+    input.phone?.trim() ? `Phone: ${input.phone.trim()}` : '',
     `Company: ${input.company.trim()}`,
     input.annualCompanyRevenueLabel
       ? `Annual company revenue: ${input.annualCompanyRevenueLabel}`
@@ -617,6 +620,7 @@ export function buildHubSpotContactProperties(
 
   if (firstname) properties.firstname = firstname;
   if (lastname) properties.lastname = lastname;
+  if (input.phone?.trim()) properties.phone = input.phone.trim();
   if (input.company.trim()) properties.company = input.company.trim();
   if (input.annualCompanyRevenue?.trim()) {
     properties[CONTACT_FORM_PROPERTIES.annualCompanyRevenue] = input.annualCompanyRevenue.trim();
