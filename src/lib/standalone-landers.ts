@@ -1,3 +1,4 @@
+import { MEDSPAS_PATH } from '@/components/landers/medspas/data';
 import { SHORE_PARTNERSHIP_PATH } from '@/lib/shore-partnership';
 
 /** Public URL for the direct booking ad landing page */
@@ -7,7 +8,7 @@ export const DIRECT_BOOKING_PATH = '/direct-booking';
  * Routes that render their own chrome. The site navbar, footer, and the global
  * request modals are suppressed on these paths.
  */
-export const STANDALONE_LANDER_PATHS = [SHORE_PARTNERSHIP_PATH, DIRECT_BOOKING_PATH] as const;
+export const STANDALONE_LANDER_PATHS = [SHORE_PARTNERSHIP_PATH, DIRECT_BOOKING_PATH, MEDSPAS_PATH] as const;
 
 function normalizePath(pathname: string | null | undefined): string | null {
   if (!pathname) return null;
