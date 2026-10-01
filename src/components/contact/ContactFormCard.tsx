@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useSyncExternalStore } from 'react';
 import { CTAButton } from '@/components/ui/CTAButton';
 import { PhoneField } from '@/components/ui/PhoneField';
 import { validatePhone } from '@/lib/phone';
-import { Check } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import { ANNUAL_COMPANY_REVENUE_OPTIONS, type AnnualCompanyRevenue } from '@/lib/annual-company-revenue';
 import { CalEmbed } from './CalEmbed';
 import { trackGa4Event } from '@/lib/analytics';
@@ -15,6 +15,22 @@ import { getAuditFormBrowserContext } from '@/lib/form-browser-context';
 
 type Tab = 'message' | 'call';
 
+const subscribeToNothing = () => () => {};
+
+/**
+ * Plan picked in a lander's plan builder, passed as
+ * `?services=Booking, SEO&plan_from=599` (see /medspas).
+ */
+function readPlanFromUrl(): string {
+  const params = new URLSearchParams(window.location.search);
+  const services = params.get('services')?.trim().slice(0, 200);
+  if (!services) return '';
+  const from = Number(params.get('plan_from'));
+  return Number.isFinite(from) && from > 0
+    ? `${services} (from $${from.toLocaleString('en-US')}/mo)`
+    : services;
+}
+
 export function ContactFormCard() {
   const { getToken } = useRecaptchaToken();
   const [activeTab, setActiveTab] = useState<Tab>('message');
@@ -22,6 +38,9 @@ export function ContactFormCard() {
   const [submitError, setSubmitError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [phoneError, setPhoneError] = useState(false);
+  const planFromUrl = useSyncExternalStore(subscribeToNothing, readPlanFromUrl, () => '');
+  const [planDismissed, setPlanDismissed] = useState(false);
+  const plan = planDismissed ? '' : planFromUrl;
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -52,6 +71,8 @@ export function ContactFormCard() {
       return;
     }
 
+    const messageWithPlan = plan ? `Plan: ${plan}\n\n${formData.message}`.trim() : formData.message;
+
     setSubmitting(true);
     try {
       const res = await fetch('/api/contact', {
@@ -66,7 +87,7 @@ export function ContactFormCard() {
           annualCompanyRevenue: formData.annualCompanyRevenue,
           service: formData.service,
           budget: formData.budget,
-          message: formData.message,
+          message: messageWithPlan,
           recaptchaToken: recaptcha.token,
           ...getAuditFormBrowserContext(),
         }),
@@ -94,7 +115,7 @@ export function ContactFormCard() {
         // Fallback: open mailto and show success
         const subject = encodeURIComponent(`Project inquiry from ${formData.fullName}`);
         const body = encodeURIComponent(
-          `Name: ${formData.fullName}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nBusiness: ${formData.businessName}\nRevenue: ${formData.annualCompanyRevenue}\nService: ${formData.service}\nBudget: ${formData.budget}\n\nMessage:\n${formData.message}`
+          `Name: ${formData.fullName}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nBusiness: ${formData.businessName}\nRevenue: ${formData.annualCompanyRevenue}\nService: ${formData.service}\nBudget: ${formData.budget}\n\nMessage:\n${messageWithPlan}`
         );
         window.location.href = `mailto:hello@captivedemand.com?subject=${subject}&body=${body}`;
         trackGa4Event('generate_lead', {
@@ -108,7 +129,7 @@ export function ContactFormCard() {
     } catch {
       const subject = encodeURIComponent(`Project inquiry from ${formData.fullName}`);
       const body = encodeURIComponent(
-        `Name: ${formData.fullName}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nBusiness: ${formData.businessName}\nRevenue: ${formData.annualCompanyRevenue}\nService: ${formData.service}\nBudget: ${formData.budget}\n\nMessage:\n${formData.message}`
+        `Name: ${formData.fullName}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nBusiness: ${formData.businessName}\nRevenue: ${formData.annualCompanyRevenue}\nService: ${formData.service}\nBudget: ${formData.budget}\n\nMessage:\n${messageWithPlan}`
       );
       window.location.href = `mailto:hello@captivedemand.com?subject=${subject}&body=${body}`;
       trackGa4Event('generate_lead', {
@@ -327,6 +348,22 @@ export function ContactFormCard() {
               />
             </div>
             <div>
+              {plan ? (
+                <div className="mb-3 flex items-start justify-between gap-3 rounded-lg border border-[#ffd2bb] bg-[#fff7f2] px-3 py-2.5 text-[13px] text-[#1a1512]">
+                  <span>
+                    <span className="mr-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-[#b93a06]">Your plan</span>
+                    {plan}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setPlanDismissed(true)}
+                    aria-label="Remove plan from message"
+                    className="-m-1 flex size-7 shrink-0 items-center justify-center rounded text-[#6b625b] hover:text-[#1a1512]"
+                  >
+                    <X className="size-3.5" aria-hidden />
+                  </button>
+                </div>
+              ) : null}
               <label htmlFor="message" className={labelBase}>
                 Tell us about your project
               </label>

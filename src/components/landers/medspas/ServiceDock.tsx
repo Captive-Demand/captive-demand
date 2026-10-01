@@ -78,7 +78,7 @@ export function ServiceDock({ heroId }: { heroId: string }) {
   const plan = useMemo(() => MEDSPA_SERVICES.filter((s) => selected.includes(s.id)), [selected]);
   const planTotal = plan.reduce((sum, s) => sum + s.price, 0);
   const planHref = plan.length
-    ? `${MEDSPAS_BOOK_HREF}?${new URLSearchParams({ services: plan.map((s) => s.short).join(', ') })}`
+    ? `${MEDSPAS_BOOK_HREF}?${new URLSearchParams({ services: plan.map((s) => s.name).join(', '), plan_from: String(planTotal) })}`
     : MEDSPAS_BOOK_HREF;
   const includesAds = plan.some((s) => s.priceNote);
 
