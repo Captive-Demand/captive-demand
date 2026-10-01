@@ -200,6 +200,7 @@ export async function POST(request: Request) {
     const businessName = body.businessName?.trim();
     const revenueParsed = parseAnnualCompanyRevenue(body.annualCompanyRevenue);
     const isPricingModal = body.source === 'pricing_modal';
+    const isContactPageForm = body.source === 'contact_form';
     const isShorePartnership = isShorePartnershipSource(body.source);
     const isShoreAudit = isShoreAuditSource(body.source);
     const isAdsForm = isAdsFormSource(body.source);
@@ -236,11 +237,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'At least one ad platform is required' }, { status: 400 });
     }
 
-    if (!isShorePartnership && !isAdsForm && !revenueParsed) {
+    // The /contact form treats revenue as optional; the pricing modal still
+    // needs it to decide who can book a call.
+    if (!isShorePartnership && !isAdsForm && !isContactPageForm && !revenueParsed) {
       return NextResponse.json({ error: 'Annual company revenue is required' }, { status: 400 });
     }
 
-    const annualRevenueLabel = revenueParsed ? revenueLabel(revenueParsed) : 'Not collected (Shore partnership page)';
+    const annualRevenueLabel = revenueParsed
+      ? revenueLabel(revenueParsed)
+      : isShorePartnership
+        ? 'Not collected (Shore partnership page)'
+        : 'Not provided';
 
     const recaptchaFailure = await rejectIfRecaptchaInvalid(body.recaptchaToken);
     if (recaptchaFailure) return recaptchaFailure;

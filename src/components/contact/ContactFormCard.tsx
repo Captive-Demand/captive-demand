@@ -262,12 +262,11 @@ export function ContactFormCard() {
             </div>
             <div>
               <label htmlFor="annualCompanyRevenue" className={labelBase}>
-                Annual Company Revenue *
+                Annual Company Revenue
               </label>
               <select
                 id="annualCompanyRevenue"
                 name="annual_company_revenue"
-                required
                 className={inputBase}
                 value={formData.annualCompanyRevenue}
                 onChange={(e) =>
@@ -287,12 +286,11 @@ export function ContactFormCard() {
             </div>
             <div>
               <label htmlFor="service" className={labelBase}>
-                Service Interested In *
+                Service Interested In
               </label>
               <select
                 id="service"
                 name="service_interested_in"
-                required
                 className={inputBase}
                 value={formData.service}
                 onChange={(e) =>
