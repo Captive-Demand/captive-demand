@@ -136,14 +136,25 @@ function resolveProperties(
     }
 
     if (def.type === 'enumeration') {
-      const match =
-        def.options.find((option) => option.value === value) ??
-        def.options.find((option) => normalizeLabel(option.label) === normalizeLabel(value));
-      if (!match) {
-        dropped.push(`${key} (value "${value}" is not an option of ${def.name})`);
+      const findOption = (candidate: string) =>
+        def.options.find((option) => option.value === candidate) ??
+        def.options.find((option) => normalizeLabel(option.label) === normalizeLabel(candidate));
+      const match = findOption(value);
+      if (match) {
+        properties[def.name] = match.value;
         continue;
       }
-      properties[def.name] = match.value;
+      // Multiple checkboxes: HubSpot takes `a;b;c`. Keep the parts that resolve.
+      if (value.includes(';')) {
+        const parts = value.split(';').map((part) => part.trim()).filter(Boolean);
+        const matched = parts.map(findOption).filter((option): option is PropertyOption => Boolean(option));
+        if (matched.length > 0) {
+          properties[def.name] = matched.map((option) => option.value).join(';');
+          if (matched.length < parts.length) dropped.push(`${key} (some values are not options of ${def.name})`);
+          continue;
+        }
+      }
+      dropped.push(`${key} (value "${value}" is not an option of ${def.name})`);
       continue;
     }
 
