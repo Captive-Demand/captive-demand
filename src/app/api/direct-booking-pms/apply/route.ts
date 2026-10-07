@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
-import { upsertContactProperties } from '@/lib/direct-booking-hubspot';
-import { isHubSpotConfigured } from '@/lib/hubspot-form';
+import { upsertContactProperties, type UpsertResult } from '@/lib/direct-booking-hubspot';
+import { DEFAULT_HUBSPOT_PORTAL_ID, isHubSpotConfigured } from '@/lib/hubspot-form';
 import { validatePhone } from '@/lib/phone';
 import {
   DIRECT_SHARE_OPTIONS,
@@ -11,6 +11,7 @@ import {
   SITE_PROBLEM_OPTIONS,
   TRAFFIC_INTEREST_OPTIONS,
 } from '@/lib/pms-lander';
+import { getSmtpTransport, smtpFromAddress } from '@/lib/smtp';
 
 /**
  * Records a /direct-booking-pms application on the HubSpot contact (creating it
@@ -31,6 +32,81 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const APPLICATION_ID_PATTERN = /^cd-pms-app-[0-9a-f-]{36}$/;
 
 const LEAD_SOURCE = 'pms_direct_booking_lp';
+
+/** Who hears about each application. `PMS_LEAD_EMAILS` (comma-separated) overrides. */
+const DEFAULT_NOTIFY = ['jordan@captivedemand.com', 'spencer@captivedemand.com'];
+
+function notifyRecipients(): string[] {
+  const configured = process.env.PMS_LEAD_EMAILS?.split(',').map((item) => item.trim()).filter(Boolean);
+  return configured && configured.length > 0 ? configured : DEFAULT_NOTIFY;
+}
+
+interface Notification {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  pms: string;
+  pmsOther?: string;
+  listingCount: string;
+  listingUrl: string;
+  currentSite?: string;
+  problems: string[];
+  directShare?: string;
+  trafficInterest: string[];
+  utmSource?: string;
+  utmCampaign?: string;
+  utmContent?: string;
+  hubspot: Pick<UpsertResult, 'status' | 'contactId'> | null;
+}
+
+/** Plain-text heads-up for Jordan and Spencer. Never throws: a mail failure must not cost the lead. */
+async function sendNotification(lead: Notification): Promise<void> {
+  const transporter = getSmtpTransport();
+  if (!transporter) {
+    console.warn('PMS application email skipped: SMTP is not configured');
+    return;
+  }
+
+  const pmsLabel = lead.pmsOther ? `${lead.pms} (${lead.pmsOther})` : lead.pms;
+  const hubspotLine = lead.hubspot?.contactId
+    ? `HubSpot: https://app.hubspot.com/contacts/${DEFAULT_HUBSPOT_PORTAL_ID}/record/0-1/${lead.hubspot.contactId}`
+    : `HubSpot: not saved (${lead.hubspot?.status ?? 'not configured'}). Check the server logs.`;
+  const source = [lead.utmSource, lead.utmCampaign, lead.utmContent].filter(Boolean).join(' / ');
+
+  const text = [
+    `New application from /direct-booking-pms`,
+    '',
+    `Name: ${lead.firstName} ${lead.lastName}`,
+    `Email: ${lead.email}`,
+    lead.phone ? `Phone: ${lead.phone}` : 'Phone: (not given)',
+    '',
+    `Booking system: ${pmsLabel}`,
+    `Listings: ${lead.listingCount}`,
+    `Listing link: ${lead.listingUrl}`,
+    `Current website: ${lead.currentSite ?? '(none yet)'}`,
+    `What's wrong with their site: ${lead.problems.length ? lead.problems.join(', ') : '(not answered)'}`,
+    `Bookings that come direct: ${lead.directShare ?? '(not answered)'}`,
+    `Traffic help: ${lead.trafficInterest.length ? lead.trafficInterest.join(', ') : '(not answered)'}`,
+    '',
+    source ? `Ad source: ${source}` : 'Ad source: (no UTMs)',
+    hubspotLine,
+    '',
+    'Reply to this email to write to the applicant directly. They were told to expect an email within 2 business days.',
+  ].join('\n');
+
+  try {
+    await transporter.sendMail({
+      from: smtpFromAddress(),
+      to: notifyRecipients().join(', '),
+      replyTo: lead.email,
+      subject: `New PMS site application: ${lead.firstName} ${lead.lastName} (${lead.pms}, ${lead.listingCount} listings)`,
+      text,
+    });
+  } catch (error) {
+    console.error('PMS application email failed:', error);
+  }
+}
 
 type RequestBody = Record<string, unknown> & {
   attribution?: unknown;
@@ -101,12 +177,6 @@ export async function POST(request: Request) {
       phone = check.e164;
     }
 
-    if (!isHubSpotConfigured()) {
-      console.warn('PMS application skipped: HUBSPOT_ACCESS_TOKEN is not set');
-      return NextResponse.json({ status: 'skipped', reason: 'not configured' });
-    }
-    const token = process.env.HUBSPOT_ACCESS_TOKEN!.trim();
-
     const properties: Record<string, string> = {
       lead_source: LEAD_SOURCE,
       application_status: 'new',
@@ -154,19 +224,43 @@ export async function POST(request: Request) {
       if (value) firstTouch[key] = value;
     }
 
-    const result = await upsertContactProperties(token, email, properties, {
-      createIfMissing: true,
-      createOnly: { firstname: firstName, lastname: lastName },
-      firstTouch,
+    let result: UpsertResult | null = null;
+    if (isHubSpotConfigured()) {
+      result = await upsertContactProperties(process.env.HUBSPOT_ACCESS_TOKEN!.trim(), email, properties, {
+        createIfMissing: true,
+        createOnly: { firstname: firstName, lastname: lastName },
+        firstTouch,
+      });
+      if (result.dropped.length > 0) {
+        console.warn(`PMS application for ${result.contactId ?? 'new contact'} dropped: ${result.dropped.join('; ')}`);
+      }
+      if (result.error) {
+        console.error('PMS application write failed:', result.error);
+      }
+    } else {
+      console.warn('PMS application not saved to HubSpot: HUBSPOT_ACCESS_TOKEN is not set');
+    }
+
+    await sendNotification({
+      firstName,
+      lastName,
+      email,
+      phone,
+      pms,
+      pmsOther,
+      listingCount,
+      listingUrl,
+      currentSite,
+      problems,
+      directShare,
+      trafficInterest,
+      utmSource: firstTouch.utm_source,
+      utmCampaign: firstTouch.utm_campaign,
+      utmContent,
+      hubspot: result ? { status: result.status, contactId: result.contactId } : null,
     });
 
-    if (result.dropped.length > 0) {
-      console.warn(`PMS application for ${result.contactId ?? 'new contact'} dropped: ${result.dropped.join('; ')}`);
-    }
-    if (result.error) {
-      console.error('PMS application write failed:', result.error);
-    }
-
+    if (!result) return NextResponse.json({ status: 'skipped', reason: 'not configured' });
     return NextResponse.json({ status: result.status, created: result.created ?? false });
   } catch (error) {
     console.error('PMS application threw:', error);

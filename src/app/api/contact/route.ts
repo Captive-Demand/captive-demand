@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { parseAnnualCompanyRevenue, revenueLabel } from '@/lib/annual-company-revenue';
 import { submitHubSpotAdsForm, submitHubSpotAuditForm, submitHubSpotContactForm } from '@/lib/hubspot-form';
 import { validatePhone } from '@/lib/phone';
+import { getSmtpTransport } from '@/lib/smtp';
 import { isRecaptchaVerificationEnabled } from '@/lib/recaptcha-config';
 
 type Body = {
@@ -77,23 +78,6 @@ function shoreLeadRecipients(): string[] {
       .filter(Boolean);
   }
   return [...DEFAULT_SHORE_LEAD_RECIPIENTS];
-}
-
-function getTransport() {
-  const host = process.env.SMTP_HOST;
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS?.replace(/\s+/g, '');
-  if (!host || !user || !pass) return null;
-  const port = Number(process.env.SMTP_PORT ?? '465');
-  const secureFlag = process.env.SMTP_SECURE;
-  const secure =
-    secureFlag === 'true' ? true : secureFlag === 'false' ? false : port === 465;
-  return nodemailer.createTransport({
-    host,
-    port,
-    secure,
-    auth: { user, pass },
-  });
 }
 
 function formatLeadBody(params: {
@@ -315,7 +299,7 @@ export async function POST(request: Request) {
       }
     }
 
-    const transporter = getTransport();
+    const transporter = getSmtpTransport();
 
     if (transporter) {
       if (isAdsForm) {
