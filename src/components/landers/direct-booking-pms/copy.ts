@@ -95,8 +95,8 @@ export const HOW = {
       body: "We look at your listings and your current site. Within 2 business days you'll hear from us either way. If it's a fit, the email includes a link to book a short call.",
     },
     {
-      when: '15 minutes',
-      title: 'A 15-minute call.',
+      when: '30 minutes',
+      title: 'A 30-minute call.',
       body: "We ask what your site needs to do that it doesn't today. No pitch.",
     },
     {
@@ -229,7 +229,7 @@ export const APPLY = {
   eyebrow: 'Apply',
   h2: 'Apply for your free design',
   intro: "We take these on a few at a time. Tell us about your setup, and we'll email you within 2 business days either way.",
-  next: ['You apply, about a minute', 'We email you within 2 business days', "If it's a fit, a 15-minute call"],
+  next: ['You apply, about a minute', 'We email you within 2 business days', "If it's a fit, a 30-minute call"],
   firstName: 'First name',
   lastName: 'Last name',
   email: 'Email',

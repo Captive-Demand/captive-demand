@@ -135,8 +135,6 @@ export async function POST(request: Request) {
       unit_count: unitCount,
       website: siteLink,
       direct_booking_application_id: applicationId,
-      direct_booking_applied_at: new Date().toISOString(),
-      direct_booking_qualified: qualified ? 'yes' : 'no',
       direct_booking_application_source: APPLICATION_SOURCE,
       phone,
     };
