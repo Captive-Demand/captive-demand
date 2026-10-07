@@ -58,10 +58,12 @@ export type LiveExample = {
 
 /**
  * Live booking flows we've built. Viewers are told not to book anything.
- * TODO: confirm the exact booking-flow URL and platform for each, and add more.
  */
 export const LIVE_EXAMPLES: LiveExample[] = [
-  { name: 'SLK Clinic', href: 'https://slkclinic.com/' },
+  { name: 'Biodesign Clinic', href: 'https://biodesignclinic.com/' },
+  { name: 'Mantality Health', href: 'https://mantalityhealth.com/' },
+  { name: 'Arete Wellness', href: 'https://www.arete-wellness.com/' },
+  { name: 'SLK Clinic', href: 'https://slkclinic.com/', note: 'No API access, so we built a workaround' },
 ];
 
 /**
