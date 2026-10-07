@@ -104,12 +104,14 @@ export function StackDiagram() {
       </div>
 
       {/* Connector */}
-      <div className="relative flex h-24 items-center justify-center md:h-auto md:flex-col">
+      <div className="relative flex h-36 items-center justify-center md:h-auto md:flex-col">
         <div className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-[#1a1512]/15 md:left-0 md:top-1/2 md:h-px md:w-full md:translate-x-0 md:-translate-y-1/2" />
         <Pulse />
         <Pulse reverse delay={1.1} />
-        <span className="relative z-10 rounded-full border border-[#ececec] bg-white px-3 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-[#4f4741] shadow-sm">
-          API
+        <span className="relative z-10 flex size-[92px] flex-col items-center justify-center rounded-2xl bg-[#ff5501] text-center font-[Nohemi,sans-serif] text-[15px] leading-[1.1] text-white shadow-[0_12px_28px_-10px_rgba(255,85,1,0.6)]">
+          Better
+          <br />
+          Booking
         </span>
       </div>
 
