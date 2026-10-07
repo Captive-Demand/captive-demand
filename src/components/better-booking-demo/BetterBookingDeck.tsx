@@ -27,6 +27,7 @@ import { DeckShell, type DeckSlide } from './DeckShell';
 import { DemoBookingSite } from './DemoBookingSite';
 import { PricingSlide } from './PricingSlide';
 import { StackDiagram } from './StackDiagram';
+import { BrandingVisual, StarsVisual, TruncationVisual } from './LeverVisuals';
 import { ConsolidationVisual, DeepLinkVisual, FirstAvailableVisual } from './TruncationVisuals';
 import { Accent, display, Eyebrow, SlideHeading } from './ui';
 
@@ -118,18 +119,21 @@ const LEVERS = [
   {
     icon: Palette,
     name: 'Branding',
+    visual: BrandingVisual,
     line: 'One cohesive experience.',
     text: 'The flow looks and feels like your site, not like software you bolted on. Trust doesn’t drop at the moment patients are asked to commit.',
   },
   {
     icon: Scissors,
     name: 'Truncation',
+    visual: TruncationVisual,
     line: 'Fewer steps, less friction.',
     text: 'It’s a best practice across all of digital marketing: the fewer steps between interest and action, the more people finish.',
   },
   {
     icon: MessageSquareQuote,
     name: 'Rapport building',
+    visual: StarsVisual,
     line: 'A reason to click “next.”',
     text: 'Reviews, before-and-afters and provider spotlights show up right where patients hesitate.',
   },
@@ -140,7 +144,7 @@ function LeversSlide() {
     <div className="flex flex-col gap-10">
       <SlideHeading eyebrow="Why it converts" title={<>Three levers that turn visits <Accent>into bookings.</Accent></>} />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-5">
-        {LEVERS.map(({ icon: Icon, name, line, text }, i) => (
+        {LEVERS.map(({ icon: Icon, visual: Visual, name, line, text }, i) => (
           <motion.article
             key={name}
             initial={{ opacity: 0, y: 16 }}
@@ -154,7 +158,10 @@ function LeversSlide() {
               </span>
               <span className="font-mono text-xs text-[#6b625b]">0{i + 1}</span>
             </div>
-            <h3 className={cn(display, 'm-0 mt-auto pt-10 text-[34px] leading-none')}>{name}</h3>
+            <div className="flex flex-1 items-center py-8">
+              <Visual />
+            </div>
+            <h3 className={cn(display, 'm-0 text-[34px] leading-none')}>{name}</h3>
             <p className="m-0 mt-3 text-[15px] font-medium">{line}</p>
             <p className="m-0 mt-2 text-[14px] leading-[1.6] text-[#4f4741]">{text}</p>
           </motion.article>
