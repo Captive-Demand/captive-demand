@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Link2, Sparkles } from 'lucide-react';
+import { Check, Link2, Sparkles } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
@@ -57,34 +57,72 @@ export function ConsolidationVisual() {
   );
 }
 
-/** A promo link landing straight on the treatment with the offer applied. */
+const ENTRY_POINTS = [
+  {
+    url: 'yourclinic.com/austin/microneedling',
+    source: 'Service page',
+    skipped: ['Austin · South Congress', 'Microneedling'],
+    tag: null,
+  },
+  {
+    url: 'yourclinic.com/?book=microneedling&promo=FALL100',
+    source: 'Ad or email',
+    skipped: ['Microneedling'],
+    tag: '$100 off applied',
+  },
+];
+
+/**
+ * Two entry points: a location service page that pre-fills branch and
+ * treatment, and a promo link that lands on the treatment with the offer on.
+ */
 export function DeepLinkVisual() {
-  const landed = useToggle(2600);
+  const promo = useToggle(3000);
+  const entry = ENTRY_POINTS[promo ? 1 : 0];
   return (
-    <div className="flex h-[200px] flex-col gap-3 pt-7">
-      <div className="flex items-center gap-2 overflow-hidden rounded-lg bg-[#1a1512] px-3 py-2 font-mono text-[11px] text-white/80">
-        <Link2 className="size-3.5 shrink-0 text-[#ff5501]" />
-        <span className="truncate">yourclinic.com/?book=microneedling&amp;promo=FALL100</span>
-      </div>
-      <div className="relative flex-1">
+    <div className="h-[200px]">
+      <span className="block text-right font-mono text-[10px] uppercase tracking-[0.12em] text-[#6b625b]">
+        From: {entry.source}
+      </span>
+      <AnimatePresence mode="wait" initial={false}>
         <motion.div
-          className="absolute inset-x-0 top-0 rounded-xl border border-[#ececec] bg-white p-3.5"
-          animate={{ opacity: landed ? 1 : 0.35, y: landed ? 0 : 8 }}
-          transition={{ duration: 0.4 }}
+          key={entry.url}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -6 }}
+          transition={{ duration: 0.3 }}
+          className="mt-2 flex flex-col gap-2.5"
         >
-          <div className="flex items-center gap-2 rounded-lg bg-[#fff4ee] px-3 py-2 text-[12px] text-[#b93a06]">
-            <Sparkles className="size-3.5" /> Microneedling · $100 off applied
+          <div className="flex items-center gap-2 overflow-hidden rounded-lg bg-[#1a1512] px-3 py-2 font-mono text-[11px] text-white/80">
+            <Link2 className="size-3.5 shrink-0 text-[#ff5501]" />
+            <span className="truncate">{entry.url}</span>
           </div>
-          <p className="m-0 mt-3 text-[13px]">Pick a time</p>
-          <div className="mt-2 flex gap-1.5">
-            {['9:30', '11:00', '1:15', '3:45'].map((t, i) => (
-              <span key={t} className={cn('rounded-md border px-2 py-1 text-[11px]', i === 1 ? 'border-[#1a1512] bg-[#1a1512] text-white' : 'border-[#ececec]')}>
-                {t}
-              </span>
-            ))}
+          <div className="rounded-xl border border-[#ececec] bg-white p-3">
+            <div className="flex flex-wrap gap-1.5">
+              {entry.skipped.map((s) => (
+                <span key={s} className="inline-flex items-center gap-1 rounded-md bg-[#f2f2f2] px-2 py-1 text-[11px] text-[#6b625b]">
+                  <Check className="size-3 text-[#ff5501]" />
+                  {s}
+                </span>
+              ))}
+              {entry.tag && (
+                <span className="inline-flex items-center gap-1 rounded-md bg-[#fff4ee] px-2 py-1 text-[11px] text-[#b93a06]">
+                  <Sparkles className="size-3" />
+                  {entry.tag}
+                </span>
+              )}
+            </div>
+            <p className="m-0 mt-2.5 text-[13px]">Pick a time</p>
+            <div className="mt-1.5 flex gap-1.5">
+              {['9:30', '11:00', '1:15', '3:45'].map((t, i) => (
+                <span key={t} className={cn('rounded-md border px-2 py-1 text-[11px]', i === 1 ? 'border-[#1a1512] bg-[#1a1512] text-white' : 'border-[#ececec]')}>
+                  {t}
+                </span>
+              ))}
+            </div>
           </div>
         </motion.div>
-      </div>
+      </AnimatePresence>
     </div>
   );
 }

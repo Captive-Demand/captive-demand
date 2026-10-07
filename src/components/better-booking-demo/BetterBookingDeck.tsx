@@ -323,8 +323,8 @@ function TruncationSlide() {
             visual: <ConsolidationVisual />,
           },
           {
-            title: 'Deep-linked promos',
-            text: 'Ads and emails land patients directly on the promoted treatment with the offer already applied.',
+            title: 'Smart deep links',
+            text: 'Patients start where they already are. Booking from the Austin microneedling page skips choosing a location and treatment, and promo links land with the offer applied.',
             visual: <DeepLinkVisual />,
           },
           {
