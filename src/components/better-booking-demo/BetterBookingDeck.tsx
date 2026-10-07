@@ -355,8 +355,8 @@ function CrossSellSlide() {
       <div className="flex flex-col gap-7">
         <SlideHeading
           eyebrow="Key feature · Cross-selling"
-          title={<>Raise the ticket <Accent>on every booking.</Accent></>}
-          lede="Offer add-on services right inside the flow, and even products from your Shopify store, so patients build a bigger visit before they arrive."
+          title={<>Help patients get more <Accent>out of every visit.</Accent></>}
+          lede="Suggest the add-ons and aftercare that pair with each treatment, including products from your Shopify store, so patients arrive with a complete plan and leave with what they need for great results."
         />
         <div className="flex flex-wrap gap-2 font-mono text-[11px] uppercase tracking-[0.1em]">
           <Chip>Add-on services</Chip>
