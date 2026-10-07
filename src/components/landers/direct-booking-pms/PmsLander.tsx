@@ -33,7 +33,7 @@ export function PmsLander() {
         <Faq />
       </main>
 
-      <footer className={`bg-[#1a1512] ${SECTION_X} pt-10 pb-24 text-white/75 md:pb-10`}>
+      <footer className={`bg-[#1a1512] ${SECTION_X} pt-10 pb-28 text-white/75`}>
         <div className={`${CONTAINER} flex flex-wrap items-center justify-between gap-4 text-sm`}>
           <span className="flex flex-wrap items-center gap-x-3 gap-y-2">
             <Image src={FOOTER.logo} alt={FOOTER.logoAlt} width={132} height={28} className="h-6 w-auto brightness-0 invert" />
