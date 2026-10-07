@@ -1,3 +1,4 @@
+import { BETTER_BOOKING_DEMO_PATH } from '@/components/better-booking-demo/data';
 import { MEDSPAS_PATH } from '@/components/landers/medspas/data';
 import { SHORE_PARTNERSHIP_PATH } from '@/lib/shore-partnership';
 
@@ -16,6 +17,7 @@ export const STANDALONE_LANDER_PATHS = [
   DIRECT_BOOKING_PATH,
   DIRECT_BOOKING_PMS_PATH,
   MEDSPAS_PATH,
+  BETTER_BOOKING_DEMO_PATH,
 ] as const;
 
 function normalizePath(pathname: string | null | undefined): string | null {
