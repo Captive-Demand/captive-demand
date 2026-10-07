@@ -419,9 +419,9 @@ function Chip({ children }: { children: ReactNode }) {
 
 function CloseSlide({ prospect }: { prospect: string | null }) {
   const steps = [
-    { title: 'Audit', text: 'We walk your current booking flow, step by step, across a sample of locations.' },
-    { title: 'Design', text: 'We map a shorter, on-brand flow and show it to you before anything goes live.' },
-    { title: 'Launch', text: 'Pilot on a few clinics, compare against the rest, then roll out.' },
+    { title: 'Audit', time: '1–2 business days', text: 'We walk your current booking flow, step by step, across a sample of locations.' },
+    { title: 'Design', time: '1 week', text: 'We map a shorter, on-brand flow and show it to you before anything goes live.' },
+    { title: 'Implementation', time: '1 week', text: 'We connect your booking platform, add the snippet to your site and go live.' },
   ];
   return (
     <div className="flex flex-col gap-10">
@@ -433,7 +433,12 @@ function CloseSlide({ prospect }: { prospect: string | null }) {
       <ol className="m-0 grid list-none grid-cols-1 gap-4 p-0 md:grid-cols-3">
         {steps.map((s, i) => (
           <li key={s.title} className="rounded-[20px] border border-white/10 p-6">
-            <span className="font-mono text-xs text-white/45">0{i + 1}</span>
+            <div className="flex items-center justify-between gap-3">
+              <span className="font-mono text-xs text-white/45">0{i + 1}</span>
+              <span className="rounded-full bg-[#ff5501]/15 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.08em] text-[#ff8a4c] ring-1 ring-[#ff5501]/40">
+                {s.time}
+              </span>
+            </div>
             <p className={cn(display, 'm-0 mt-6 text-[28px]')}>{s.title}</p>
             <p className="m-0 mt-2 text-[14px] leading-[1.6] text-white/65">{s.text}</p>
           </li>
