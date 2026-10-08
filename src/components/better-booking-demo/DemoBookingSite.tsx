@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 
 import { cn } from '@/lib/utils';
 
@@ -61,7 +62,7 @@ export function DemoBookingSite() {
     <div data-deck-ignore className="flex min-w-0 flex-col gap-4">
       {/* Phones and tablets: the tabs sit above the frame. */}
       <div className="flex flex-wrap items-center gap-2 lg:hidden">
-        <FlowTabs flow={flow} active={open} onStart={start} />
+        <FlowTabs flow={flow} active={open} onStart={start} highlight={run === 0} />
         <span className="text-[13px] text-[#6b625b]">{blurb}</span>
       </div>
 
@@ -77,12 +78,28 @@ export function DemoBookingSite() {
         toolbar={
           // Side by side, the tabs move into the title bar so the frame gets that height back.
           <div className="hidden min-w-0 items-center gap-1.5 lg:flex">
-            <FlowTabs flow={flow} active={open} onStart={start} compact />
+            <FlowTabs flow={flow} active={open} onStart={start} highlight={run === 0} compact />
             <span className="ml-1.5 truncate text-[12px] text-[#6b625b]">{blurb}</span>
           </div>
         }
       >
         <div className="relative h-[clamp(520px,calc(100svh-160px),760px)] overflow-hidden bg-[#f6f1ec] lg:h-auto lg:flex-1 lg:min-h-[clamp(560px,calc(100svh-250px),780px)]">
+          <AnimatePresence>
+            {run === 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: [0, -4, 0] }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ opacity: { duration: 0.3, delay: 0.6 }, y: { duration: 1.6, repeat: Infinity, ease: 'easeInOut', delay: 0.6 } }}
+                className="pointer-events-none absolute left-3 top-3 z-10 lg:left-14"
+              >
+                <span aria-hidden className="ml-6 block size-0 border-x-[7px] border-b-[8px] border-x-transparent border-b-[#ff5501]" />
+                <span className="block rounded-xl bg-[#ff5501] px-3.5 py-2 text-[13px] leading-snug text-white shadow-[0_12px_28px_-10px_rgba(255,85,1,0.6)]">
+                  <strong className="font-semibold">Try all three flows.</strong> Toggle between them up here.
+                </span>
+              </motion.div>
+            )}
+          </AnimatePresence>
           <iframe
             key={`${flow}-${run}`}
             src={src}
@@ -106,11 +123,14 @@ function FlowTabs({
   active,
   onStart,
   compact = false,
+  highlight = false,
 }: {
   flow: FlowId;
   active: boolean;
   onStart: (flow: FlowId) => void;
   compact?: boolean;
+  /** Ring the tabs in the accent color until the viewer has tried one. */
+  highlight?: boolean;
 }) {
   return (
     <>
@@ -124,7 +144,9 @@ function FlowTabs({
             compact ? 'px-3 py-1 text-[12px]' : 'px-4 py-2 text-[13px]',
             active && flow === f.id
               ? 'border-[#1a1512] bg-[#1a1512] text-white'
-              : 'border-[#e3e3e3] bg-white text-[#1a1512] hover:border-[#1a1512]/40',
+              : highlight
+                ? 'border-[#ff5501] bg-white text-[#1a1512] ring-2 ring-[#ff5501]/20 hover:bg-[#fff4ee]'
+                : 'border-[#e3e3e3] bg-white text-[#1a1512] hover:border-[#1a1512]/40',
           )}
         >
           {f.label}
