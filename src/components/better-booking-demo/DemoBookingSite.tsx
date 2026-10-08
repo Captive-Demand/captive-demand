@@ -52,32 +52,37 @@ export function DemoBookingSite() {
     setOpen(true);
   }
 
+  const blurb = FLOWS.find((f) => f.id === flow)!.blurb;
+
   // The first load shows the site closed so the presenter can click into it; a tab click opens.
   const src = `${DEMO_ORIGIN}${DEMO_PATH}?flow=${flow}${run > 0 ? '&open=1' : ''}`;
 
   return (
-    <div data-deck-ignore className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-2">
-        {FLOWS.map((f) => (
-          <button
-            key={f.id}
-            type="button"
-            onClick={() => start(f.id)}
-            className={cn(
-              'rounded-full border px-4 py-2 text-[13px] transition-colors',
-              open && flow === f.id
-                ? 'border-[#1a1512] bg-[#1a1512] text-white'
-                : 'border-[#e3e3e3] bg-white text-[#1a1512] hover:border-[#1a1512]/40',
-            )}
-          >
-            {f.label}
-          </button>
-        ))}
-        <span className="text-[13px] text-[#6b625b]">{FLOWS.find((f) => f.id === flow)!.blurb}</span>
+    <div data-deck-ignore className="flex min-w-0 flex-col gap-4">
+      {/* Phones and tablets: the tabs sit above the frame. */}
+      <div className="flex flex-wrap items-center gap-2 lg:hidden">
+        <FlowTabs flow={flow} active={open} onStart={start} />
+        <span className="text-[13px] text-[#6b625b]">{blurb}</span>
       </div>
 
-      <BrowserFrame url="solenneskin.demo · fictional demo clinic">
-        <div className="relative h-[500px] overflow-hidden bg-[#f6f1ec] md:h-[540px]">
+      {/*
+        As tall as the screen allows, so the widget inside scrolls as little as possible. On a
+        phone it is nearly a screen high. Side by side (lg), it also stretches to the left
+        column's height, which already sets the slide's height.
+      */}
+      <BrowserFrame
+        url="solenneskin.demo · fictional demo clinic"
+        urlClassName="lg:hidden"
+        className="flex flex-col lg:flex-1"
+        toolbar={
+          // Side by side, the tabs move into the title bar so the frame gets that height back.
+          <div className="hidden min-w-0 items-center gap-1.5 lg:flex">
+            <FlowTabs flow={flow} active={open} onStart={start} compact />
+            <span className="ml-1.5 truncate text-[12px] text-[#6b625b]">{blurb}</span>
+          </div>
+        }
+      >
+        <div className="relative h-[clamp(520px,calc(100svh-160px),760px)] overflow-hidden bg-[#f6f1ec] lg:h-auto lg:flex-1 lg:min-h-[clamp(560px,calc(100svh-250px),780px)]">
           <iframe
             key={`${flow}-${run}`}
             src={src}
@@ -93,5 +98,38 @@ export function DemoBookingSite() {
         </div>
       </BrowserFrame>
     </div>
+  );
+}
+
+function FlowTabs({
+  flow,
+  active,
+  onStart,
+  compact = false,
+}: {
+  flow: FlowId;
+  active: boolean;
+  onStart: (flow: FlowId) => void;
+  compact?: boolean;
+}) {
+  return (
+    <>
+      {FLOWS.map((f) => (
+        <button
+          key={f.id}
+          type="button"
+          onClick={() => onStart(f.id)}
+          className={cn(
+            'shrink-0 rounded-full border transition-colors',
+            compact ? 'px-3 py-1 text-[12px]' : 'px-4 py-2 text-[13px]',
+            active && flow === f.id
+              ? 'border-[#1a1512] bg-[#1a1512] text-white'
+              : 'border-[#e3e3e3] bg-white text-[#1a1512] hover:border-[#1a1512]/40',
+          )}
+        >
+          {f.label}
+        </button>
+      ))}
+    </>
   );
 }

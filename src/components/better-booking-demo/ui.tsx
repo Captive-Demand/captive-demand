@@ -41,15 +41,19 @@ export function Accent({ children }: { children: ReactNode }) {
   return <span className="text-[#ff5501]">{children}</span>;
 }
 
-/** Browser window frame used for site mocks. */
+/** Browser window frame used for site mocks. `toolbar` sits in the title bar after the address. */
 export function BrowserFrame({
   url,
   children,
   className,
+  toolbar,
+  urlClassName,
 }: {
   url: string;
   children: ReactNode;
   className?: string;
+  toolbar?: ReactNode;
+  urlClassName?: string;
 }) {
   return (
     <div
@@ -62,7 +66,10 @@ export function BrowserFrame({
         <span className="size-[9px] rounded-full bg-[#d9d9d9]" />
         <span className="size-[9px] rounded-full bg-[#d9d9d9]" />
         <span className="size-[9px] rounded-full bg-[#d9d9d9]" />
-        <span className="ml-3 truncate rounded-md bg-white px-3 py-0.5 text-[11px] text-[#6b625b]">{url}</span>
+        <span className={cn('ml-3 truncate rounded-md bg-white px-3 py-0.5 text-[11px] text-[#6b625b]', urlClassName)}>
+          {url}
+        </span>
+        {toolbar}
       </div>
       {children}
     </div>
