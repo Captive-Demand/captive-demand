@@ -24,6 +24,7 @@ import { cn } from '@/lib/utils';
 
 import { BETTER_BOOKING_CONTACT_HREF, LIVE_EXAMPLES, RAPPORT_SCREENSHOTS } from './data';
 import { DeckShell, type DeckSlide } from './DeckShell';
+import { DeepLinksSlide } from './DeepLinksSlide';
 import { DemoBookingSite } from './DemoBookingSite';
 import { PricingSlide } from './PricingSlide';
 import { StackDiagram } from './StackDiagram';
@@ -41,6 +42,7 @@ export function BetterBookingDeck({ prospect }: { prospect: string | null }) {
     { id: 'demo', title: 'See for yourself', render: () => <DemoSlide /> },
     { id: 'rapport', title: 'Rapport building', render: () => <RapportSlide /> },
     { id: 'truncation', title: 'Truncation', render: () => <TruncationSlide /> },
+    { id: 'smart-links', title: 'Smart links', render: () => <DeepLinksSlide /> },
     { id: 'cross-sell', title: 'Cross-selling', render: () => <CrossSellSlide /> },
     { id: 'pricing', title: 'Pricing', tone: 'dark', render: () => <PricingSlide /> },
     { id: 'next', title: 'Next steps', tone: 'dark', render: () => <CloseSlide prospect={prospect} /> },
