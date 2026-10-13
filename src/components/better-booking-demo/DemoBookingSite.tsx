@@ -8,13 +8,13 @@ import { cn } from '@/lib/utils';
 import { BrowserFrame } from './ui';
 
 /*
- * A fictional clinic site running the real Warm Handoff booking widget. The page lives on
- * the Warm Handoff demo site (apps/widget/demo/solenne.html in Captive-Demand/warm-handoff)
+ * A fictional clinic site running the real BetterBooking widget. The page lives on
+ * the BetterBooking demo site (apps/widget/demo/solenne.html in Captive-Demand/warm-handoff)
  * and runs against an in-memory provider: the times are made up and nothing can be booked.
  * `?flow=` picks the entry pattern; `open=1` starts booking as soon as the page loads.
  */
 
-const DEMO_ORIGIN = 'https://demo.warmhandoff.io';
+const DEMO_ORIGIN = 'https://demo.betterbooking.co';
 const DEMO_PATH = '/demo/solenne';
 
 type FlowId = 'service' | 'concern' | 'promo';
