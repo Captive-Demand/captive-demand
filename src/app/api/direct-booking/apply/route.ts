@@ -3,6 +3,12 @@ import { NextResponse } from 'next/server';
 import {
   APPLICATION,
   BOOKING_PLATFORM_OPTIONS,
+  BRAND_FEEL_LABELS,
+  BRAND_FEEL_MAX,
+  CUSTOM_DOMAIN_OPTIONS,
+  CUSTOM_DOMAIN_YES,
+  INQUIRY_DELIVERY_OPTIONS,
+  PMS_PLATFORM_OPTION,
   UNIT_COUNT_OPTIONS,
 } from '@/components/landers/direct-booking/copy';
 import { upsertContactProperties } from '@/lib/direct-booking-hubspot';
@@ -34,6 +40,10 @@ const APPLICATION_SOURCE = 'direct-booking-lander';
 const LABEL_FALLBACKS: Record<string, string> = {
   booking_platform: APPLICATION.bookingPlatformLabel,
   unit_count: APPLICATION.unitCountLabel,
+  inquiry_delivery: APPLICATION.inquiryLabel,
+  custom_domain_status: APPLICATION.customDomainLabel,
+  custom_domain: APPLICATION.domainLabel,
+  brand_feel: APPLICATION.brandFeelLabel,
 };
 
 type RequestBody = {
@@ -53,6 +63,10 @@ type Answers = {
   unit_count?: unknown;
   booking_site_link?: unknown;
   phone?: unknown;
+  inquiry_delivery?: unknown;
+  custom_domain_status?: unknown;
+  custom_domain?: unknown;
+  brand_feel?: unknown;
 };
 
 type Attribution = {
@@ -112,6 +126,26 @@ export async function POST(request: Request) {
     if (!phoneCheck.ok || !phoneCheck.e164) return badRequest('phone');
     const phone = phoneCheck.e164;
 
+    // Asked only of hosts without a PMS; ignored if a PMS host sends one anyway.
+    const inquiryDelivery =
+      bookingPlatform === PMS_PLATFORM_OPTION
+        ? undefined
+        : pickOption(answersInput.inquiry_delivery, INQUIRY_DELIVERY_OPTIONS);
+    if (bookingPlatform !== PMS_PLATFORM_OPTION && !inquiryDelivery) return badRequest('inquiry_delivery');
+
+    const customDomainStatus = pickOption(answersInput.custom_domain_status, CUSTOM_DOMAIN_OPTIONS);
+    if (!customDomainStatus) return badRequest('custom_domain_status');
+    const customDomain =
+      customDomainStatus === CUSTOM_DOMAIN_YES ? cleanString(answersInput.custom_domain, MAX_ANSWER_LENGTH) : undefined;
+    if (customDomainStatus === CUSTOM_DOMAIN_YES && !customDomain) return badRequest('custom_domain');
+
+    const brandFeel = Array.isArray(answersInput.brand_feel)
+      ? [...new Set(answersInput.brand_feel.map((value) => pickOption(value, BRAND_FEEL_LABELS)))].filter(
+          (value): value is string => Boolean(value),
+        )
+      : [];
+    if (brandFeel.length === 0 || brandFeel.length > BRAND_FEEL_MAX) return badRequest('brand_feel');
+
     const qualified = qualifyApplication({
       booking_platform: bookingPlatform,
       unit_count: unitCount,
@@ -137,7 +171,12 @@ export async function POST(request: Request) {
       direct_booking_application_id: applicationId,
       direct_booking_application_source: APPLICATION_SOURCE,
       phone,
+      custom_domain_status: customDomainStatus,
+      // Multiple-checkbox properties take their values joined by semicolons.
+      brand_feel: brandFeel.join(';'),
     };
+    if (inquiryDelivery) properties.inquiry_delivery = inquiryDelivery;
+    if (customDomain) properties.custom_domain = customDomain;
 
     const utmContent = cleanString(attribution.utm_content);
     if (utmContent) properties.utm_content = utmContent;

@@ -63,13 +63,20 @@ export interface PrepAnswers {
   phone?: string;
 }
 
-/** The three answers the application requires. */
+/** The application's answers. */
 export interface ApplicationAnswers {
   booking_platform: string;
   unit_count: string;
   booking_site_link: string;
   /** E.164, validated by the form. */
   phone: string;
+  /** Asked only when they don't run a PMS. */
+  inquiry_delivery?: string;
+  custom_domain_status: string;
+  /** Present only when they own a domain. */
+  custom_domain?: string;
+  /** One or two of BRAND_FEEL_OPTIONS. */
+  brand_feel: string[];
 }
 
 /** What the page keeps in sessionStorage once the application is submitted. */

@@ -27,8 +27,8 @@ export const HOW_IT_WORKS = {
   steps: [
     {
       numeral: '01',
-      title: 'Apply in about a minute',
-      body: "Tell us how you take bookings, how many units you have, and where your listing lives. If it's a fit, you'll pick a time for a 15-minute call right there.",
+      title: 'Apply in about two minutes',
+      body: "Tell us how you take bookings, how many units you have, where your listing lives, and how you want the brand to feel. If it's a fit, you'll pick a time for a 15-minute call right there.",
     },
     {
       numeral: '02',
@@ -139,9 +139,38 @@ export const BOOKING_PLATFORM_OPTIONS = [
 
 export const UNIT_COUNT_OPTIONS = ['1–2', '3–5', '6–10', '10+'] as const;
 
+/** The platform answer that means they already run a PMS; every other answer gets the inquiry question. */
+export const PMS_PLATFORM_OPTION = BOOKING_PLATFORM_OPTIONS[2];
+
+export const INQUIRY_DELIVERY_OPTIONS = [
+  'Email',
+  'Text message',
+  'Into a CRM I already use',
+  'Not sure yet',
+] as const;
+
+export const CUSTOM_DOMAIN_OPTIONS = ['Yes', 'Not yet', 'Not sure'] as const;
+
+/** The domain answer that opens the "which domain" field. */
+export const CUSTOM_DOMAIN_YES = CUSTOM_DOMAIN_OPTIONS[0];
+
+/** Swatches are a hint at the palette direction, not the palette we'd design. */
+export const BRAND_FEEL_OPTIONS = [
+  { label: 'Rustic & earthy', swatches: ['#5c4330', '#a3794f', '#e2d2b6'] },
+  { label: 'Modern & minimal', swatches: ['#1f1f1f', '#8c8c8c', '#efefef'] },
+  { label: 'Luxe & refined', swatches: ['#1d2a2a', '#b08d57', '#efe8dc'] },
+  { label: 'Cozy & warm', swatches: ['#8c3b2a', '#d98c5f', '#f3dcc2'] },
+  { label: 'Bold & adventurous', swatches: ['#1f4d3a', '#e2711d', '#f4d35e'] },
+  { label: 'Light & airy', swatches: ['#2f6f8f', '#9cc5d6', '#f5f1e8'] },
+] as const;
+
+export const BRAND_FEEL_LABELS = BRAND_FEEL_OPTIONS.map((option) => option.label);
+
+export const BRAND_FEEL_MAX = 2;
+
 export const APPLICATION = {
-  eyebrow: 'Your application — about a minute',
-  leadLine: 'Two quick taps and a link. We use them to decide whether your property is a fit.',
+  eyebrow: 'Your application — about two minutes',
+  leadLine: 'A few quick taps and a link. We use them to decide whether your property is a fit and to start on your design.',
   firstNameLabel: 'First name',
   firstNamePlaceholder: 'Jordan',
   lastNameLabel: 'Last name',
@@ -151,6 +180,15 @@ export const APPLICATION = {
   emailHint: 'The calendar invite goes here.',
   bookingPlatformLabel: 'How do you take bookings today?',
   unitCountLabel: 'How many units?',
+  inquiryLabel: 'Without a booking system, how should booking inquiries from your site reach you?',
+  inquiryHint: 'We set the site up to send them wherever you already work.',
+  customDomainLabel: 'Do you own a domain you want the site to live on?',
+  customDomainNotYetHint:
+    "We recommend sorting this out before we design. It's the address guests type and book from, and we can help you pick one on the call.",
+  domainLabel: 'Your domain',
+  domainPlaceholder: 'yourproperty.com',
+  brandFeelLabel: 'How should your brand feel?',
+  brandFeelHint: 'Pick up to two. We use it to choose your color palette.',
   siteLinkLabel: 'Link to your website or Airbnb listing',
   siteLinkPlaceholder: 'airbnb.com/h/your-place or yourproperty.com',
   siteLinkHint: 'We look at your photos and units before we decide.',
