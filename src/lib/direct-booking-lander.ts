@@ -19,6 +19,7 @@ export const LANDER_EVENTS = {
   applicationStarted: 'cd_dbl_application_started',
   applicationSubmitted: 'cd_dbl_application_submitted',
   applicationDeclined: 'cd_dbl_application_declined',
+  bookingPathChosen: 'cd_dbl_booking_path_chosen',
 } as const;
 
 export type LanderEvent = (typeof LANDER_EVENTS)[keyof typeof LANDER_EVENTS];

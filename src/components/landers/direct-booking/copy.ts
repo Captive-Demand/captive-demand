@@ -121,12 +121,25 @@ export const BOOKING = {
     h2: 'Not the right fit right now.',
     body: "From what you've shared, a free design isn't the right fit for your property at the moment. We've kept your application, and if that changes we'll reach out.",
   },
+  /** The switch above the form: apply, or skip it and book a call. */
+  pathSwitch: {
+    label: 'How would you like to start?',
+    application: 'Fill out the application',
+    call: 'Book a call instead',
+  },
+  call: {
+    eyebrow: 'Book a call',
+    h2: 'Rather talk it through? Pick a time.',
+    body: "Skip the form. On a 15-minute call we'll go over your property, how you take bookings, and what you'd want the site to do. The design is yours either way.",
+  },
   fallbackLink: 'Calendar not loading? Open it in a new tab.',
   booked: {
     eyebrow: "You're booked",
     h2: "You're booked.",
     body: "A calendar invite with the video link is on its way to your inbox. On the call we'll ask what you'd want the site to do that it doesn't do now. About a week later we'll walk you through the design.",
     prepLine: 'Nothing to prepare. We already have your listing.',
+    /** Shown instead of prepLine when they booked without applying. */
+    prepLineNoApplication: 'Have your Airbnb listing or website handy for the call.',
   },
 } as const;
 

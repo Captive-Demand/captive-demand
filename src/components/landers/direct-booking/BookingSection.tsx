@@ -46,6 +46,11 @@ export function BookingSection({ pageUrl, embedUrl }: BookingSectionProps) {
   );
   const [booked, markBooked] = useSessionFlag(BOOKED_STORAGE_KEY, BOOKED_EVENT);
   const [submitting, setSubmitting] = useState(false);
+  // Before applying, the visitor can skip the form and go straight to the calendar.
+  const [path, setPath] = useState<BookingPath>('application');
+  // HubSpot's embed script only sets up a calendar once, so after the first time it
+  // is shown it stays mounted and is collapsed (not removed) while the form is up.
+  const [calendarStarted, setCalendarStarted] = useState(false);
   const bookingHandled = useRef(false);
 
   const handleApply = useCallback(
@@ -93,6 +98,7 @@ export function BookingSection({ pageUrl, embedUrl }: BookingSectionProps) {
 
       trackLander(LANDER_EVENTS.callBooked, {
         meta_event_id: eventId,
+        booking_path: application ? 'application' : 'call',
         lead_source: 'hubspot_meetings',
         meeting_slug: details.meetingSlug ?? '(unknown)',
       });
@@ -118,7 +124,18 @@ export function BookingSection({ pageUrl, embedUrl }: BookingSectionProps) {
       ? application.qualified
         ? 'qualified'
         : 'declined'
-      : 'apply';
+      : path === 'call'
+        ? 'call'
+        : 'apply';
+
+  const showCalendar = state === 'qualified' || state === 'call' || state === 'booked';
+
+  const choosePath = (next: BookingPath) => {
+    if (next === path) return;
+    setPath(next);
+    if (next === 'call') setCalendarStarted(true);
+    trackLander(LANDER_EVENTS.bookingPathChosen, { booking_path: next });
+  };
 
   const prefilledEmbedUrl =
     embedUrl && application
@@ -131,6 +148,7 @@ export function BookingSection({ pageUrl, embedUrl }: BookingSectionProps) {
 
   const heading = {
     apply: BOOKING,
+    call: BOOKING.call,
     qualified: BOOKING.qualified,
     declined: BOOKING.declined,
     booked: BOOKING.booked,
@@ -142,12 +160,16 @@ export function BookingSection({ pageUrl, embedUrl }: BookingSectionProps) {
         <EyebrowHeading category="06" label={heading.eyebrow} />
         <h2 className={H2_CLASS}>{heading.h2}</h2>
 
+        {(state === 'apply' || state === 'call') && <PathSwitch value={path} onChange={choosePath} />}
+
         {state === 'apply' && (
           <>
             <p className={BODY_CLASS}>{BOOKING.intro}</p>
             <ApplicationForm onSubmit={handleApply} submitting={submitting} />
           </>
         )}
+
+        {state === 'call' && <p className={BODY_CLASS}>{BOOKING.call.body}</p>}
 
         {state === 'declined' && <p className={BODY_CLASS}>{BOOKING.declined.body}</p>}
 
@@ -156,12 +178,20 @@ export function BookingSection({ pageUrl, embedUrl }: BookingSectionProps) {
         {state === 'booked' && (
           <>
             <p className={BODY_CLASS}>{BOOKING.booked.body}</p>
-            <p className={BODY_CLASS}>{BOOKING.booked.prepLine}</p>
+            <p className={BODY_CLASS}>
+              {application ? BOOKING.booked.prepLine : BOOKING.booked.prepLineNoApplication}
+            </p>
           </>
         )}
 
-        {(state === 'qualified' || state === 'booked') && (
-          <>
+        {(showCalendar || calendarStarted) && (
+          // Collapsed rather than display:none: HubSpot's calendar re-lays itself out at zero
+          // width when hidden and comes back broken.
+          <div
+            className={showCalendar ? 'contents' : 'h-0 overflow-hidden'}
+            aria-hidden={!showCalendar}
+            inert={!showCalendar}
+          >
             <HostCard />
             <div className="mt-1">
               {pageUrl && prefilledEmbedUrl ? (
@@ -174,10 +204,47 @@ export function BookingSection({ pageUrl, embedUrl }: BookingSectionProps) {
                 <SchedulerUnavailable />
               )}
             </div>
-          </>
+          </div>
         )}
       </div>
     </section>
+  );
+}
+
+type BookingPath = 'application' | 'call';
+
+/** Two-option switch: the application (default) or straight to the calendar. */
+function PathSwitch({ value, onChange }: { value: BookingPath; onChange: (next: BookingPath) => void }) {
+  const options: { id: BookingPath; label: string }[] = [
+    { id: 'application', label: BOOKING.pathSwitch.application },
+    { id: 'call', label: BOOKING.pathSwitch.call },
+  ];
+  return (
+    <div
+      role="radiogroup"
+      aria-label={BOOKING.pathSwitch.label}
+      className="grid w-full max-w-3xl grid-cols-2 gap-1 rounded-2xl border border-[#1a1512]/5 bg-[#ececec] p-1 sm:w-auto sm:max-w-none sm:self-start"
+    >
+      {options.map((option) => {
+        const selected = value === option.id;
+        return (
+          <button
+            key={option.id}
+            type="button"
+            role="radio"
+            aria-checked={selected}
+            onClick={() => onChange(option.id)}
+            className={`min-h-11 rounded-xl px-4 py-2 text-[15px] leading-snug transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5501]/60 sm:px-5 ${
+              selected
+                ? 'bg-white font-medium text-[#1a1512] shadow-[0_1px_2px_rgba(26,21,18,0.12)]'
+                : 'text-[#1a1512]/60 hover:text-[#1a1512]'
+            }`}
+          >
+            {option.label}
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
