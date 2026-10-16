@@ -2,10 +2,11 @@ import { DM_Mono, DM_Sans } from 'next/font/google';
 
 import { PricingShell } from '@/components/pricing/PricingShell';
 
+// Variable font, no weight list: one file covers every weight the page uses
+// (400–700), and gives the build a single font file to resolve.
 const dmSans = DM_Sans({
   subsets: ['latin'],
   variable: '--font-pricing-sans',
-  weight: ['400', '700'],
   display: 'swap',
 });
 
